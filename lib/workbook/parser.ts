@@ -45,6 +45,9 @@ const TARGET_HEADERS = {
   productType: ["Product Type"],
 } as const;
 
+/** Legacy multi-category column headers — never persisted in product raw. */
+const STRIP_RAW_HEADERS = new Set(["Rollover Phase", "Rollover", "Maximizer", "DMF"]);
+
 const HIDDEN_DEPENDENCIES = [
   "2nd last obs dates",
   "Sheet1",
@@ -224,6 +227,9 @@ function mapRowToProduct(category: ProductCategory, headers: string[], row: unkn
   }
 
   const raw = headers.reduce<Record<string, string | number | boolean | null>>((acc, header, headerIndex) => {
+    if (STRIP_RAW_HEADERS.has(header.trim())) {
+      return acc;
+    }
     acc[header] = (row[headerIndex] ?? null) as string | number | boolean | null;
     return acc;
   }, {});

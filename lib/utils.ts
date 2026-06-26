@@ -16,11 +16,18 @@ export function toLakhs(value: number) {
   return num / 100_000;
 }
 
+function indianDigits(value: number, digits: number) {
+  return Math.abs(value).toLocaleString("en-IN", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
 /** Format rupee amounts primarily in Crores for desk analytics. */
 export function formatCrores(value: number, digits = 2) {
   const cr = toCrores(value);
   const sign = cr < 0 ? "-" : "";
-  return `${sign}₹${Math.abs(cr).toFixed(digits)} Cr`;
+  return `${sign}₹${indianDigits(cr, digits)} Cr`;
 }
 
 export function formatCurrency(value: number, compact = true) {
@@ -29,13 +36,13 @@ export function formatCurrency(value: number, compact = true) {
   const absolute = Math.abs(num);
 
   if (compact && absolute >= 10_000_000) {
-    return `${sign}₹${(absolute / 10_000_000).toFixed(2)} Cr`;
+    return `${sign}₹${indianDigits(absolute / 10_000_000, 2)} Cr`;
   }
   if (compact && absolute >= 100_000) {
-    return `${sign}₹${(absolute / 100_000).toFixed(2)} L`;
+    return `${sign}₹${indianDigits(absolute / 100_000, 2)} L`;
   }
   if (compact && absolute >= 1_000) {
-    return `${sign}₹${(absolute / 1_000).toFixed(2)} K`;
+    return `${sign}₹${indianDigits(absolute / 1_000, 2)} K`;
   }
 
   return `${sign}₹${absolute.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -46,14 +53,21 @@ export function formatCroreLac(value: number) {
   const num = Number.isFinite(value) ? value : 0;
   const sign = num < 0 ? "-" : "";
   const abs = Math.abs(num);
-  if (abs >= 1_000_000_0) {
-    return `${sign}₹${(abs / 10_000_000).toFixed(abs >= 100_000_000 ? 0 : 1)} Cr`;
+  if (abs >= 10_000_000) {
+    const cr = abs / 10_000_000;
+    const digits = cr >= 100 ? 0 : 1;
+    return `${sign}₹${indianDigits(cr, digits)} Cr`;
   }
   if (abs >= 100_000) {
-    return `${sign}₹${(abs / 100_000).toFixed(0)} L`;
+    return `${sign}₹${indianDigits(abs / 100_000, 0)} L`;
   }
-  if (abs === 0) return "0";
+  if (abs === 0) return "₹0";
   return `${sign}₹${abs.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+
+/** Compact axis tick for Recharts — always shows ₹ with Indian grouping. */
+export function formatAxisMoney(value: number) {
+  return formatCroreLac(value);
 }
 
 export function formatPercent(value: number, digits = 1) {

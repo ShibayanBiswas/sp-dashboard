@@ -19,7 +19,9 @@ import {
   CrYAxis,
   PremiumGrid,
   RechartsPremiumTooltip,
+  barChartMargins,
   chartMargins,
+  horizontalBarMargins,
 } from "@/components/charts/chart-kit";
 import { ChartPanel, DataTable, Panel, SectionInfo, SectionTitle } from "@/components/layout/app-ui";
 import { SECTION_INFO } from "@/lib/section-info";
@@ -108,7 +110,7 @@ export function ScienceLab({
           <SectionInfo {...SECTION_INFO["an-coupon"]} />
           <ChartStage height="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={couponDist} margin={chartMargins}>
+              <BarChart data={couponDist} margin={barChartMargins}>
                 <defs>
                   <linearGradient id="couponGrad" x1="0" x2="0" y1="0" y2="1">
                     <stop offset="0%" stopColor="#c084fc" />
@@ -173,7 +175,7 @@ export function ScienceLab({
           <SectionInfo {...SECTION_INFO["an-underlying"]} />
           <ChartStage height="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={underlyings} layout="vertical" margin={{ ...chartMargins, left: 4 }}>
+              <BarChart data={underlyings} layout="vertical" margin={{ ...horizontalBarMargins, left: 96 }}>
                 <defs>
                   <linearGradient id="underlyingGrad" x1="0" x2="1" y1="0" y2="0">
                     <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.5} />
@@ -207,7 +209,7 @@ export function ScienceLab({
           <SectionInfo {...SECTION_INFO["an-tenor"]} />
           <ChartStage height="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={tenor} margin={chartMargins}>
+              <BarChart data={tenor} margin={barChartMargins}>
                 <defs>
                   <linearGradient id="tenorGrad" x1="0" x2="0" y1="0" y2="1">
                     <stop offset="0%" stopColor="#e879f9" />

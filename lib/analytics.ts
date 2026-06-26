@@ -1,6 +1,6 @@
-import { differenceInCalendarDays, format } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 
-import type { DashboardDataset, ProductCategory, ProductRecord } from "@/lib/types";
+import type { DashboardDataset, ProductRecord } from "@/lib/types";
 import { getLifecycleNotional, partitionByLifecycle, type LifecycleStatus } from "@/lib/product-lifecycle";
 import { classifyProtection, getCouponPercent } from "@/lib/product-utils";
 import { parseExcelishDate } from "@/lib/workbook/dates";
@@ -91,66 +91,6 @@ export function getMaturityLadder(products: ProductRecord[]) {
   }
 
   return [...buckets.entries()].map(([bucket, value]) => ({ bucket, value }));
-}
-
-export function getIssuerHeatmap(dataset: DashboardDataset) {
-  const issuerMap = new Map<string, Record<ProductCategory, number>>();
-  for (const product of dataset.products) {
-    const issuer = product.issuer || "Unknown issuer";
-    if (!issuerMap.has(issuer)) {
-      issuerMap.set(issuer, { Primary: 0 });
-    }
-    issuerMap.get(issuer)![product.category] += product.tradeAmount ?? 0;
-  }
-
-  return [...issuerMap.entries()]
-    .map(([issuer, exposures]) => ({ issuer, ...exposures }))
-    .sort((a, b) => b.Primary - a.Primary)
-    .slice(0, 8);
-}
-
-export function getCategoryRiskNotes(dataset: DashboardDataset) {
-  return dataset.categorySummaries.map((summary) => ({
-    category: summary.category,
-    note:
-      summary.principalProtectedShare < 0.35
-        ? "Higher downside sensitivity due to a lower principal-protected mix."
-        : summary.listedShare < 0.5
-          ? "Liquidity may depend on unlisted structures and issuer exits."
-          : "Relatively cleaner liquidity profile with more listed structures.",
-  }));
-}
-
-export function getProductTimeline(products: ProductRecord[]) {
-  return products
-    .map((product) => ({
-      product: product.name,
-      category: product.category,
-      maturity: parseExcelishDate(product.maturityRaw),
-      displayDate: product.maturityRaw
-        ? product.maturityRaw
-        : product.lastObservationDateRaw
-          ? product.lastObservationDateRaw
-          : "Unknown",
-      tradeAmount: product.tradeAmount ?? 0,
-    }))
-    .sort((a, b) => {
-      if (!a.maturity && !b.maturity) {
-        return b.tradeAmount - a.tradeAmount;
-      }
-      if (!a.maturity) {
-        return 1;
-      }
-      if (!b.maturity) {
-        return -1;
-      }
-      return a.maturity.getTime() - b.maturity.getTime();
-    })
-    .slice(0, 10)
-    .map((item) => ({
-      ...item,
-      maturityLabel: item.maturity ? format(item.maturity, "dd MMM yyyy") : item.displayDate,
-    }));
 }
 
 const LIFECYCLE_COLORS: Record<LifecycleStatus, string> = {
@@ -264,29 +204,6 @@ export function getTenorDistribution(products: ProductRecord[]) {
   }
 
   return [...buckets.entries()].map(([bucket, value]) => ({ bucket, value }));
-}
-
-export function getCategoryRadar(dataset: DashboardDataset) {
-  return dataset.categorySummaries.map((summary) => ({
-    category: summary.category,
-    notional: summary.liveNotional / 1e7,
-    coupon: summary.averageCoupon * 10,
-    listed: summary.listedShare * 100,
-    protected: summary.principalProtectedShare * 100,
-    depth: summary.productCount / 10,
-  }));
-}
-
-export function getNotionalScatter(products: ProductRecord[]) {
-  return products
-    .filter((p) => p.tradeAmount && p.couponPercent !== undefined)
-    .slice(0, 120)
-    .map((p) => ({
-      name: p.name.slice(0, 20),
-      notional: (p.tradeAmount ?? 0) / 1e7,
-      coupon: p.couponPercent ?? 0,
-      category: p.category,
-    }));
 }
 
 export function getExpiredVsOngoingTable(products: ProductRecord[]) {

@@ -465,7 +465,6 @@ Valuation marks depend on payoff formula, but **credit risk** sits with the issu
 
 ## 16. Cell Mapping Encyclopedia
 
-
 ### H12 — Product identity resolution
 
 Excel models the Primary valuation desk as a chain of dependent cells. **H12** participates in `Product identity resolution` within the Actual/working valuation pair. The web app binds equivalent state in `product-selection-provider` (dates, index levels, identity) and recomputes via `computeValuation()` whenever inputs change — no manual F9.
@@ -473,7 +472,6 @@ Excel models the Primary valuation desk as a chain of dependent cells. **H12** p
 Understanding **H12** helps when a client challenges a mark: trace identity → entry → current index → Z → formula → rupee amount. If Excel and web diverge, first compare val-date Nifty/Sensex defaults, then confirm the product’s `Formulae` string matches the master row.
 
 Auditors should screenshot **H12** from Excel and the matching web output field during UAT sign-off.
-
 
 ### H14 — Valuation date anchor
 
@@ -483,7 +481,6 @@ Understanding **H14** helps when a client challenges a mark: trace identity → 
 
 Auditors should screenshot **H14** from Excel and the matching web output field during UAT sign-off.
 
-
 ### H16 — Val-date Nifty level
 
 Excel models the Primary valuation desk as a chain of dependent cells. **H16** participates in `Val-date Nifty level` within the Actual/working valuation pair. The web app binds equivalent state in `product-selection-provider` (dates, index levels, identity) and recomputes via `computeValuation()` whenever inputs change — no manual F9.
@@ -491,7 +488,6 @@ Excel models the Primary valuation desk as a chain of dependent cells. **H16** p
 Understanding **H16** helps when a client challenges a mark: trace identity → entry → current index → Z → formula → rupee amount. If Excel and web diverge, first compare val-date Nifty/Sensex defaults, then confirm the product’s `Formulae` string matches the master row.
 
 Auditors should screenshot **H16** from Excel and the matching web output field during UAT sign-off.
-
 
 ### H17 — Val-date Sensex level
 
@@ -501,7 +497,6 @@ Understanding **H17** helps when a client challenges a mark: trace identity → 
 
 Auditors should screenshot **H17** from Excel and the matching web output field during UAT sign-off.
 
-
 ### M6 — Product value output
 
 Excel models the Primary valuation desk as a chain of dependent cells. **M6** participates in `Product value output` within the Actual/working valuation pair. The web app binds equivalent state in `product-selection-provider` (dates, index levels, identity) and recomputes via `computeValuation()` whenever inputs change — no manual F9.
@@ -509,7 +504,6 @@ Excel models the Primary valuation desk as a chain of dependent cells. **M6** pa
 Understanding **M6** helps when a client challenges a mark: trace identity → entry → current index → Z → formula → rupee amount. If Excel and web diverge, first compare val-date Nifty/Sensex defaults, then confirm the product’s `Formulae` string matches the master row.
 
 Auditors should screenshot **M6** from Excel and the matching web output field during UAT sign-off.
-
 
 ### N6 — Absolute return
 
@@ -519,7 +513,6 @@ Understanding **N6** helps when a client challenges a mark: trace identity → e
 
 Auditors should screenshot **N6** from Excel and the matching web output field during UAT sign-off.
 
-
 ### O6 — Product IRR
 
 Excel models the Primary valuation desk as a chain of dependent cells. **O6** participates in `Product IRR` within the Actual/working valuation pair. The web app binds equivalent state in `product-selection-provider` (dates, index levels, identity) and recomputes via `computeValuation()` whenever inputs change — no manual F9.
@@ -527,7 +520,6 @@ Excel models the Primary valuation desk as a chain of dependent cells. **O6** pa
 Understanding **O6** helps when a client challenges a mark: trace identity → entry → current index → Z → formula → rupee amount. If Excel and web diverge, first compare val-date Nifty/Sensex defaults, then confirm the product’s `Formulae` string matches the master row.
 
 Auditors should screenshot **O6** from Excel and the matching web output field during UAT sign-off.
-
 
 ### Working!M — Current level pick by underlying
 
@@ -537,7 +529,6 @@ Understanding **Working!M** helps when a client challenges a mark: trace identit
 
 Auditors should screenshot **Working!M** from Excel and the matching web output field during UAT sign-off.
 
-
 ### Working!Z — Z performance column
 
 Excel models the Primary valuation desk as a chain of dependent cells. **Working!Z** participates in `Z performance column` within the Actual/working valuation pair. The web app binds equivalent state in `product-selection-provider` (dates, index levels, identity) and recomputes via `computeValuation()` whenever inputs change — no manual F9.
@@ -545,7 +536,6 @@ Excel models the Primary valuation desk as a chain of dependent cells. **Working
 Understanding **Working!Z** helps when a client challenges a mark: trace identity → entry → current index → Z → formula → rupee amount. If Excel and web diverge, first compare val-date Nifty/Sensex defaults, then confirm the product’s `Formulae` string matches the master row.
 
 Auditors should screenshot **Working!Z** from Excel and the matching web output field during UAT sign-off.
-
 
 ### Product List — Full Primary register
 
@@ -576,6 +566,39 @@ When onboarding new analysts, walk through: (1) identity resolution, (2) which i
 | Selection | `product-selection-provider.tsx` | Holds val inputs |
 | Engine | `valuation-engine.ts` | Computes marks |
 | UI | `unified-valuation.tsx` | Renders tabs |
+
+---
+
+## 17. Valuation Sensitivity Matrix (Desk Reference)
+
+When validating a mark, change **one input at a time** and record the web output beside Excel:
+
+| Input moved | Expected Z behaviour | Expected rupee behaviour |
+|-------------|----------------------|---------------------------|
+| Nifty +1% (Nifty underlying) | Z increases proportionally | Product value rises if formula is long delta |
+| Sensex +1% (Sensex underlying) | Unchanged for Nifty names | No change — confirms index routing |
+| Val date +30 days | Z unchanged | IRR may shift as remaining tenor shortens |
+| Debentures ×2 | Z unchanged | Product value & total amount ×2 |
+
+---
+
+## 18. Rupee Display Rules on Valuation Page
+
+All rupee fields use `formatCrores` or `formatNumber` with **`en-IN` commas** and **₹**. Index levels use grouped thousands; crore amounts show two decimal places unless the bar chart axis uses one decimal for legibility.
+
+---
+
+## 19. API Contract (`POST /api/valuation`)
+
+Request: product id, valuation date, niftyLevel, sensexLevel, debentures. Response: numeric JSON — UI formats for display. Single code path via `computeValuation()`; no cached Excel cells.
+
+---
+
+## 20. UAT Sign-Off Template
+
+1. ISIN **INE915D07IS7**, val date **31-May-2026**, Nifty **23547.75**.
+2. Compare Z, abs return, IRR to Excel within **0.01%**.
+3. Repeat one Sensex name with Sensex **74775.74** only.
 
 ---
 

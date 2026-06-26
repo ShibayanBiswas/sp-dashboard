@@ -552,7 +552,6 @@ flowchart LR
 
 ## 15. Column Encyclopedia (Primary Sheet)
 
-
 ### Month
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Month** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Month']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -560,7 +559,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Month** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Month** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Month**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Trade Date/Opening date
 
@@ -570,7 +568,6 @@ When **Trade Date/Opening date** changes in a reuploaded master, the bootstrap p
 
 Desk tip: if client-facing copy references **Trade Date/Opening date**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Name on Signup Form
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Name on Signup Form** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Name on Signup Form']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -578,7 +575,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Name on Signup Form** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Name on Signup Form** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Name on Signup Form**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Underlying
 
@@ -588,7 +584,6 @@ When **Underlying** changes in a reuploaded master, the bootstrap pipeline recom
 
 Desk tip: if client-facing copy references **Underlying**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Series
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Series** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Series']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -596,7 +591,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Series** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Series** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Series**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Issuer
 
@@ -606,7 +600,6 @@ When **Issuer** changes in a reuploaded master, the bootstrap pipeline recompute
 
 Desk tip: if client-facing copy references **Issuer**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### ISIN No.
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **ISIN No.** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['ISIN No.']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -614,7 +607,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **ISIN No.** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **ISIN No.** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **ISIN No.**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Actual Entry Level
 
@@ -624,7 +616,6 @@ When **Actual Entry Level** changes in a reuploaded master, the bootstrap pipeli
 
 Desk tip: if client-facing copy references **Actual Entry Level**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Target Nifty
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Target Nifty** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Target Nifty']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -632,7 +623,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Target Nifty** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Target Nifty** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Target Nifty**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Average 1
 
@@ -642,7 +632,6 @@ When **Average 1** changes in a reuploaded master, the bootstrap pipeline recomp
 
 Desk tip: if client-facing copy references **Average 1**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Avg. 2
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Avg. 2** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Avg. 2']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -650,7 +639,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Avg. 2** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Avg. 2** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Avg. 2**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Avg. 3
 
@@ -660,7 +648,6 @@ When **Avg. 3** changes in a reuploaded master, the bootstrap pipeline recompute
 
 Desk tip: if client-facing copy references **Avg. 3**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Avg. 4
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Avg. 4** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Avg. 4']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -668,7 +655,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Avg. 4** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Avg. 4** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Avg. 4**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Avg. 5
 
@@ -678,7 +664,6 @@ When **Avg. 5** changes in a reuploaded master, the bootstrap pipeline recompute
 
 Desk tip: if client-facing copy references **Avg. 5**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Avg. 6
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Avg. 6** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Avg. 6']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -686,7 +671,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Avg. 6** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Avg. 6** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Avg. 6**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Avg. 7
 
@@ -696,7 +680,6 @@ When **Avg. 7** changes in a reuploaded master, the bootstrap pipeline recompute
 
 Desk tip: if client-facing copy references **Avg. 7**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Observation Months
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Observation Months** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Observation Months']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -704,7 +687,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Observation Months** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Observation Months** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Observation Months**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Last Observation Date
 
@@ -714,7 +696,6 @@ When **Last Observation Date** changes in a reuploaded master, the bootstrap pip
 
 Desk tip: if client-facing copy references **Last Observation Date**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Trade Amount
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Trade Amount** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Trade Amount']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -722,7 +703,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Trade Amount** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Trade Amount** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Trade Amount**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Maturity
 
@@ -732,7 +712,6 @@ When **Maturity** changes in a reuploaded master, the bootstrap pipeline recompu
 
 Desk tip: if client-facing copy references **Maturity**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Product Type
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Product Type** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Product Type']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -740,7 +719,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Product Type** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Product Type** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Product Type**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Principal Protection
 
@@ -750,7 +728,6 @@ When **Principal Protection** changes in a reuploaded master, the bootstrap pipe
 
 Desk tip: if client-facing copy references **Principal Protection**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Listing
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Listing** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Listing']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -758,7 +735,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Listing** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Listing** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Listing**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Formulae
 
@@ -768,7 +744,6 @@ When **Formulae** changes in a reuploaded master, the bootstrap pipeline recompu
 
 Desk tip: if client-facing copy references **Formulae**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Product Explanation
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Product Explanation** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Product Explanation']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -776,7 +751,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Product Explanation** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Product Explanation** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Product Explanation**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Allotment Date
 
@@ -786,7 +760,6 @@ When **Allotment Date** changes in a reuploaded master, the bootstrap pipeline r
 
 Desk tip: if client-facing copy references **Allotment Date**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### POED
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **POED** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['POED']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -794,7 +767,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **POED** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **POED** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **POED**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Coupon / PR / DM
 
@@ -804,7 +776,6 @@ When **Coupon / PR / DM** changes in a reuploaded master, the bootstrap pipeline
 
 Desk tip: if client-facing copy references **Coupon / PR / DM**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Coupon (%)
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Coupon (%)** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Coupon (%)']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -812,7 +783,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Coupon (%)** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Coupon (%)** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Coupon (%)**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Tenor
 
@@ -822,7 +792,6 @@ When **Tenor** changes in a reuploaded master, the bootstrap pipeline recomputes
 
 Desk tip: if client-facing copy references **Tenor**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### price per debenture
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **price per debenture** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['price per debenture']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -830,7 +799,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **price per debenture** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **price per debenture** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **price per debenture**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Classification based on tenor
 
@@ -840,7 +808,6 @@ When **Classification based on tenor** changes in a reuploaded master, the boots
 
 Desk tip: if client-facing copy references **Classification based on tenor**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Arranger Fees (%)
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Arranger Fees (%)** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Arranger Fees (%)']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -848,7 +815,6 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Arranger Fees (%)** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Arranger Fees (%)** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Arranger Fees (%)**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-
 
 ### Upfront fees (%)
 
@@ -858,7 +824,6 @@ When **Upfront fees (%)** changes in a reuploaded master, the bootstrap pipeline
 
 Desk tip: if client-facing copy references **Upfront fees (%)**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Arranger Fees (Rs.)
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Arranger Fees (Rs.)** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Arranger Fees (Rs.)']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -867,7 +832,6 @@ When **Arranger Fees (Rs.)** changes in a reuploaded master, the bootstrap pipel
 
 Desk tip: if client-facing copy references **Arranger Fees (Rs.)**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
 
-
 ### Upfront fees (Rs.)
 
 This field appears on every valid Primary row in `New Product Master_.xlsx`. Analysts use **Upfront fees (Rs.)** when reviewing trade tickets, client statements, or payoff confirmations. In the SP Dashboard, the value is ingested by `parser.ts` via header alias matching (`TARGET_HEADERS`) and stored on `ProductRecord.raw['Upfront fees (Rs.)']` at minimum. Typed fields (name, ISIN, formula, etc.) lift the most decision-critical columns into strongly-typed properties so React pages can bind inputs and KPIs without dynamic key lookups.
@@ -875,4 +839,3 @@ This field appears on every valid Primary row in `New Product Master_.xlsx`. Ana
 When **Upfront fees (Rs.)** changes in a reuploaded master, the bootstrap pipeline recomputes category summaries, lifecycle partitions, and formula catalogs automatically. Empty **Upfront fees (Rs.)** cells are allowed unless the column is required for identity (`Name on Signup Form`) or payoff (`Formulae`). Validation warnings surface missing key headers but never silently coerce blank cells into zero — a deliberate choice to mirror Excel’s visible empties.
 
 Desk tip: if client-facing copy references **Upfront fees (Rs.)**, verify the same header string exists in row 2 of the Primary sheet; renamed headers break alias resolution until `TARGET_HEADERS` is extended.
-

@@ -426,7 +426,6 @@ After master reupload, spot-check one product against Excel **Non PP SP Details*
 
 ## 16. Scenario Row Encyclopedia
 
-
 ### Scenario: +100% underlying
 
 The Automated Primary SP Dashboard prints payoff rows for sweeps like **+100% underlying**. Each row shows Final Fixing, Underlying Performance, Product Returns, and XIRR. The web `buildPayoffScenarioTable()` reproduces this grid using the same Z → formula pipeline as valuation, but anchored on forward final fixing rather than mark-to-market date.
@@ -434,7 +433,6 @@ The Automated Primary SP Dashboard prints payoff rows for sweeps like **+100% un
 For **+100% underlying**, compare Excel row shading (0% anchor, cap rows) with the highlighted row in the web Product Payoff table. Maturity value is expressed as percent return on principal; multiply by face value × debentures for rupee maturity proceeds.
 
 Client decks should cite **+100% underlying** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
-
 
 ### Scenario: +50%
 
@@ -444,7 +442,6 @@ For **+50%**, compare Excel row shading (0% anchor, cap rows) with the highlight
 
 Client decks should cite **+50%** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
 
-
 ### Scenario: +37% cap region
 
 The Automated Primary SP Dashboard prints payoff rows for sweeps like **+37% cap region**. Each row shows Final Fixing, Underlying Performance, Product Returns, and XIRR. The web `buildPayoffScenarioTable()` reproduces this grid using the same Z → formula pipeline as valuation, but anchored on forward final fixing rather than mark-to-market date.
@@ -452,7 +449,6 @@ The Automated Primary SP Dashboard prints payoff rows for sweeps like **+37% cap
 For **+37% cap region**, compare Excel row shading (0% anchor, cap rows) with the highlighted row in the web Product Payoff table. Maturity value is expressed as percent return on principal; multiply by face value × debentures for rupee maturity proceeds.
 
 Client decks should cite **+37% cap region** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
-
 
 ### Scenario: 0% anchor
 
@@ -462,7 +458,6 @@ For **0% anchor**, compare Excel row shading (0% anchor, cap rows) with the high
 
 Client decks should cite **0% anchor** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
 
-
 ### Scenario: -15% protection floor
 
 The Automated Primary SP Dashboard prints payoff rows for sweeps like **-15% protection floor**. Each row shows Final Fixing, Underlying Performance, Product Returns, and XIRR. The web `buildPayoffScenarioTable()` reproduces this grid using the same Z → formula pipeline as valuation, but anchored on forward final fixing rather than mark-to-market date.
@@ -471,7 +466,6 @@ For **-15% protection floor**, compare Excel row shading (0% anchor, cap rows) w
 
 Client decks should cite **-15% protection floor** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
 
-
 ### Scenario: -30% accelerated loss
 
 The Automated Primary SP Dashboard prints payoff rows for sweeps like **-30% accelerated loss**. Each row shows Final Fixing, Underlying Performance, Product Returns, and XIRR. The web `buildPayoffScenarioTable()` reproduces this grid using the same Z → formula pipeline as valuation, but anchored on forward final fixing rather than mark-to-market date.
@@ -479,7 +473,6 @@ The Automated Primary SP Dashboard prints payoff rows for sweeps like **-30% acc
 For **-30% accelerated loss**, compare Excel row shading (0% anchor, cap rows) with the highlighted row in the web Product Payoff table. Maturity value is expressed as percent return on principal; multiply by face value × debentures for rupee maturity proceeds.
 
 Client decks should cite **-30% accelerated loss** alongside the narrative panel so non-quants grasp upside cap and downside floor in plain language.
-
 
 ### Scenario: -40% stress
 
@@ -510,6 +503,35 @@ Formula text never renders in the UI — clients see explanation prose and numer
 | Scenarios | Product Payoff grid | Product Payoff table |
 | Chart | Embedded graph | PayoffCurvePanel |
 | Formula | Hidden cell | `formula-engine.ts` |
+
+---
+
+## 17. Payoff Curve Interpretation Guide
+
+Read the chart in four zones: deep loss (floor/acceleration), anchor near 0%, participation slope, cap flattening. Rupee proceeds = `(1 + maturityReturn%) × face × debentures`.
+
+---
+
+## 18. Product Specifications Panel
+
+Mirrors Excel header block — ISIN, issuer, underlying, fixings, tenor, protection, listing — with Indian number grouping on index fields.
+
+---
+
+## 19. Extended Scenario ↔ Excel Row Map
+
+| Offset | Client talking point |
+|--------|----------------------|
+| +100% | Bull / cap test |
+| 0% | Unchanged market |
+| −15% | Partial protection floor |
+| −40% | Stress tail for risk committee |
+
+---
+
+## 20. Rupee Formatting on Payoff Surfaces
+
+Fixings: `formatNumber`. Returns/XIRR: `formatPercent`. Chart tooltips match Analytics Lab — no scientific notation.
 
 ---
 

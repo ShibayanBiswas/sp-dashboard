@@ -6,6 +6,7 @@ out
 *.log
 .env
 .env.local
+tsconfig.tsbuildinfo
 
 # Local Excel masters (keep on disk; not versioned)
 *.xlsx

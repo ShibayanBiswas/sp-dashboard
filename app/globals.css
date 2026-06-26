@@ -145,10 +145,6 @@ textarea {
     @apply text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-300/80;
   }
 
-  .chart-shell {
-    @apply rounded-2xl border border-white/10 bg-black/20;
-  }
-
   .chart-tooltip {
     @apply rounded-2xl border border-cyan-500/30 bg-slate-950/95 px-4 py-3 shadow-2xl backdrop-blur-xl;
   }
@@ -449,7 +445,11 @@ textarea {
   }
 
   .chart-shell {
-    @apply relative overflow-hidden rounded-2xl border border-white/10 bg-black/20;
+    @apply relative overflow-visible rounded-2xl border border-white/10 bg-black/20;
+  }
+
+  .chart-shell-inner {
+    @apply relative h-full w-full overflow-hidden rounded-2xl;
   }
 
   .chart-shell::before {

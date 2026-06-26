@@ -5,9 +5,16 @@ import { motion } from "framer-motion";
 import { CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
 
 import { chartTheme } from "@/lib/chart-theme";
-import { formatCroreLac, formatCrores, formatPercent, toCrores } from "@/lib/utils";
+import { formatAxisMoney, formatCroreLac, formatCrores, formatPercent } from "@/lib/utils";
 
-export const chartMargins = { top: 20, right: 24, left: 10, bottom: 12 };
+/** Default margins — left gutter sized for ₹ axis labels (never clip). */
+export const chartMargins = { top: 18, right: 20, left: 72, bottom: 8 };
+
+/** Bar charts with category X-axis + money Y-axis (maturity ladder, tenor, coupon). */
+export const barChartMargins = { top: 18, right: 20, left: 76, bottom: 36 };
+
+/** Horizontal bar charts (underlying exposure). */
+export const horizontalBarMargins = { top: 12, right: 24, left: 8, bottom: 12 };
 
 export function PremiumGrid({ vertical = true }: { vertical?: boolean }) {
   return (
@@ -29,7 +36,7 @@ const crAxisLabel = {
 
 export function CrYAxis({
   dataKey = "value",
-  width = 64,
+  width = 72,
   ...props
 }: {
   dataKey?: string;
@@ -40,9 +47,9 @@ export function CrYAxis({
       {...props}
       axisLine={{ stroke: chartTheme.axisLine }}
       dataKey={dataKey}
-      label={{ ...crAxisLabel, angle: -90, position: "insideLeft", offset: 2 }}
+      label={{ ...crAxisLabel, angle: -90, position: "insideLeft", offset: 8, dx: -8 }}
       tick={{ fill: chartTheme.tick, fontSize: 10, fontWeight: 600 }}
-      tickFormatter={(v) => `${toCrores(Number(v)).toFixed(1)}`}
+      tickFormatter={(v) => formatAxisMoney(Number(v))}
       tickLine={{ stroke: chartTheme.axisLine }}
       width={width}
     />
@@ -61,7 +68,7 @@ export function CrXAxis({
       height={48}
       label={{ ...crAxisLabel, position: "insideBottom", offset: -2 }}
       tick={{ fill: chartTheme.tick, fontSize: 10, fontWeight: 600 }}
-      tickFormatter={(v) => `${toCrores(Number(v)).toFixed(1)}`}
+      tickFormatter={(v) => formatAxisMoney(Number(v))}
       tickLine={{ stroke: chartTheme.axisLine }}
     />
   );
@@ -135,18 +142,19 @@ export function DiagonalCategoryAxis({
   );
 }
 
-/** Value Y-axis that adapts ticks between ₹ Lac and ₹ Cr, drawn diagonally. */
+/** Value Y-axis — horizontal ₹ ticks with Indian comma grouping (maturity ladder). */
 export function CroreLacYAxis({
   title = "Notional (₹ Lac / Cr)",
-  width = 78,
+  width = 76,
   ...props
 }: { title?: string; width?: number } & React.ComponentProps<typeof YAxis>) {
   return (
     <YAxis
       {...props}
       axisLine={{ stroke: chartTheme.axisLine }}
-      label={axisTitle(title, "insideLeft")}
-      tick={<DiagonalTick anchorEnd angle={-28} formatter={(v) => formatCroreLac(Number(v))} />}
+      label={{ ...axisTitle(title, "insideLeft"), offset: 8, dx: -6 }}
+      tick={{ fill: chartTheme.tick, fontSize: 10, fontWeight: 600 }}
+      tickFormatter={(v) => formatCroreLac(Number(v))}
       tickLine={{ stroke: chartTheme.axisLine }}
       width={width}
     />
@@ -232,11 +240,13 @@ export function ChartStage({
       initial={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
     >
-      <div className="chart-shell-grid pointer-events-none absolute inset-0" />
-      <div className="chart-shell-scanline" />
-      <div className="chart-shell-corner chart-shell-corner-tl" />
-      <div className="chart-shell-corner chart-shell-corner-br" />
-      <div className="relative z-10 h-full w-full">{children}</div>
+      <div className="chart-shell-inner">
+        <div className="chart-shell-grid pointer-events-none absolute inset-0" />
+        <div className="chart-shell-scanline" />
+        <div className="chart-shell-corner chart-shell-corner-tl" />
+        <div className="chart-shell-corner chart-shell-corner-br" />
+        <div className="relative z-10 h-full w-full pl-1">{children}</div>
+      </div>
     </motion.div>
   );
 }

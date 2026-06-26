@@ -16,9 +16,8 @@ import {
 } from "@/components/layout/app-ui";
 import { SECTION_INFO } from "@/lib/section-info";
 import { ProductCombobox } from "@/components/ui/product-combobox";
-import { ChartStage, CroreLacYAxis, DiagonalCategoryAxis, PremiumGrid, RechartsPremiumTooltip, chartMargins } from "@/components/charts/chart-kit";
+import { ChartStage, CroreLacYAxis, DiagonalCategoryAxis, PremiumGrid, RechartsPremiumTooltip, barChartMargins } from "@/components/charts/chart-kit";
 import { getMaturityLadder, getPortfolioHeadlineStats } from "@/lib/analytics";
-import { chartTheme, categoryNeon } from "@/lib/chart-theme";
 import {
   filterProductsByLifecycle,
   type LifecycleFilter,
@@ -113,14 +112,27 @@ export function DashboardShell() {
       <HorizontalBand className="mt-4">
         <ChartPanel glow="cyan" icon="chart" title="Maturity Ladder">
           <SectionInfo {...SECTION_INFO["home-maturity"]} />
-          <ChartStage height="h-56">
+          <ChartStage height="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={maturityLadder} margin={{ ...chartMargins, bottom: 28 }}>
+              <BarChart data={maturityLadder} margin={barChartMargins}>
+                <defs>
+                  <linearGradient id="maturityGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#22d3ee" />
+                    <stop offset="55%" stopColor="#06b6d4" />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.45} />
+                  </linearGradient>
+                </defs>
                 <PremiumGrid />
                 <DiagonalCategoryAxis dataKey="bucket" title="Maturity Window" />
-                <CroreLacYAxis />
+                <CroreLacYAxis title="Notional (₹ Lac / Cr)" />
                 <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
-                <Bar animationDuration={900} dataKey="value" fill={chartTheme.payoff} maxBarSize={48} radius={[6, 6, 0, 0]} />
+                <Bar
+                  animationDuration={900}
+                  dataKey="value"
+                  fill="url(#maturityGrad)"
+                  maxBarSize={52}
+                  radius={[10, 10, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartStage>
