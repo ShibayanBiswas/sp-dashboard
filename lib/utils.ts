@@ -111,6 +111,17 @@ export function formatAxisMoney(value: number) {
   return formatChartAxisMoney(value);
 }
 
+/** Display absolute return from formula engine (0.05 → 5%, 1 → 100%, capped for UI). */
+export function formatFormulaReturn(value: number, digits = 1) {
+  const num = Number.isFinite(value) ? value : 0;
+  const pct = num * 100;
+  const places = Math.min(Math.max(digits, 0), 3);
+  if (Math.abs(pct) > 500) {
+    return `${pct > 0 ? "" : "-"}500.${"0".repeat(places)}%+`;
+  }
+  return `${pct.toFixed(places)}%`;
+}
+
 export function formatPercent(value: number, digits = 1) {
   const num = Number.isFinite(value) ? value : 0;
   const pct = num * 100;

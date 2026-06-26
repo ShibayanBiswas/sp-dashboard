@@ -45,6 +45,7 @@ export const mainSections: MainNavItem[] = [
     match: (p) => p.startsWith("/portfolio"),
     subNav: [
       { href: "/portfolio/analytics", label: "Analytics Lab", match: (p) => p.startsWith("/portfolio/analytics") },
+      { href: "/portfolio/details", label: "Product Details", match: (p) => p.startsWith("/portfolio/details") || p === "/details" },
     ],
   },
   {
@@ -80,6 +81,7 @@ export function resolveNavSection(pathname: string): MainNavItem {
 export const commandRoutes = [
   { href: "/", label: "Home", group: "Navigate" },
   { href: "/portfolio/analytics", label: "Analytics Lab", group: "Portfolio" },
+  { href: "/portfolio/details", label: "Product Details", group: "Portfolio" },
   { href: "/desk", label: "Desk Command", group: "Desk" },
   { href: "/valuation", label: "Valuation", group: "Desk" },
   { href: "/payoff", label: "Payoff", group: "Desk" },

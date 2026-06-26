@@ -28,7 +28,7 @@ import {
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
-import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
+import { getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
 import {
@@ -72,7 +72,6 @@ export function UnifiedValuationDashboard() {
       valuationDate: selection.valuationDate,
       currentLevel,
       debentures: Number(selection.debentures) || 100,
-      purchasePrice: Number(selection.pricePerDebenture) || (product ? getDebenturePrice(product) : undefined),
     };
     return computeValuation(product, inputs);
   }, [product, selection]);

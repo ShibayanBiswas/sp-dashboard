@@ -29,11 +29,13 @@ import {
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
-import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import { MathZ } from "@/components/ui/math-text";
 import type { ProductRecord } from "@/lib/types";
 import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
-import { cn, formatCrores, formatNumber, formatPercent } from "@/lib/utils";
+import { evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
+import { irrFromReturn } from "@/lib/workbook/irr";
+import { cn, formatCrores, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
 
 const TABS = [
   { id: "details", label: "Non-PP SP Details" },
@@ -56,6 +58,16 @@ export function UnifiedPayoffDashboard() {
       ? selection.resolvedProduct
       : pool[0];
 
+  const marketMove = useMemo(() => {
+    if (!product) return 0;
+    const entry = getIndexEntryLevel(product);
+    const level = resolveValuationLevel(product, {
+      niftyLevel: Number(selection.niftyLevel) || undefined,
+      sensexLevel: Number(selection.sensexLevel) || undefined,
+    });
+    return entry > 0 ? level / entry - 1 : 0;
+  }, [product, selection.niftyLevel, selection.sensexLevel]);
+
   const scenarios = useMemo(() => {
     if (!product?.formulaText) return [];
     return buildPayoffScenarioTable(product, {
@@ -65,7 +77,21 @@ export function UnifiedPayoffDashboard() {
     });
   }, [product, selection.debentures, selection.pricePerDebenture]);
 
-  const anchor = scenarios.find((r) => Math.abs(r.performance) < 0.001) ?? scenarios[Math.floor(scenarios.length / 2)];
+  const currentPayoff = useMemo(() => {
+    if (!product?.formulaText) return { returnOnInvestment: 0, irr: 0 };
+    const ret = evaluatePayoffFormula(product.formulaText, marketMove);
+    const irr = irrFromReturn(ret, getPayoffTenorDays(product));
+    return { returnOnInvestment: ret, irr };
+  }, [product, marketMove]);
+
+  const targetDisplay = useMemo(() => {
+    if (!product) return "—";
+    const target = getTargetLevel(product);
+    if (target) return formatNumber(target);
+    const raw = rawField(product, "Target Nifty", "Target Level");
+    if (raw) return raw;
+    return "—";
+  }, [product]);
 
   return (
     <AppPage dense title="Payoff">
@@ -96,7 +122,14 @@ export function UnifiedPayoffDashboard() {
       </HorizontalBand>
 
       {tab === "details" ? (
-        <NonPpSpDetails anchor={anchor} pool={pool} product={product} scenarios={scenarios} />
+        <NonPpSpDetails
+          currentPayoff={currentPayoff}
+          marketMove={marketMove}
+          pool={pool}
+          product={product}
+          scenarios={scenarios}
+          targetDisplay={targetDisplay}
+        />
       ) : null}
       {tab === "search" ? <ProductSearchTab products={pool} selectedId={product?.rowId} /> : null}
     </AppPage>
@@ -104,15 +137,19 @@ export function UnifiedPayoffDashboard() {
 }
 
 function NonPpSpDetails({
-  anchor,
+  currentPayoff,
+  marketMove,
   pool,
   product,
   scenarios,
+  targetDisplay,
 }: {
-  anchor: ReturnType<typeof buildPayoffScenarioTable>[number] | undefined;
+  currentPayoff: { returnOnInvestment: number; irr: number };
+  marketMove: number;
   pool: ProductRecord[];
   product?: ProductRecord;
   scenarios: ReturnType<typeof buildPayoffScenarioTable>;
+  targetDisplay: string;
 }) {
   return (
     <>
@@ -134,12 +171,12 @@ function NonPpSpDetails({
               accents={["cyan", "purple", "green", "amber"]}
               items={[
                 { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
+                { label: "Target Level", value: targetDisplay },
                 {
-                  label: "Target Level",
-                  value: String(getTargetLevel(product) ?? rawField(product, "Target Level") ?? "—"),
+                  label: `Return @ ${formatFormulaReturn(marketMove, 0)} move`,
+                  value: formatFormulaReturn(currentPayoff.returnOnInvestment),
                 },
-                { label: "Scenario Return", value: formatPercent(anchor?.returnOnInvestment ?? 0) },
-                { label: "Scenario IRR", value: formatPercent(anchor?.irr ?? 0) },
+                { label: "XIRR @ current move", value: formatPercent(currentPayoff.irr, 2) },
               ]}
             />
           </HorizontalBand>
@@ -154,7 +191,12 @@ function NonPpSpDetails({
 
           {product.formulaText ? (
             <HorizontalBand className="mt-4">
-              <PayoffCurvePanel entryLevel={getIndexEntryLevel(product)} formula={product.formulaText} title={product.name} />
+              <PayoffCurvePanel
+                entryLevel={getIndexEntryLevel(product)}
+                formula={product.formulaText}
+                marketMove={marketMove}
+                title={product.name}
+              />
             </HorizontalBand>
           ) : null}
 
@@ -177,13 +219,13 @@ function NonPpSpDetails({
                   </thead>
                   <tbody>
                     {scenarios.map((row) => {
-                      const isAnchor = Math.abs(row.performance) < 0.001;
+                      const isAnchor = Math.abs(row.performance - marketMove) < 0.04;
                       return (
                         <tr key={row.performance} className={isAnchor ? "bg-cyan-500/10 font-semibold" : undefined}>
                           <td>{formatNumber(row.finalFixing)}</td>
                           <td>{formatPercent(row.performance)}</td>
-                          <td>{formatPercent(row.maturityValue)}</td>
-                          <td>{formatPercent(row.irr)}</td>
+                          <td>{formatFormulaReturn(row.maturityValue)}</td>
+                          <td>{formatPercent(row.irr, 2)}</td>
                         </tr>
                       );
                     })}

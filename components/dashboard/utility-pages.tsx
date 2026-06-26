@@ -31,7 +31,7 @@ import { useDataset } from "@/lib/context/dataset-provider";
 import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
-import { formatCrores, formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
+import { formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
 
 export function ProductSearchPage() {
   const { dataset } = useDataset();
@@ -324,7 +324,7 @@ export function ProductDetailsPage() {
                       <tr key={row.performance}>
                         <td>{formatNumber(row.finalFixing)}</td>
                         <td>{formatPercent(row.z)}</td>
-                        <td>{formatPercent(row.maturityValue)}</td>
+                        <td>{formatFormulaReturn(row.maturityValue)}</td>
                         <td>{formatPercent(row.irr)}</td>
                       </tr>
                     ))}

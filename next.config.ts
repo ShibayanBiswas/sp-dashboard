@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/products", destination: "/portfolio/analytics", permanent: true },
-      { source: "/details", destination: "/valuation", permanent: true },
-      { source: "/primary-details", destination: "/valuation", permanent: true },
+      { source: "/details", destination: "/portfolio/details", permanent: true },
+      { source: "/primary-details", destination: "/portfolio/details", permanent: true },
       { source: "/primary-output", destination: "/valuation", permanent: true },
       { source: "/reference", destination: "/intelligence", permanent: true },
       { source: "/category/:cat/valuation", destination: "/valuation", permanent: true },

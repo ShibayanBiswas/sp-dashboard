@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 
 import type { ProductRecord } from "@/lib/types";
 import { getProductOverview, parseExplanationBlocks } from "@/lib/product-narrative";
+import { getCouponLabel } from "@/lib/product-utils";
 import { categoryNeon } from "@/lib/chart-theme";
-import { formatCurrency, formatPercent } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 export function ProductNarrative({
   product,
@@ -16,6 +17,7 @@ export function ProductNarrative({
 }) {
   const overview = getProductOverview(product);
   const blocks = parseExplanationBlocks(overview.explanation);
+  const couponLabel = getCouponLabel(product);
 
   return (
     <motion.div
@@ -109,9 +111,9 @@ export function ProductNarrative({
             <strong className="text-cyan-300">Notional:</strong> <em>{formatCurrency(product.tradeAmount)}</em>
           </span>
         ) : null}
-        {product.couponPercent !== undefined ? (
+        {couponLabel ? (
           <span>
-            <strong className="text-purple-300">Coupon:</strong> <em>{formatPercent(product.couponPercent)}</em>
+            <strong className="text-purple-300">Coupon / PR:</strong> <em>{couponLabel}</em>
           </span>
         ) : null}
       </div>

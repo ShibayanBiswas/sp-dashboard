@@ -1,4 +1,5 @@
 import type { ProductCategory, ProductRecord } from "@/lib/types";
+import { formatFormulaReturn } from "@/lib/utils";
 
 export function rawField(product: ProductRecord | undefined, ...keys: string[]) {
   if (!product) {
@@ -43,16 +44,32 @@ export function getEntryLevel(product: ProductRecord) {
   return getPayoffEntryLevel(product);
 }
 
+export function getCouponLabel(product: ProductRecord): string | undefined {
+  const raw = rawField(product, "Coupon / PR / DM", "Coupon (%)", "Product return");
+  if (raw?.trim()) return raw.trim();
+  const parsed = getCouponPercent(product);
+  if (parsed !== undefined) return formatFormulaReturn(parsed);
+  return undefined;
+}
+
 export function getTargetLevel(product: ProductRecord) {
-  return parseNumericField(rawField(product, "Target Level", "Final Observation Level"));
+  return parseNumericField(rawField(product, "Target Level", "Final Observation Level", "Target Nifty"));
+}
+
+export function getClientInvestment(product: ProductRecord) {
+  const explicitFace = parseNumericField(
+    rawField(product, "Face Value", "Initial Investment (Rs.)", "Initial Investment"),
+  );
+  if (explicitFace && explicitFace > 0) return explicitFace;
+
+  const price =
+    product.pricePerDebenture ?? parseNumericField(rawField(product, "price per debenture", "Price / Debenture"));
+  if (price && price >= 100_000 && price % 25_000 === 0) return 100_000;
+  return price ?? 100_000;
 }
 
 export function getFaceValue(product: ProductRecord) {
-  return (
-    parseNumericField(rawField(product, "Face Value", "Initial Investment (Rs.)")) ??
-    product.pricePerDebenture ??
-    100000
-  );
+  return getClientInvestment(product);
 }
 
 export function resolveProduct(

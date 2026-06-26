@@ -19,20 +19,20 @@ Re-upload a new master anytime; formulas and levels come from the file, not hard
 
 **Inputs:** ISIN / code / name, valuation date, Nifty level, Sensex level, debentures.
 
-**Index level:** `resolveValuationLevel()` picks Nifty or Sensex from product underlying.
+**Client investment (U):** Face value — typically **₹1,00,000** even when price/debenture is ₹1,25,000.
 
-**Core math:**
+**Core math (Working sheet):**
 
 | Step | Rule |
 |------|------|
-| Entry (K) | **Actual Entry Level** from master (index fixing, not debenture price) |
-| Current (M) | Val-date Nifty or Sensex from inputs |
-| Z | M ÷ K − 1 |
-| Abs. return | `Formulae` column evaluated at Z |
-| Product value | Price per debenture × (1 + abs. return) |
-| IRR | (value ÷ price)^(365 ÷ days since trade date) − 1 |
-
-**Fixes:** Purchase date no longer drives IRR (was blowing up to e+43%). Dates like `22-Dec-20` and `31-May-26` map to 2020/2026. Sanity cap on extreme IRR.
+| Entry (K) | Actual Entry Level from master |
+| Current (M) | Val-date Nifty or Sensex |
+| Performance O | M ÷ K − 1 |
+| Formula return S | Formulae column at O |
+| Final val V | Discount branch when last obs &lt; val date (11% p.a. to maturity) |
+| Product Value X | max(V, U) |
+| Abs. return | X ÷ U − 1 |
+| IRR | (X ÷ U)^(365 ÷ days since trade) − 1 |
 
 **UI:** `/valuation` — Valuation Interface + Product List.
 

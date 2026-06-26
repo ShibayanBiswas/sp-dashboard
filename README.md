@@ -37,6 +37,8 @@ Reference workbooks stay local (see `.gitignore`).
 | [02-primary-valuation-workbook.md](docs/02-primary-valuation-workbook.md) | Valuation workbook mapping |
 | [03-primary-payoff-workbook.md](docs/03-primary-payoff-workbook.md) | Payoff workbook mapping |
 
+**Portfolio → Product Details** (`/portfolio/details`) — combined product view with valuation KPIs, specs, payoff table, and chart.
+
 ## Stack
 
 Next.js · React · TypeScript · Tailwind · Recharts · XLSX

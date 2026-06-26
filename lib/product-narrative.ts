@@ -13,7 +13,6 @@ export function getProductOverview(product: ProductRecord) {
     product.principalProtection && `Capital protection: ${product.principalProtection}`,
     product.listing && `Listing: ${product.listing}`,
     product.underlying && `Underlying: ${product.underlying}`,
-    product.couponPercent !== undefined && `Coupon: ${product.couponPercent}%`,
   ].filter(Boolean) as string[];
 
   return {
