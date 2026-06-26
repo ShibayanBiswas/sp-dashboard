@@ -1,14 +1,13 @@
-import { getEntryLevel, getFaceValue } from "@/lib/product-utils";
+import { getFaceValue, getIndexEntryLevel, rawField } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
 import { evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
 import { parseExcelishDate } from "@/lib/workbook/dates";
-
+import { annualizedIrr } from "@/lib/workbook/irr";
 export interface ValuationInputs {
   valuationDate?: string;
   currentLevel?: number;
   debentures?: number;
   purchasePrice?: number;
-  purchaseDate?: string;
 }
 
 export interface ValuationResult {
@@ -16,58 +15,101 @@ export interface ValuationResult {
   absReturn: number;
   productIrr: number;
   z: number;
-  entryLevel: number;
+  indexEntryLevel: number;
   currentLevel: number;
   totalAmount: number;
   remainingTenorDays: number;
+  elapsedDays: number;
+  clientInvestment: number;
 }
 
 function daysBetween(start: Date, end: Date) {
-  return Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000));
+  return Math.round((end.getTime() - start.getTime()) / 86400000);
 }
 
-export function computeValuation(product: ProductRecord, inputs: ValuationInputs): ValuationResult {
-  const entryLevel = getEntryLevel(product);
-  const faceValue = getFaceValue(product);
-  const debentures = inputs.debentures ?? 100;
-  const currentLevel = inputs.currentLevel ?? entryLevel;
-  const z = entryLevel > 0 ? currentLevel / entryLevel - 1 : 0;
-  const formula = product.formulaText ?? "Z";
+function resolveAllotmentDate(product: ProductRecord, valuationDate: Date) {  const tradeDateRaw = rawField(
+    product,
+    "Trade Date/Opening date",
+    "Allotment Date",
+    "Trade Date",
+    "Month",
+  );
+  const parsed = tradeDateRaw ? parseExcelishDate(tradeDateRaw) : undefined;
+  if (parsed && parsed.getTime() <= valuationDate.getTime()) {
+    return parsed;
+  }
 
+  const maturity = parseExcelishDate(product.maturityRaw ?? product.lastObservationDateRaw);
+  if (maturity && product.tenorDays && product.tenorDays > 0) {
+    const estimated = new Date(maturity.getTime() - product.tenorDays * 86400000);
+    if (estimated.getTime() <= valuationDate.getTime()) {
+      return estimated;
+    }
+  }
+
+  return parsed ?? valuationDate;
+}
+
+/**
+ * Primary Valuation Working sheet parity:
+ * K = index entry · M = val-date index · O = M/K − 1 · S = formula(O)
+ * Per-debenture value = price × (1 + S) · IRR = (value / price)^(365 / elapsed days) − 1
+ */
+export function computeValuation(product: ProductRecord, inputs: ValuationInputs): ValuationResult {
+  const indexEntryLevel = getIndexEntryLevel(product);
+  const pricePerDebenture =
+    inputs.purchasePrice ?? product.pricePerDebenture ?? getFaceValue(product);
+  const debentures = inputs.debentures ?? 100;
+  const currentLevel = inputs.currentLevel ?? indexEntryLevel;
+
+  const z = indexEntryLevel > 0 ? currentLevel / indexEntryLevel - 1 : 0;
+  const formula = product.formulaText ?? "Z";
   const absReturn = evaluatePayoffFormula(formula, z);
-  const unitValue = faceValue * (1 + absReturn);
-  const productValue = unitValue / debentures > 0 ? unitValue : faceValue * (1 + absReturn);
+
+  const productValue = pricePerDebenture * (1 + absReturn);
+  const clientInvestment = pricePerDebenture;
   const totalAmount = productValue * debentures;
 
   const valuationDate =
     (typeof inputs.valuationDate === "string" ? parseExcelishDate(inputs.valuationDate) : undefined) ??
     new Date();
-  const maturityDate = parseExcelishDate(product.maturityRaw ?? product.lastObservationDateRaw);
-  const purchaseDate =
-    (typeof inputs.purchaseDate === "string" ? parseExcelishDate(inputs.purchaseDate) : undefined) ??
-    valuationDate;
 
+  const allotmentDate = resolveAllotmentDate(product, valuationDate);
+  const maturityDate = parseExcelishDate(product.maturityRaw ?? product.lastObservationDateRaw);
   const remainingTenorDays = maturityDate
-    ? daysBetween(valuationDate, maturityDate)
+    ? Math.max(1, daysBetween(valuationDate, maturityDate))
     : product.tenorDays ?? 365;
 
-  const elapsedDays = product.tenorDays
-    ? Math.max(1, product.tenorDays - remainingTenorDays)
-    : daysBetween(purchaseDate, valuationDate);
+  const rawElapsed = daysBetween(allotmentDate, valuationDate);
+  const elapsedDays = Math.max(30, rawElapsed);
 
-  const productIrr =
-    elapsedDays > 0 && absReturn > -1
-      ? Math.pow(1 + absReturn, 365 / Math.max(elapsedDays, remainingTenorDays)) - 1
-      : 0;
+  const growth = clientInvestment > 0 ? productValue / clientInvestment : 1;
+  const productIrr = annualizedIrr(growth, elapsedDays);
 
   return {
     productValue,
     absReturn,
     productIrr,
     z,
-    entryLevel,
+    indexEntryLevel,
     currentLevel,
     totalAmount,
     remainingTenorDays,
+    elapsedDays,
+    clientInvestment,
   };
+}
+
+/** Batch valuation for Working sub-page — all products in pool. */
+export function computeValuationBatch(
+  products: ProductRecord[],
+  shared: Omit<ValuationInputs, "debentures"> & { debentures?: number },
+) {
+  return products.map((product) => ({
+    product,
+    result: computeValuation(product, {
+      ...shared,
+      debentures: shared.debentures ?? 100,
+    }),
+  }));
 }

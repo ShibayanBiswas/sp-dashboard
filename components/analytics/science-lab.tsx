@@ -11,7 +11,6 @@ import {
   YAxis,
 } from "recharts";
 
-import { CategoryRiskSpeedometerPanel } from "@/components/charts/category-risk-speedometer";
 import {
   CategoryAxis,
   ChartStage,
@@ -24,6 +23,7 @@ import {
   horizontalBarMargins,
 } from "@/components/charts/chart-kit";
 import { ChartPanel, DataTable, Panel, SectionInfo, SectionTitle } from "@/components/layout/app-ui";
+import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import { SECTION_INFO } from "@/lib/section-info";
 import {
   getCouponDistribution,
@@ -34,7 +34,7 @@ import {
   getUnderlyingExposure,
 } from "@/lib/analytics";
 import { chartTheme } from "@/lib/chart-theme";
-import type { DashboardDataset, ProductRecord } from "@/lib/types";
+import type { ProductRecord } from "@/lib/types";
 import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
 const lifecycleLabels: Record<string, string> = {
@@ -46,29 +46,23 @@ const lifecycleLabels: Record<string, string> = {
   unknown: "Unknown",
 };
 
-export function ScienceLab({
-  dataset,
-  products,
-}: {
-  dataset: DashboardDataset;
-  products: ProductRecord[];
-}) {
+export function ScienceLab({ products }: { products: ProductRecord[] }) {
   const lifecycle = getLifecycleChartData(products);
   const couponDist = getCouponDistribution(products);
   const protection = getProtectionMix(products);
-  const underlyings = getUnderlyingExposure(products);
+  const underlyings = getUnderlyingExposure(products).slice(0, 3);
   const tenor = getTenorDistribution(products);
   const lifecycleTable = getExpiredVsOngoingTable(products);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
         <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-cyan-400">Analytics Laboratory</p>
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       </div>
 
-      <div className="grid gap-4">
+      <HorizontalBand>
         <ChartPanel glow="cyan" icon="chart" title="Lifecycle Universe">
           <SectionInfo {...SECTION_INFO["an-lifecycle"]} />
           <ChartStage height="h-64">
@@ -105,7 +99,9 @@ export function ScienceLab({
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
+      </HorizontalBand>
 
+      <HorizontalBand>
         <ChartPanel glow="purple" icon="chart" title="Coupon Distribution">
           <SectionInfo {...SECTION_INFO["an-coupon"]} />
           <ChartStage height="h-64">
@@ -120,20 +116,16 @@ export function ScienceLab({
                 </defs>
                 <PremiumGrid />
                 <CategoryAxis dataKey="bucket" />
-                <CrYAxis />
+                <CrYAxis tickCount={5} />
                 <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
-                <Bar
-                  animationDuration={900}
-                  dataKey="value"
-                  fill="url(#couponGrad)"
-                  maxBarSize={42}
-                  radius={[8, 8, 0, 0]}
-                />
+                <Bar animationDuration={900} dataKey="value" fill="url(#couponGrad)" maxBarSize={42} radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
+      </HorizontalBand>
 
+      <HorizontalBand>
         <ChartPanel glow="cyan" icon="chart" title="Principal Protection Mix">
           <SectionInfo {...SECTION_INFO["an-protection"]} />
           <ChartStage height="h-64">
@@ -168,14 +160,20 @@ export function ScienceLab({
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
-      </div>
+      </HorizontalBand>
 
-      <div className="grid gap-4">
-        <ChartPanel glow="purple" icon="chart" title="Underlying Exposure">
+      <HorizontalBand>
+        <ChartPanel glow="purple" icon="chart" title="Underlying Exposure · Top 3">
           <SectionInfo {...SECTION_INFO["an-underlying"]} />
-          <ChartStage height="h-72">
+          <ChartStage height="h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={underlyings} layout="vertical" margin={{ ...horizontalBarMargins, left: 96 }}>
+              <BarChart
+                barCategoryGap="28%"
+                barGap={8}
+                data={underlyings}
+                layout="vertical"
+                margin={{ ...horizontalBarMargins, left: 8, right: 28, top: 16, bottom: 16 }}
+              >
                 <defs>
                   <linearGradient id="underlyingGrad" x1="0" x2="1" y1="0" y2="0">
                     <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.5} />
@@ -187,27 +185,25 @@ export function ScienceLab({
                 <YAxis
                   axisLine={{ stroke: chartTheme.axisLine }}
                   dataKey="underlying"
-                  tick={{ fill: chartTheme.tick, fontSize: 10, fontWeight: 600 }}
+                  interval={0}
+                  tick={{ fill: chartTheme.tick, fontSize: 11, fontWeight: 600 }}
                   tickLine={{ stroke: chartTheme.axisLine }}
+                  tickMargin={8}
                   type="category"
-                  width={88}
+                  width={112}
                 />
                 <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
-                <Bar
-                  animationDuration={800}
-                  dataKey="value"
-                  fill="url(#underlyingGrad)"
-                  maxBarSize={22}
-                  radius={[0, 8, 8, 0]}
-                />
+                <Bar animationDuration={800} dataKey="value" fill="url(#underlyingGrad)" maxBarSize={36} radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
+      </HorizontalBand>
 
+      <HorizontalBand>
         <ChartPanel glow="cyan" icon="chart" title="Tenor Profile">
           <SectionInfo {...SECTION_INFO["an-tenor"]} />
-          <ChartStage height="h-72">
+          <ChartStage height="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={tenor} margin={barChartMargins}>
                 <defs>
@@ -218,64 +214,52 @@ export function ScienceLab({
                 </defs>
                 <PremiumGrid />
                 <CategoryAxis dataKey="bucket" />
-                <CrYAxis />
+                <CrYAxis tickCount={5} />
                 <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
-                <Bar
-                  animationDuration={850}
-                  dataKey="value"
-                  fill="url(#tenorGrad)"
-                  maxBarSize={48}
-                  radius={[10, 10, 0, 0]}
-                />
+                <Bar animationDuration={850} dataKey="value" fill="url(#tenorGrad)" maxBarSize={48} radius={[10, 10, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
-      </div>
+      </HorizontalBand>
 
-      <div className="grid gap-4">
-        <ChartPanel glow="cyan" icon="chart" title="Category Risk Radar">
-          <SectionInfo {...SECTION_INFO["an-radar"]} />
-          <CategoryRiskSpeedometerPanel dataset={dataset} />
-        </ChartPanel>
-      </div>
-
-      <Panel glow="purple">
-        <SectionTitle>Ongoing Vs Expired Intelligence</SectionTitle>
-        <div className="mt-4">
-          <DataTable>
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Products</th>
-                <th>Notional</th>
-                <th>Avg Coupon</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lifecycleTable.map((row) => (
-                <tr key={row.status}>
-                  <td>
-                    <span className="inline-flex items-center gap-2 font-semibold capitalize">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{
-                          backgroundColor:
-                            lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
-                        }}
-                      />
-                      {lifecycleLabels[row.status] ?? row.status}
-                    </span>
-                  </td>
-                  <td>{formatNumber(row.count)}</td>
-                  <td>{formatCrores(row.notional)}</td>
-                  <td>{formatPercent(row.avgCoupon)}</td>
+      <HorizontalBand>
+        <Panel glow="purple">
+          <SectionTitle>Ongoing Vs Expired Intelligence</SectionTitle>
+          <div className="mt-4">
+            <DataTable>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Products</th>
+                  <th>Notional</th>
+                  <th>Avg Coupon</th>
                 </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        </div>
-      </Panel>
+              </thead>
+              <tbody>
+                {lifecycleTable.map((row) => (
+                  <tr key={row.status}>
+                    <td>
+                      <span className="inline-flex items-center gap-2 font-semibold capitalize">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{
+                            backgroundColor: lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
+                          }}
+                        />
+                        {lifecycleLabels[row.status] ?? row.status}
+                      </span>
+                    </td>
+                    <td>{formatNumber(row.count)}</td>
+                    <td>{formatCrores(row.notional)}</td>
+                    <td>{formatPercent(row.avgCoupon)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </div>
+        </Panel>
+      </HorizontalBand>
     </div>
   );
 }

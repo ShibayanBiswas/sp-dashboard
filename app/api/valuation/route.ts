@@ -11,7 +11,6 @@ export async function POST(request: Request) {
         valuationDate?: string;
         currentLevel?: number;
         debentures?: number;
-        purchaseDate?: string;
         purchasePrice?: number;
       };
     };

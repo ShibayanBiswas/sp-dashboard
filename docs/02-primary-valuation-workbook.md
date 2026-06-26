@@ -1,10 +1,7 @@
-# 02 · Primary Valuation Workbook → Dashboard Mapping
+# Primary Valuation Workbook → Web App
 
-> Technical reference for the **Primary Valuation** dashboard. This document maps the
-> source Excel workbooks ("Primary Structured Products Valuation – 31st May 26.xlsm" and its
-> `Actual_` interface twin) to the web application's **Valuation** page, which is now
-> **Primary-only** and is split into three subpages: **Valuation Interface**, **Product List**,
-> and **Workings Table**.
+> **Quick guide:** See [04-full-codebase-audit.md](04-full-codebase-audit.md) for valuation math and recent fixes.  
+> Below maps the May-26 valuation workbooks to `/valuation`.
 
 ---
 

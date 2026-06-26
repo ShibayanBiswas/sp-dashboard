@@ -1,18 +1,7 @@
-# 03 · Primary Payoff Workbook — Technical Reference
+# Primary Payoff Workbook → Web App
 
-This document maps the Excel **"Automated Primary SP Dashboard"** workbooks to the web
-application's **Payoff** page. The Payoff page is now **Primary-only** and is organised
-into two subpages: **"Non-PP SP Details"** (a deal-input form with output rendered
-directly below it) and **"Product Search"** (a searchable catalogue with a combobox
-selector). It is the canonical reference for how the spreadsheet's scenario matrix,
-payoff chart, and product lookup behaviour are reproduced in the React/Next.js
-dashboard, and how parity is preserved across data reuploads.
-
-The implementation lives primarily in `components/dashboard/unified-payoff.tsx`,
-`lib/workbook/payoff-scenarios.ts`, `lib/workbook/formula-engine.ts`,
-`components/charts/payoff-underlying-chart.tsx`, and `lib/dashboard-input-config.ts`.
-The structural reference for the spreadsheet is captured in
-`lib/data/reference-workbooks/automated-primary-dashboard.json`.
+> **Quick guide:** See [04-full-codebase-audit.md](04-full-codebase-audit.md) for payoff scenario rules.  
+> Below maps the Automated Primary SP Dashboard to `/payoff`.
 
 ---
 

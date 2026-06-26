@@ -29,9 +29,10 @@ import {
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
-import { getEntryLevel, getTargetLevel, rawField } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField } from "@/lib/product-utils";
+import { MathZ } from "@/components/ui/math-text";
 import type { ProductRecord } from "@/lib/types";
-import { buildPayoffScenarioTable } from "@/lib/workbook/payoff-scenarios";
+import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
 import { cn, formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
 const TABS = [
@@ -58,12 +59,11 @@ export function UnifiedPayoffDashboard() {
   const scenarios = useMemo(() => {
     if (!product?.formulaText) return [];
     return buildPayoffScenarioTable(product, {
-      currentLevel: Number(selection.currentLevel) || getEntryLevel(product),
       debentures: Number(selection.debentures) || 100,
-      pricePerDebenture: Number(selection.pricePerDebenture) || undefined,
-      remainingTenorDays: product.tenorDays,
+      pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+      remainingTenorDays: getPayoffTenorDays(product),
     });
-  }, [product, selection.currentLevel, selection.debentures, selection.pricePerDebenture]);
+  }, [product, selection.debentures, selection.pricePerDebenture]);
 
   const anchor = scenarios.find((r) => Math.abs(r.performance) < 0.001) ?? scenarios[Math.floor(scenarios.length / 2)];
 
@@ -133,7 +133,7 @@ function NonPpSpDetails({
             <KpiBand
               accents={["cyan", "purple", "green", "amber"]}
               items={[
-                { label: "Entry Level", value: formatNumber(getEntryLevel(product)) },
+                { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
                 {
                   label: "Target Level",
                   value: String(getTargetLevel(product) ?? rawField(product, "Target Level") ?? "—"),
@@ -154,7 +154,7 @@ function NonPpSpDetails({
 
           {product.formulaText ? (
             <HorizontalBand className="mt-4">
-              <PayoffCurvePanel entryLevel={getEntryLevel(product)} formula={product.formulaText} title={product.name} />
+              <PayoffCurvePanel entryLevel={getIndexEntryLevel(product)} formula={product.formulaText} title={product.name} />
             </HorizontalBand>
           ) : null}
 
@@ -213,14 +213,14 @@ function ProductSpecifications({ product }: { product: ProductRecord }) {
     { label: "Trade Date", value: rawField(product, "Trade Date", "Trade Date/Opening date") ?? "—" },
     { label: "Allotment Date", value: rawField(product, "Allotment Date") ?? "—" },
     { label: "Underlying", value: product.underlying ?? "—" },
-    { label: "Initial Fixing", value: formatNumber(getEntryLevel(product)) },
+    { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
     { label: "Target Level", value: target ? String(target) : "—" },
     { label: "Final Obs. Date", value: product.lastObservationDateRaw ?? rawField(product, "Final Observation Date", "Last Observation Date") ?? "—" },
     { label: "Redemption Date", value: product.maturityRaw ?? rawField(product, "Redemption Date", "Maturity Date") ?? "—" },
     { label: "PP / Non-PP", value: product.principalProtection ?? rawField(product, "PP/Non PP", "Principal Protection") ?? "—" },
     { label: "Listed / Unlisted", value: product.listing ?? rawField(product, "Listed/Unlisted", "Listing") ?? "—" },
-    { label: "Payoff Tenor (Days)", value: rawField(product, "Payoff Tenor(Days)", "Payoff Tenor (Days)", "Payoff Tenor") ?? "—" },
-    { label: "Tenor (Days)", value: product.tenorDays ? formatNumber(product.tenorDays) : rawField(product, "Tenor(Days)", "Tenor (Days)") ?? "—" },
+    { label: "Payoff Tenor · Days", value: rawField(product, "Payoff Tenor(Days)", "Payoff Tenor (Days)", "Payoff Tenor") ?? "—" },
+    { label: "Tenor · Days", value: product.tenorDays ? formatNumber(product.tenorDays) : rawField(product, "Tenor(Days)", "Tenor (Days)") ?? "—" },
   ];
 
   return (
@@ -306,7 +306,7 @@ function ProductSearchTab({ products, selectedId }: { products: ProductRecord[];
                     <td>{p.series ?? "—"}</td>
                     <td className="font-mono text-xs">{p.isin ?? "—"}</td>
                     <td>{p.underlying ?? "—"}</td>
-                    <td>{formatNumber(getEntryLevel(p))}</td>
+                    <td>{formatNumber(getIndexEntryLevel(p))}</td>
                     <td>{p.maturityRaw ?? "—"}</td>
                   </tr>
                 );

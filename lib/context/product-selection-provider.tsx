@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { resolveProduct } from "@/lib/product-utils";
+import { DESK_DEFAULTS } from "@/lib/desk-defaults";
+import { resolveProduct, getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
 import { useDataset } from "@/lib/context/dataset-provider";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
 
@@ -32,12 +33,12 @@ const DEFAULT_STATE: ProductSelectionState = {
   isin: "",
   productCode: "",
   productName: "",
-  valuationDate: "31-May-26",
+  valuationDate: DESK_DEFAULTS.valuationDate,
   currentLevel: "",
-  niftyLevel: "23547.75",
-  sensexLevel: "74775.74",
-  debentures: "100",
-  purchaseDate: "31-May-26",
+  niftyLevel: DESK_DEFAULTS.niftyLevel,
+  sensexLevel: DESK_DEFAULTS.sensexLevel,
+  debentures: DESK_DEFAULTS.debentures,
+  purchaseDate: "",
   pricePerDebenture: "",
 };
 
@@ -98,12 +99,18 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
         setState((current) => ({ ...current, [key]: value }));
       },
       selectProduct(product) {
+        const indexEntry = getIndexEntryLevel(product);
+        const price = getDebenturePrice(product);
+        const tradeDate = rawField(product, "Trade Date/Opening date", "Trade Date", "Allotment Date") ?? "";
         setState((current) => ({
           ...current,
           productName: product.name,
           isin: product.isin ?? "",
           productCode: product.series ?? "",
           category: product.category,
+          currentLevel: String(indexEntry),
+          purchaseDate: tradeDate || current.purchaseDate,
+          pricePerDebenture: price ? String(price) : current.pricePerDebenture,
         }));
       },
       setCategory(category) {

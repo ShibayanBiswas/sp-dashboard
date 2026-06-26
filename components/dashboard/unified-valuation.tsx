@@ -28,10 +28,18 @@ import {
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
-import { getEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
-import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
+import {
+  formatCrores,
+  formatCurrency,
+  formatNumber,
+  formatPercent,
+  formatProductUnitValue,
+  formatValuationAsOf,
+} from "@/lib/utils";
+import { MathZ } from "@/components/ui/math-text";
 
 const TABS = [
   { id: "interface", label: "Valuation Interface" },
@@ -64,8 +72,7 @@ export function UnifiedValuationDashboard() {
       valuationDate: selection.valuationDate,
       currentLevel,
       debentures: Number(selection.debentures) || 100,
-      purchaseDate: selection.purchaseDate,
-      purchasePrice: Number(selection.pricePerDebenture) || undefined,
+      purchasePrice: Number(selection.pricePerDebenture) || (product ? getDebenturePrice(product) : undefined),
     };
     return computeValuation(product, inputs);
   }, [product, selection]);
@@ -135,15 +142,23 @@ function ValuationInterface({
       {product ? (
         <>
           <HorizontalBand className="mt-4">
+            <Panel className="!p-3" glow="cyan">
+              <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200/90">
+                {formatValuationAsOf(selection.valuationDate)}
+              </p>
+            </Panel>
+          </HorizontalBand>
+
+          <HorizontalBand className="mt-4">
             <KpiBand
               items={[
                 {
                   label: "Product Value",
-                  value: formatCrores((valuation?.productValue ?? 0) * (Number(selection.debentures) || 1)),
+                  value: formatProductUnitValue(valuation?.productValue ?? 0),
                 },
-                { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0) },
-                { label: "Product IRR", value: formatPercent(valuation?.productIrr ?? 0) },
-                { label: "Total Amount", value: formatCrores(valuation?.totalAmount ?? 0) },
+                { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0, 1) },
+                { label: "Product IRR", value: formatPercent(valuation?.productIrr ?? 0, 2) },
+                { label: "Total Amount", value: formatCurrency(valuation?.totalAmount ?? 0, false) },
               ]}
             />
           </HorizontalBand>
@@ -173,7 +188,7 @@ function ValuationInterface({
                   <Output>{product.underlying ?? "—"}</Output>
                 </FieldRow>
                 <FieldRow label="Entry / Initial Fixing">
-                  <OutputGlow accent="purple">{formatNumber(getEntryLevel(product))}</OutputGlow>
+                  <OutputGlow accent="purple">{formatNumber(valuation?.indexEntryLevel ?? getIndexEntryLevel(product))}</OutputGlow>
                 </FieldRow>
                 <FieldRow label={`Val. Date ${isSensexLinked(product) ? "Sensex" : "Nifty"} Level`}>
                   <OutputGlow accent="cyan">{formatNumber(valuation?.currentLevel ?? 0)}</OutputGlow>
@@ -183,7 +198,13 @@ function ValuationInterface({
                     {String(getTargetLevel(product) ?? rawField(product, "Target Level", "Target Nifty ") ?? "—")}
                   </Output>
                 </FieldRow>
-                <FieldRow label="Z Performance">
+                <FieldRow
+                  label={
+                    <>
+                      <MathZ /> Performance
+                    </>
+                  }
+                >
                   <OutputGlow accent="green">{formatPercent(valuation?.z ?? 0)}</OutputGlow>
                 </FieldRow>
                 <FieldRow label="Notional">

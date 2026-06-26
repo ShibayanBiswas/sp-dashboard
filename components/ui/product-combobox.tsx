@@ -20,13 +20,22 @@ export function ProductCombobox({
   value,
   onSelect,
   placeholder = "Search product, ISIN, issuer, series...",
+  open: controlledOpen,
+  onOpenChange,
 }: {
   products: ProductRecord[];
   value?: string;
   onSelect: (product: ProductRecord) => void;
   placeholder?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (next: boolean) => {
+    onOpenChange?.(next);
+    if (controlledOpen === undefined) setInternalOpen(next);
+  };
   const [query, setQuery] = useState("");
   const [mounted, setMounted] = useState(false);
   const [rect, setRect] = useState<MenuRect | null>(null);
@@ -92,7 +101,7 @@ export function ProductCombobox({
         ref={triggerRef}
         className="input-glow btn-animated flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition hover:border-cyan-400/40 hover:shadow-[0_0_24px_rgba(34,211,238,0.15)]"
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
       >
         <Search className="h-4 w-4 shrink-0 text-amber-300" />
         <div className="min-w-0 flex-1">

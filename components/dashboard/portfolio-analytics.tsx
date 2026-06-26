@@ -27,7 +27,7 @@ export function PortfolioAnalyticsPage() {
         ]}
       />
       <div className="mt-8">
-        <ScienceLab dataset={dataset} products={dataset.products} />
+        <ScienceLab products={dataset.products} />
       </div>
     </AppPage>
   );

@@ -97,7 +97,7 @@ export function CommandPalette({
                   type="button"
                   onClick={() => {
                     selection.selectProduct(p);
-                    router.push("/details" as Route);
+                    router.push("/valuation" as Route);
                     onOpenChange(false);
                     setQuery("");
                   }}

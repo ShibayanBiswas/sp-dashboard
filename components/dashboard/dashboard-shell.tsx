@@ -112,7 +112,7 @@ export function DashboardShell() {
       <HorizontalBand className="mt-4">
         <ChartPanel glow="cyan" icon="chart" title="Maturity Ladder">
           <SectionInfo {...SECTION_INFO["home-maturity"]} />
-          <ChartStage height="h-64">
+          <ChartStage height="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={maturityLadder} margin={barChartMargins}>
                 <defs>
@@ -124,7 +124,7 @@ export function DashboardShell() {
                 </defs>
                 <PremiumGrid />
                 <DiagonalCategoryAxis dataKey="bucket" title="Maturity Window" />
-                <CroreLacYAxis title="Notional (₹ Lac / Cr)" />
+                <CroreLacYAxis tickCount={6} width={96} />
                 <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
                 <Bar
                   animationDuration={900}
@@ -159,8 +159,8 @@ export function DashboardShell() {
               </Link>
             </RailCard>
             <RailCard minWidth="min-w-[200px]">
-              <Link href={"/products" as Route}>
-                <Button className="w-full">Portfolio</Button>
+              <Link href={"/portfolio/analytics" as Route}>
+                <Button className="w-full">Analytics</Button>
               </Link>
             </RailCard>
             <RailCard minWidth="min-w-[200px]">

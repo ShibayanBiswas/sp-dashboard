@@ -157,8 +157,7 @@ function SpeedometerGauge({ row, index }: { row: GaugeRow; index: number }) {
         </div>
       </div>
       <p className="mt-2 text-center text-[9px] leading-relaxed text-slate-500">
-        Credit-weighted per Doc 105 — issuer credit {row.components.credit}, protection {row.components.protection},
-        tenor {row.components.tenor}, market {row.components.market}.
+        Score reflects issuer quality, capital protection, time to maturity, and market linkage.
       </p>
     </motion.div>
   );

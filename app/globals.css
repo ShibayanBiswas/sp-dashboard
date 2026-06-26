@@ -444,6 +444,11 @@ textarea {
     font-family: var(--font-serif), "Times New Roman", Times, Georgia, serif;
   }
 
+  .math-serif {
+    font-family: var(--font-serif), "Cambria Math", "Times New Roman", Times, serif;
+    font-feature-settings: "kern" 1;
+  }
+
   .chart-shell {
     @apply relative overflow-visible rounded-2xl border border-white/10 bg-black/20;
   }

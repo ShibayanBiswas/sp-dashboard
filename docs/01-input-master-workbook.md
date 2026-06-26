@@ -1,10 +1,7 @@
-# Input Master Workbook — `New Product Master_.xlsx` (Primary Sheet Reference)
+# Input Master Workbook — `New Product Master_.xlsx` (Primary Sheet)
 
-> Technical reference for analysts and developers working on the SP Dashboard.
-> Scope: the **single input workbook** `New Product Master_.xlsx` and, within it, the
-> **`Primary`** sheet only. The application is now **Primary-only** — every other tab in
-> the workbook is either parsed-but-hidden or still under process and is **not surfaced**
-> in the live product views.
+> **Quick guide:** See [04-full-codebase-audit.md](04-full-codebase-audit.md) for current app behaviour.  
+> Below is a column-by-column reference for the Primary sheet (~4,533 products).
 
 ---
 

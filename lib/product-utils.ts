@@ -21,12 +21,26 @@ export function parseNumericField(value?: string | number | null) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function getEntryLevel(product: ProductRecord) {
+export function getIndexEntryLevel(product: ProductRecord) {
   return (
-    parseNumericField(rawField(product, "Entry Level", "Initial Level", "Initial Fixing Level")) ??
-    parseNumericField(product.pricePerDebenture) ??
+    parseNumericField(rawField(product, "Actual Entry Level", "Entry Level", "Initial Level", "Initial Fixing Level")) ??
+    parseNumericField(rawField(product, "Target Nifty", "Target Level")) ??
     10000
   );
+}
+
+/** Payoff / final-fixing anchor — debenture price when present, else index entry. */
+export function getPayoffEntryLevel(product: ProductRecord) {
+  return (
+    parseNumericField(rawField(product, "price per debenture")) ??
+    product.pricePerDebenture ??
+    getIndexEntryLevel(product)
+  );
+}
+
+/** @deprecated alias — payoff anchor level */
+export function getEntryLevel(product: ProductRecord) {
+  return getPayoffEntryLevel(product);
 }
 
 export function getTargetLevel(product: ProductRecord) {
@@ -149,5 +163,13 @@ export function resolveValuationLevel(
   if (picked && Number.isFinite(picked) && picked > 0) {
     return picked;
   }
-  return product ? getEntryLevel(product) : 0;
+  return product ? getIndexEntryLevel(product) : 0;
+}
+
+export function getDebenturePrice(product: ProductRecord) {
+  return (
+    product.pricePerDebenture ??
+    parseNumericField(rawField(product, "price per debenture", "Price / Debenture", "Price per debenture")) ??
+    getFaceValue(product)
+  );
 }

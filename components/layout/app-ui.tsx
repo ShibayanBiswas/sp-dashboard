@@ -203,7 +203,7 @@ export function SubPageTabs({
   );
 }
 
-export function FieldRow({ label, children, wide }: { label: string; children: ReactNode; wide?: boolean }) {
+export function FieldRow({ label, children, wide }: { label: ReactNode; children: ReactNode; wide?: boolean }) {
   return (
     <div className={cn("grid gap-2", wide ? "md:grid-cols-[260px_1fr]" : "md:grid-cols-[200px_1fr]")}>
       <label className="label-chip flex items-center pt-2.5">{label}</label>

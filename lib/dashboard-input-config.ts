@@ -24,7 +24,7 @@ export function getPayoffSteps() {
       step: 2,
       title: "Scenario sweep",
       items: [
-        "Underlying performance (Z) levels can be modified as required (except 0% anchor)",
+        "Underlying performance levels can be changed as required, except the 0% anchor row",
         "Review maturity value, return on investment, and IRR per scenario row",
       ],
     },

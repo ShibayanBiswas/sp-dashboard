@@ -28,8 +28,8 @@ import {
 import { categoryNeon } from "@/lib/chart-theme";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
-import { getEntryLevel, getTargetLevel, rawField } from "@/lib/product-utils";
-import { buildPayoffScenarioTable } from "@/lib/workbook/payoff-scenarios";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveValuationLevel } from "@/lib/product-utils";
+import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
 import { formatCrores, formatCurrency, formatNumber, formatPercent } from "@/lib/utils";
 
@@ -241,15 +241,20 @@ export function ProductDetailsPage() {
   const valuation = product
     ? computeValuation(product, {
         valuationDate: selection.valuationDate,
-        currentLevel: Number(selection.currentLevel) || getEntryLevel(product),
+        currentLevel: resolveValuationLevel(product, {
+          niftyLevel: Number(selection.niftyLevel) || undefined,
+          sensexLevel: Number(selection.sensexLevel) || undefined,
+        }),
         debentures: Number(selection.debentures) || 100,
+        purchasePrice: Number(selection.pricePerDebenture) || getDebenturePrice(product),
       })
     : null;
 
   const scenarios = product?.formulaText
     ? buildPayoffScenarioTable(product, {
-        currentLevel: Number(selection.currentLevel) || getEntryLevel(product),
         debentures: Number(selection.debentures) || 100,
+        pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+        remainingTenorDays: getPayoffTenorDays(product),
       }).slice(0, 8)
     : [];
 
@@ -297,7 +302,7 @@ export function ProductDetailsPage() {
                 </FieldRow>
                 <FieldRow label="Entry Level">
                   <OutputGlow accent="purple">
-                    {rawField(product, "Entry Level", "Initial Level") ?? getEntryLevel(product)}
+                    {rawField(product, "Entry Level", "Initial Level") ?? getIndexEntryLevel(product)}
                   </OutputGlow>
                 </FieldRow>
               </div>
@@ -331,7 +336,7 @@ export function ProductDetailsPage() {
           <motion.div animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 12 }}>
             {product.formulaText ? (
               <PayoffCurvePanel
-                entryLevel={getEntryLevel(product)}
+                entryLevel={getIndexEntryLevel(product)}
                 formula={product.formulaText}
                 title={product.name}
               />

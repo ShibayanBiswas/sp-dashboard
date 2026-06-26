@@ -1,14 +1,14 @@
-import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   Calculator,
   LayoutDashboard,
   LineChart,
-  Package,
   Search,
   Sparkles,
   Upload,
 } from "lucide-react";
+
+import type { LucideIcon } from "lucide-react";
 
 import { PRODUCT_CATEGORIES } from "@/lib/types";
 
@@ -39,16 +39,11 @@ export const mainSections: MainNavItem[] = [
   },
   {
     id: "portfolio",
-    href: "/products",
+    href: "/portfolio/analytics",
     label: "Portfolio",
-    icon: Package,
-    match: (p) =>
-      p.startsWith("/products") ||
-      p.startsWith("/details") ||
-      p.startsWith("/portfolio"),
+    icon: BarChart3,
+    match: (p) => p.startsWith("/portfolio"),
     subNav: [
-      { href: "/products", label: "Explorer", match: (p) => p === "/products" || p.startsWith("/portfolio") },
-      { href: "/details", label: "Product Details", match: (p) => p.startsWith("/details") },
       { href: "/portfolio/analytics", label: "Analytics Lab", match: (p) => p.startsWith("/portfolio/analytics") },
     ],
   },
@@ -70,9 +65,7 @@ export const mainSections: MainNavItem[] = [
     label: "Intel",
     icon: Sparkles,
     match: (p) => p.startsWith("/intelligence"),
-    subNav: [
-      { href: "/intelligence", label: "Logic Atlas", match: (p) => p.startsWith("/intelligence") },
-    ],
+    subNav: [{ href: "/intelligence", label: "Logic Atlas", match: (p) => p.startsWith("/intelligence") }],
   },
 ];
 
@@ -84,11 +77,8 @@ export function resolveNavSection(pathname: string): MainNavItem {
   return mainSections.find((s) => s.match(pathname)) ?? mainSections[0];
 }
 
-/** Command palette destinations */
 export const commandRoutes = [
   { href: "/", label: "Home", group: "Navigate" },
-  { href: "/products", label: "Portfolio Explorer", group: "Portfolio" },
-  { href: "/details", label: "Product Details", group: "Portfolio" },
   { href: "/portfolio/analytics", label: "Analytics Lab", group: "Portfolio" },
   { href: "/desk", label: "Desk Command", group: "Desk" },
   { href: "/valuation", label: "Valuation", group: "Desk" },

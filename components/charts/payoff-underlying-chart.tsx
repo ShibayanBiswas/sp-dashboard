@@ -44,12 +44,12 @@ function PremiumTooltip({
 export function PayoffUnderlyingChart({
   formula,
   title,
-  entryLevel = 10000,
+  entryLevel,
   compact,
 }: {
   formula: string;
   title: string;
-  entryLevel?: number;
+  entryLevel: number;
   compact?: boolean;
   /** Formula used internally only — never rendered in UI */
 }) {
@@ -74,7 +74,7 @@ export function PayoffUnderlyingChart({
     <div className="space-y-3">
       <div className="grid gap-2 sm:grid-cols-3">
         <div>
-          <p className="label-chip mb-1.5">Nifty performance (Z)</p>
+          <p className="label-chip mb-1.5">Index move</p>
           <InputGlow type="number" step="0.01" value={zInput} onChange={(e) => setZInput(Number(e.target.value))} />
         </div>
         <div>

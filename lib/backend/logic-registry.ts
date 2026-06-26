@@ -2,7 +2,7 @@ import masterSchema from "@/lib/data/master-schema.json";
 import primaryValuation from "@/lib/data/reference-workbooks/primary-valuation.json";
 import automatedPrimary from "@/lib/data/reference-workbooks/automated-primary-dashboard.json";
 
-/** Backend-only registry — Excel logic, schema, and code mappings. Not for frontend display. */
+/** Backend registry — workbook schema and engine mappings. Not for frontend display. */
 export const logicRegistry = {
   version: "1.0.0",
   masterSchema,
