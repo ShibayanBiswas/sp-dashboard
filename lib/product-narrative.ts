@@ -1,0 +1,47 @@
+import type { ProductRecord } from "@/lib/types";
+import { rawField } from "@/lib/product-utils";
+
+/** Build human-readable product overview — never exposes raw formula strings. */
+export function getProductOverview(product: ProductRecord) {
+  const explanation =
+    product.productExplanation?.trim() ||
+    rawField(product, "Product Explanation", "Product explanation", "Description") ||
+    "";
+
+  const structure = [
+    product.productType && `Structure type: ${product.productType}`,
+    product.principalProtection && `Capital protection: ${product.principalProtection}`,
+    product.listing && `Listing: ${product.listing}`,
+    product.underlying && `Underlying: ${product.underlying}`,
+    product.couponPercent !== undefined && `Coupon: ${product.couponPercent}%`,
+  ].filter(Boolean) as string[];
+
+  return {
+    title: product.name,
+    explanation,
+    structure,
+    issuer: product.issuer,
+    isin: product.isin,
+    series: product.series,
+  };
+}
+
+/** Split explanation into styled blocks for Times New Roman rendering. */
+export function parseExplanationBlocks(text: string): Array<{ type: "heading" | "point" | "text"; content: string }> {
+  if (!text.trim()) return [];
+
+  const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const blocks: Array<{ type: "heading" | "point" | "text"; content: string }> = [];
+
+  for (const line of lines) {
+    if (/^\d+[\.\)]\s/.test(line)) {
+      blocks.push({ type: "point", content: line });
+    } else if (line.length < 80 && !line.includes(".")) {
+      blocks.push({ type: "heading", content: line });
+    } else {
+      blocks.push({ type: "text", content: line });
+    }
+  }
+
+  return blocks;
+}

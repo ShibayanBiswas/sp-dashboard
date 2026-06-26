@@ -1,0 +1,14 @@
+[
+  {
+    "workbook": "Primary Structured Products Valuation - 31st May 26.xlsm",
+    "output": "primary-valuation.json",
+    "sheetsExtracted": ["Valuation", "Product List", "Working"],
+    "role": "Primary valuation engine reference"
+  },
+  {
+    "workbook": "Automated Primary SP Dashboard - 31 May 26.xlsm",
+    "output": "automated-primary-dashboard.json",
+    "sheetsExtracted": ["Non PP SP Details Input", "Product Search", "Non PP SP Details"],
+    "role": "Primary payoff dashboard reference"
+  }
+]

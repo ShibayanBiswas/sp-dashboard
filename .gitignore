@@ -1,0 +1,22 @@
+.next
+node_modules
+dist
+out
+.tools
+*.log
+.env
+.env.local
+
+# Local Excel masters (keep on disk; not versioned)
+*.xlsx
+*.xlsm
+*.pdf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+
+# Cursor
+.cursor
