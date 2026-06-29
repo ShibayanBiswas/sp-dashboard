@@ -13,6 +13,7 @@ import {
   filterProductsByLifecycle,
   LIFECYCLE_FILTER_LABELS,
   LIFECYCLE_STATUS_LABELS,
+  LIFECYCLE_FILTERS,
   type LifecycleFilter,
   getDaysToMaturity,
   getProductLifecycleStatus,
@@ -91,7 +92,7 @@ export function LifecycleProductList({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {(Object.keys(LIFECYCLE_FILTER_LABELS) as LifecycleFilter[]).map((key) => (
+        {LIFECYCLE_FILTERS.map((key) => (
           <Button key={key} active={lifecycle === key} variant="pill" onClick={() => setLifecycle(key)}>
             {LIFECYCLE_FILTER_LABELS[key]}
           </Button>

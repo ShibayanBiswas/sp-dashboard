@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { ScienceLab } from "@/components/analytics/science-lab";
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
@@ -9,11 +9,13 @@ import { AppPage, KpiBand } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import { getPortfolioHeadlineStats } from "@/lib/analytics";
 import { useDataset } from "@/lib/context/dataset-provider";
+import type { LifecycleFilter } from "@/lib/product-lifecycle";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 
 export function PortfolioAnalyticsPage() {
   const { dataset } = useDataset();
   const stats = useMemo(() => getPortfolioHeadlineStats(dataset), [dataset]);
+  const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
 
   return (
     <AppPage dense title="Analytics Lab">
@@ -29,10 +31,14 @@ export function PortfolioAnalyticsPage() {
       />
       <div className="mt-6 space-y-4">
         <HorizontalBand>
-          <LifecycleProductList products={dataset.products} />
+          <LifecycleProductList
+            filter={lifecycle}
+            products={dataset.products}
+            onFilterChange={setLifecycle}
+          />
         </HorizontalBand>
-        <ScienceLab products={dataset.products} />
-        <LifecycleAnalyticsGrid products={dataset.products} />
+        <LifecycleAnalyticsGrid filter={lifecycle} products={dataset.products} />
+        <ScienceLab filter={lifecycle} products={dataset.products} />
       </div>
     </AppPage>
   );

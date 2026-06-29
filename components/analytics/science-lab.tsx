@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -34,23 +35,49 @@ import {
   getUnderlyingExposure,
 } from "@/lib/analytics";
 import { chartTheme } from "@/lib/chart-theme";
-import { LIFECYCLE_STATUS_LABELS } from "@/lib/product-lifecycle";
+import {
+  filterProductsByLifecycle,
+  LIFECYCLE_FILTER_LABELS,
+  LIFECYCLE_STATUS_LABELS,
+  type LifecycleFilter,
+} from "@/lib/product-lifecycle";
+import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import type { ProductRecord } from "@/lib/types";
 import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
-export function ScienceLab({ products }: { products: ProductRecord[] }) {
-  const lifecycle = getLifecycleChartData(products);
-  const couponDist = getCouponDistribution(products);
-  const protection = getProtectionMix(products);
-  const underlyings = getUnderlyingExposure(products).slice(0, 3);
-  const tenor = getTenorDistribution(products);
-  const lifecycleTable = getExpiredVsOngoingTable(products);
+export function ScienceLab({
+  products,
+  filter = "ongoing",
+}: {
+  products: ProductRecord[];
+  filter?: LifecycleFilter;
+}) {
+  const { asOf } = usePortfolioClock();
+  const pool = useMemo(() => filterProductsByLifecycle(products, filter, asOf), [products, filter, asOf]);
+  const categoryLabel = LIFECYCLE_FILTER_LABELS[filter];
+
+  const lifecycle = getLifecycleChartData(pool);
+  const couponDist = getCouponDistribution(pool);
+  const protection = getProtectionMix(pool);
+  const underlyings = getUnderlyingExposure(pool).slice(0, 3);
+  const tenor = getTenorDistribution(pool);
+  const lifecycleTable = getExpiredVsOngoingTable(pool);
+
+  if (pool.length === 0) {
+    return (
+      <Panel className="!p-5" glow="purple">
+        <p className="text-center text-sm text-slate-400">No analytics for {categoryLabel.toLowerCase()}.</p>
+      </Panel>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-cyan-400">Analytics Laboratory</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-cyan-400">
+          Analytics Laboratory · {categoryLabel}
+        </p>
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       </div>
 

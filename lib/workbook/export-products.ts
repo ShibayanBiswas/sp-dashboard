@@ -1,11 +1,11 @@
 import * as XLSX from "xlsx";
 
 import {
+  filterProductsByLifecycle,
   getDaysToMaturity,
   getProductLifecycleStatus,
   LIFECYCLE_STATUS_LABELS,
   type LifecycleFilter,
-  type LifecycleStatus,
 } from "@/lib/product-lifecycle";
 import { getCouponLabel, getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
@@ -105,32 +105,18 @@ export function downloadLifecycleWorkbook(
   asOf = new Date(),
 ) {
   const wb = XLSX.utils.book_new();
-  const buckets: Array<{ name: string; filter: LifecycleFilter | "summary"; statuses?: LifecycleStatus[] }> = [
+  const buckets: Array<{ name: string; filter: LifecycleFilter | "summary" }> = [
     { name: "Summary", filter: "summary" },
     { name: "Ongoing", filter: "ongoing" },
     { name: "Expiring in 3M", filter: "expiring-3m" },
     { name: "Expiring in 1M", filter: "expiring-1m" },
     { name: "Expired", filter: "expired" },
-    { name: "All Products", filter: "all" },
   ];
 
   const summaryRows = buckets
-    .filter((b) => b.filter !== "summary" && b.filter !== "all")
+    .filter((b): b is { name: string; filter: LifecycleFilter } => b.filter !== "summary")
     .map((bucket) => {
-      const pool =
-        bucket.filter === "ongoing"
-          ? products.filter((p) => {
-              const s = getProductLifecycleStatus(p, asOf);
-              return s === "ongoing" || s === "perpetual" || s === "unknown";
-            })
-          : bucket.filter === "expiring-3m"
-            ? products.filter((p) => {
-                const s = getProductLifecycleStatus(p, asOf);
-                return s === "expiring-1m" || s === "expiring-3m";
-              })
-            : bucket.filter === "expiring-1m"
-              ? products.filter((p) => getProductLifecycleStatus(p, asOf) === "expiring-1m")
-              : products.filter((p) => getProductLifecycleStatus(p, asOf) === "expired");
+      const pool = filterProductsByLifecycle(products, bucket.filter, asOf);
 
       const notional = pool.reduce((sum, p) => sum + (p.tradeAmount ?? 0), 0);
       return {
@@ -145,24 +131,7 @@ export function downloadLifecycleWorkbook(
 
   for (const bucket of buckets) {
     if (bucket.filter === "summary") continue;
-    let pool: ProductRecord[];
-    if (bucket.filter === "all") {
-      pool = products;
-    } else if (bucket.filter === "ongoing") {
-      pool = products.filter((p) => {
-        const s = getProductLifecycleStatus(p, asOf);
-        return s === "ongoing" || s === "perpetual" || s === "unknown";
-      });
-    } else if (bucket.filter === "expiring-3m") {
-      pool = products.filter((p) => {
-        const s = getProductLifecycleStatus(p, asOf);
-        return s === "expiring-1m" || s === "expiring-3m";
-      });
-    } else if (bucket.filter === "expiring-1m") {
-      pool = products.filter((p) => getProductLifecycleStatus(p, asOf) === "expiring-1m");
-    } else {
-      pool = products.filter((p) => getProductLifecycleStatus(p, asOf) === "expired");
-    }
+    const pool = filterProductsByLifecycle(products, bucket.filter, asOf);
     if (pool.length === 0) continue;
     const rows = pool.map((p) => productToExportRow(p, asOf));
     XLSX.utils.book_append_sheet(wb, buildSheet(rows), bucket.name.slice(0, 31));

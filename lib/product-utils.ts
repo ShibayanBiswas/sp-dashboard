@@ -178,15 +178,28 @@ export function isSensexLinked(product: ProductRecord | undefined) {
 export function resolveValuationLevel(
   product: ProductRecord | undefined,
   levels: { niftyLevel?: number; sensexLevel?: number; currentLevel?: number },
+  options?: { preferLiveIndex?: boolean },
 ) {
-  if (levels.currentLevel && Number.isFinite(levels.currentLevel) && levels.currentLevel > 0) {
+  const preferLive = options?.preferLiveIndex !== false;
+  if (!preferLive && levels.currentLevel && Number.isFinite(levels.currentLevel) && levels.currentLevel > 0) {
     return levels.currentLevel;
   }
   const picked = isSensexLinked(product) ? levels.sensexLevel : levels.niftyLevel;
   if (picked && Number.isFinite(picked) && picked > 0) {
     return picked;
   }
+  if (levels.currentLevel && Number.isFinite(levels.currentLevel) && levels.currentLevel > 0) {
+    return levels.currentLevel;
+  }
   return product ? getIndexEntryLevel(product) : 0;
+}
+
+/** Payoff & live marks — always Yahoo Nifty/Sensex, never stale manual level. */
+export function resolveLiveIndexLevel(
+  product: ProductRecord | undefined,
+  levels: { niftyLevel?: number; sensexLevel?: number },
+) {
+  return resolveValuationLevel(product, levels, { preferLiveIndex: true });
 }
 
 export function getDebenturePrice(product: ProductRecord) {
@@ -195,4 +208,19 @@ export function getDebenturePrice(product: ProductRecord) {
     parseNumericField(rawField(product, "price per debenture", "Price / Debenture", "Price per debenture")) ??
     getFaceValue(product)
   );
+}
+
+/** Desk-default debenture count from trade notional ÷ price, else master field, else 100. */
+export function inferDebentureCount(product: ProductRecord): number {
+  const fromRaw = parseNumericField(rawField(product, "No. of Debentures", "Debentures", "No of Debentures"));
+  if (fromRaw && fromRaw >= 1 && Number.isFinite(fromRaw)) return Math.round(fromRaw);
+
+  const tradeAmount = product.tradeAmount;
+  const price = getDebenturePrice(product);
+  if (tradeAmount && price > 0) {
+    const n = Math.round(tradeAmount / price);
+    if (n >= 1 && n <= 1_000_000) return n;
+  }
+
+  return 100;
 }

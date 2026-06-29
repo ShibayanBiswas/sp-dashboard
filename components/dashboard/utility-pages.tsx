@@ -35,7 +35,7 @@ import {
 import { categoryNeon } from "@/lib/chart-theme";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
-import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveValuationLevel } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveLiveIndexLevel, resolveValuationLevel } from "@/lib/product-utils";
 import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
 import { buildEnhancedPayoffScenarioTable } from "@/lib/workbook/payoff-pivots";
 import { downloadProductsExcel } from "@/lib/workbook/export-products";
@@ -266,11 +266,11 @@ export function ProductDetailsPage() {
   const valuation = product && canValue
     ? computeValuation(product, {
         valuationDate: selection.valuationDate,
-        currentLevel: resolveValuationLevel(product, {
+        currentLevel: resolveLiveIndexLevel(product, {
           niftyLevel: Number(selection.niftyLevel) || undefined,
           sensexLevel: Number(selection.sensexLevel) || undefined,
         }),
-        debentures: Number(selection.debentures) || 100,
+        debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
         purchasePrice: Number(selection.pricePerDebenture) || getDebenturePrice(product),
       })
     : null;
@@ -278,7 +278,7 @@ export function ProductDetailsPage() {
   const marketMove = useMemo(() => {
     if (!product) return 0;
     const entry = getIndexEntryLevel(product);
-    const level = resolveValuationLevel(product, {
+    const level = resolveLiveIndexLevel(product, {
       niftyLevel: Number(selection.niftyLevel) || undefined,
       sensexLevel: Number(selection.sensexLevel) || undefined,
     });
@@ -289,7 +289,7 @@ export function ProductDetailsPage() {
     ? buildEnhancedPayoffScenarioTable(
         product,
         {
-          debentures: Number(selection.debentures) || 100,
+          debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
           pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
           remainingTenorDays: getPayoffTenorDays(product),
         },
@@ -346,7 +346,7 @@ export function ProductDetailsPage() {
                     {lifecycleStatus ? LIFECYCLE_STATUS_LABELS[lifecycleStatus] : "Inactive"}
                   </p>
                   <p className="mt-2 text-center text-sm text-slate-400">
-                    Live valuation not applicable — payoff structure and specs remain below.
+                    Live valuation not applicable — product overview and payoff remain below.
                   </p>
                 </Panel>
               ) : (

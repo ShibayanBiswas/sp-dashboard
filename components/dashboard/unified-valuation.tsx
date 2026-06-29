@@ -27,6 +27,7 @@ import { useDataset } from "@/lib/context/dataset-provider";
 import {
   filterProductsByLifecycle,
   isValuationApplicable,
+  LIFECYCLE_FILTERS,
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
@@ -73,7 +74,7 @@ export function UnifiedValuationDashboard() {
     const inputs = {
       valuationDate: selection.valuationDate,
       currentLevel,
-      debentures: Number(selection.debentures) || 100,
+      debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
     };
     return computeValuation(product, inputs);
   }, [product, selection]);
@@ -86,7 +87,7 @@ export function UnifiedValuationDashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <SubTitle>Primary Valuation · Portfolio Filter</SubTitle>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(LIFECYCLE_FILTER_LABELS) as LifecycleFilter[]).map((key) => (
+              {LIFECYCLE_FILTERS.map((key) => (
                 <Button key={key} active={lifecycle === key} variant="pill" onClick={() => setLifecycle(key)}>
                   {LIFECYCLE_FILTER_LABELS[key]}
                 </Button>

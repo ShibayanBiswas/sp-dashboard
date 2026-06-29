@@ -203,11 +203,59 @@ export function SubPageTabs({
   );
 }
 
-export function FieldRow({ label, children, wide }: { label: ReactNode; children: ReactNode; wide?: boolean }) {
+export function FieldRow({
+  label,
+  hint,
+  children,
+  wide,
+}: {
+  label: ReactNode;
+  hint?: { title: string; paragraphs: string[] };
+  children: ReactNode;
+  wide?: boolean;
+}) {
   return (
     <div className={cn("grid gap-2", wide ? "md:grid-cols-[260px_1fr]" : "md:grid-cols-[200px_1fr]")}>
-      <label className="label-chip flex items-center pt-2.5">{label}</label>
+      <div className="flex items-start gap-2 pt-2.5">
+        <label className="label-chip">{label}</label>
+        {hint ? <FieldHint {...hint} /> : null}
+      </div>
       <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function FieldHint({ title, paragraphs }: { title: string; paragraphs: string[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        aria-label={`About ${title}`}
+        className="flex h-6 w-6 items-center justify-center rounded-full border border-cyan-500/30 bg-transparent text-cyan-400/80 transition hover:border-cyan-400/60 hover:text-cyan-300"
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Info className="h-3.5 w-3.5" />
+      </button>
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            className="field-hint-popover absolute left-0 top-8 z-50 w-72 rounded-xl border border-cyan-500/25 bg-slate-950/95 p-3 shadow-xl backdrop-blur-md"
+            exit={{ opacity: 0, y: -4 }}
+            initial={{ opacity: 0, y: -4 }}
+          >
+            <p className="text-xs font-bold uppercase tracking-wider text-cyan-300">{title}</p>
+            <div className="mt-2 space-y-2">
+              {paragraphs.map((p, i) => (
+                <p key={i} className="text-xs leading-5 text-slate-400">
+                  {p}
+                </p>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
@@ -275,7 +323,7 @@ export function Button({
   variant?: "primary" | "ghost" | "accent" | "pill";
   active?: boolean;
 }) {
-  const showShine = variant === "primary" || variant === "accent";
+  const showShine = false;
 
   return (
     <button

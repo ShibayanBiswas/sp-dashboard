@@ -17,14 +17,15 @@ export type LifecycleStatus =
   | "unknown"
   | "upcoming";
 
-export type LifecycleFilter = "ongoing" | "expired" | "expiring-3m" | "expiring-1m" | "all";
+export const LIFECYCLE_FILTERS = ["ongoing", "expired", "expiring-3m", "expiring-1m"] as const;
+
+export type LifecycleFilter = (typeof LIFECYCLE_FILTERS)[number];
 
 export const LIFECYCLE_FILTER_LABELS: Record<LifecycleFilter, string> = {
   ongoing: "Ongoing",
   expired: "Expired",
   "expiring-3m": "Expiring in 3M",
   "expiring-1m": "Expiring in 1M",
-  all: "All Products",
 };
 
 export const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
@@ -90,8 +91,6 @@ export function filterProductsByLifecycle(
   filter: LifecycleFilter,
   asOf = new Date(),
 ): ProductRecord[] {
-  if (filter === "all") return products;
-
   return products.filter((product) => {
     const status = getProductLifecycleStatus(product, asOf);
     if (filter === "ongoing") {
@@ -100,7 +99,7 @@ export function filterProductsByLifecycle(
     if (filter === "expired") return status === "expired";
     if (filter === "expiring-1m") return status === "expiring-1m";
     if (filter === "expiring-3m") return status === "expiring-1m" || status === "expiring-3m";
-    return true;
+    return false;
   });
 }
 

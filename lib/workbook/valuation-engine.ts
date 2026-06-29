@@ -27,6 +27,22 @@ export interface ValuationResult {
 
 const DESK_DISCOUNT_RATE = 0.11;
 
+function emptyValuationResult(): ValuationResult {
+  return {
+    productValue: 0,
+    absReturn: 0,
+    productIrr: 0,
+    formulaReturn: 0,
+    z: 0,
+    indexEntryLevel: 0,
+    currentLevel: 0,
+    totalAmount: 0,
+    remainingTenorDays: 0,
+    elapsedDays: 0,
+    clientInvestment: 0,
+  };
+}
+
 function daysBetween(start: Date, end: Date) {
   return Math.round((end.getTime() - start.getTime()) / 86400000);
 }
@@ -115,14 +131,26 @@ function computeFinalValuation(
  * Product Value = X · Abs. Ret = X/U − 1 · IRR = (X/U)^(365/(G−F)) − 1
  */
 export function computeValuation(product: ProductRecord, inputs: ValuationInputs): ValuationResult {
+  if (!product?.formulaText && !product?.name) {
+    return emptyValuationResult();
+  }
+
   const indexEntryLevel = getIndexEntryLevel(product);
   const clientInvestment = getClientInvestment(product);
-  const debentures = inputs.debentures ?? 100;
-  const currentLevel = inputs.currentLevel ?? indexEntryLevel;
+  const debentures = Math.max(1, Math.round(inputs.debentures ?? 100));
+  const rawLevel = inputs.currentLevel;
+  const currentLevel =
+    rawLevel != null && Number.isFinite(rawLevel) && rawLevel > 0 ? rawLevel : indexEntryLevel;
 
   const performance = indexEntryLevel > 0 ? currentLevel / indexEntryLevel - 1 : 0;
-  const formula = product.formulaText ?? "Z";
-  const formulaReturn = evaluatePayoffFormula(formula, performance);
+  const formula = product.formulaText?.trim() || "Z";
+  let formulaReturn = 0;
+  try {
+    formulaReturn = evaluatePayoffFormula(formula, performance);
+    if (!Number.isFinite(formulaReturn)) formulaReturn = 0;
+  } catch {
+    formulaReturn = 0;
+  }
 
   const valuationDate =
     (typeof inputs.valuationDate === "string" ? parseExcelishDate(inputs.valuationDate) : undefined) ??

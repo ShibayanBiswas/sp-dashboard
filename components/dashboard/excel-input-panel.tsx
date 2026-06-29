@@ -10,11 +10,12 @@ import {
   getPayoffSteps,
   getValuationInputFields,
   IDENTITY_HINT,
+  INPUT_FIELD_HINTS,
   INPUT_HINT,
   VALUATION_DISCLAIMER,
 } from "@/lib/dashboard-input-config";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
-import { getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, isSensexLinked, rawField, resolveLiveIndexLevel } from "@/lib/product-utils";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -67,7 +68,7 @@ export function ExcelInputPanel({
               }
               if (field.key === "isin") {
                 return (
-                  <FieldRow key={field.key} label={field.label}>
+                  <FieldRow key={field.key} hint={INPUT_FIELD_HINTS.isin} label={field.label}>
                     <IsinSelect
                       products={products}
                       value={selection.isin}
@@ -82,7 +83,7 @@ export function ExcelInputPanel({
               }
               if (field.key === "productCode") {
                 return (
-                  <FieldRow key={field.key} label={field.label}>
+                  <FieldRow key={field.key} hint={INPUT_FIELD_HINTS.productCode} label={field.label}>
                     <ProductCodeSelect
                       products={products}
                       value={selection.productCode}
@@ -97,7 +98,7 @@ export function ExcelInputPanel({
               }
               if (field.key === "productName") {
                 return (
-                  <FieldRow key={field.key} label={field.label} wide>
+                  <FieldRow key={field.key} hint={INPUT_FIELD_HINTS.productName} label={field.label} wide>
                     <ProductSelectField
                       products={products}
                       value={selection.productName}
@@ -111,7 +112,7 @@ export function ExcelInputPanel({
               }
               if (field.key === "debentures") {
                 return (
-                  <FieldRow key={field.key} label={field.label}>
+                  <FieldRow key={field.key} hint={INPUT_FIELD_HINTS.debentures} label={field.label}>
                     <DebentureSelect value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
                   </FieldRow>
                 );
@@ -120,7 +121,7 @@ export function ExcelInputPanel({
               if (!(stateKey in selection)) return null;
               const value = String(selection[stateKey] ?? "");
               return (
-                <FieldRow key={field.key} label={field.label}>
+                <FieldRow key={field.key} hint={INPUT_FIELD_HINTS[field.key]} label={field.label}>
                   <Input
                     className={cn(field.highlight && "input-glow", field.key === "valuationDate" && "font-semibold text-amber-100")}
                     readOnly={field.key === "valuationDate" && selection.marketStatus === "ready"}
@@ -164,12 +165,18 @@ export function ExcelInputPanel({
 function PayoffInputBlock({ category, products }: { category: ProductCategory; products: ProductRecord[] }) {
   const selection = useProductSelection();
   const product = selection.resolvedProduct;
-  const indexHint = product ? String(getIndexEntryLevel(product)) : "";
   const priceHint = product ? String(getDebenturePrice(product)) : "";
+  const liveLevel = product
+    ? resolveLiveIndexLevel(product, {
+        niftyLevel: Number(selection.niftyLevel) || undefined,
+        sensexLevel: Number(selection.sensexLevel) || undefined,
+      })
+    : 0;
+  const indexLabel = product && isSensexLinked(product) ? "Sensex" : "Nifty";
 
   return (
     <FieldStack>
-      <FieldRow label="Product Name" wide>
+      <FieldRow hint={INPUT_FIELD_HINTS.productName} label="Product Name" wide>
         <ProductSelectField
           products={products}
           value={selection.productName}
@@ -179,24 +186,27 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
           }}
         />
       </FieldRow>
-      <FieldRow label="Current Level">
+      <FieldRow hint={INPUT_FIELD_HINTS.currentLevel} label={`Current Level (${indexLabel})`}>
         <Input
-          placeholder={indexHint || "Index level"}
-          value={selection.currentLevel}
-          onChange={(e) => selection.setField("currentLevel", e.target.value)}
+          readOnly
+          className="input-glow font-semibold text-cyan-100"
+          value={liveLevel > 0 ? formatNumber(liveLevel) : "Fetching from Yahoo…"}
         />
       </FieldRow>
-      <FieldRow label="Purchase Date">
+      <p className="text-xs text-slate-500">
+        Live {indexLabel} from Yahoo Finance · updates hourly with valuation inputs
+      </p>
+      <FieldRow hint={INPUT_FIELD_HINTS.purchaseDate} label="Purchase Date">
         <Input
           placeholder={product ? rawField(product, "Trade Date/Opening date", "Trade Date") ?? "Trade date" : "Trade date"}
           value={selection.purchaseDate}
           onChange={(e) => selection.setField("purchaseDate", e.target.value)}
         />
       </FieldRow>
-      <FieldRow label="No. of Debentures">
+      <FieldRow hint={INPUT_FIELD_HINTS.debentures} label="No. of Debentures">
         <DebentureSelect value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
       </FieldRow>
-      <FieldRow label="Price / Debenture">
+      <FieldRow hint={INPUT_FIELD_HINTS.pricePerDebenture} label="Price / Debenture">
         <Input
           placeholder={priceHint || "Price per debenture"}
           value={selection.pricePerDebenture}

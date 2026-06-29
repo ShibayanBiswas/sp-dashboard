@@ -16,7 +16,7 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
   "home-filter": {
     title: "How the portfolio filter works",
     paragraphs: [
-      "Every product has a life story: it starts, it runs for a period, and then it matures. Filter by Ongoing, Expiring in 3M, Expiring in 1M, Expired, or view all products together.",
+      "Every product has a life story: it starts, it runs for a period, and then it matures. Filter by Ongoing, Expiring in 3M, Expiring in 1M, or Expired.",
       "Whatever you choose here updates the whole page — the summary tiles, the maturity chart, and the shortcuts below all follow the same filter.",
       "The default view is the live book, which is what most people want for a day-to-day check.",
       "Changing this filter only affects what you see on the home page. It does not change a product you may have picked elsewhere in the app.",

@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { DESK_DEFAULTS } from "@/lib/desk-defaults";
 import { useMarketSync } from "@/lib/hooks/use-market-sync";
 import type { MarketLevels } from "@/lib/market-data";
-import { resolveProduct, getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
+import { resolveProduct, getDebenturePrice, getIndexEntryLevel, inferDebentureCount, rawField, resolveLiveIndexLevel } from "@/lib/product-utils";
 import { useDataset } from "@/lib/context/dataset-provider";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
 
@@ -86,7 +86,6 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
           debentures: parsed.debentures,
           purchaseDate: parsed.purchaseDate,
           pricePerDebenture: parsed.pricePerDebenture,
-          currentLevel: parsed.currentLevel,
         });
       } else if (dataset.products[0]) {
         setState((current) => ({ ...current, productName: dataset.products[0].name }));
@@ -101,9 +100,29 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
   }, [dataset.products]);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
+    if (!hydrated || !marketLevels) return;
+    setState((current) => {
+      const product = resolveProduct(dataset.products, {
+        isin: current.isin,
+        productCode: current.productCode,
+        productName: current.productName,
+        category: current.category,
+      });
+      const liveLevel = product
+        ? resolveLiveIndexLevel(product, {
+            niftyLevel: Number(current.niftyLevel) || marketLevels.niftyLevel,
+            sensexLevel: Number(current.sensexLevel) || marketLevels.sensexLevel,
+          })
+        : 0;
+      return {
+        ...current,
+        currentLevel: liveLevel > 0 ? String(liveLevel) : current.currentLevel,
+      };
+    });
+  }, [hydrated, marketLevels, dataset.products]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [hydrated, state]);
 
@@ -129,19 +148,26 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
         setState((current) => ({ ...current, [key]: value }));
       },
       selectProduct(product) {
-        const indexEntry = getIndexEntryLevel(product);
-        const price = getDebenturePrice(product);
-        const tradeDate = rawField(product, "Trade Date/Opening date", "Trade Date", "Allotment Date") ?? "";
-        setState((current) => ({
-          ...current,
-          productName: product.name,
-          isin: product.isin ?? "",
-          productCode: product.series ?? "",
-          category: product.category,
-          currentLevel: String(indexEntry),
-          purchaseDate: tradeDate || current.purchaseDate,
-          pricePerDebenture: price ? String(price) : current.pricePerDebenture,
-        }));
+        setState((current) => {
+          const indexEntry = getIndexEntryLevel(product);
+          const price = getDebenturePrice(product);
+          const tradeDate = rawField(product, "Trade Date/Opening date", "Trade Date", "Allotment Date") ?? "";
+          const liveLevel = resolveLiveIndexLevel(product, {
+            niftyLevel: Number(current.niftyLevel) || undefined,
+            sensexLevel: Number(current.sensexLevel) || undefined,
+          });
+          return {
+            ...current,
+            productName: product.name,
+            isin: product.isin ?? "",
+            productCode: product.series ?? "",
+            category: product.category,
+            currentLevel: liveLevel > 0 ? String(liveLevel) : String(indexEntry),
+            purchaseDate: tradeDate || current.purchaseDate,
+            pricePerDebenture: price ? String(price) : current.pricePerDebenture,
+            debentures: String(inferDebentureCount(product)),
+          };
+        });
       },
       setCategory(category) {
         setState((current) => ({ ...current, category }));

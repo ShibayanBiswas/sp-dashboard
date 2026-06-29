@@ -1,12 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { Bar, BarChart, ResponsiveContainer } from "recharts";
 
-import { ChartStage, CategoryAxis, PremiumGrid, RechartsPremiumTooltip, barChartMargins } from "@/components/charts/chart-kit";
 import { KpiBand, Panel, SectionTitle } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
-import { getCouponDistribution, getProtectionMix } from "@/lib/analytics";
 import { getCouponPercent, classifyProtection } from "@/lib/product-utils";
 import {
   filterProductsByLifecycle,
@@ -17,9 +14,13 @@ import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import type { ProductRecord } from "@/lib/types";
 import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
-const FILTERS: LifecycleFilter[] = ["ongoing", "expiring-3m", "expiring-1m", "expired"];
-
-export function LifecycleAnalyticsGrid({ products }: { products: ProductRecord[] }) {
+export function LifecycleAnalyticsGrid({
+  products,
+  filter = "ongoing",
+}: {
+  products: ProductRecord[];
+  filter?: LifecycleFilter;
+}) {
   const { asOf } = usePortfolioClock();
 
   return (
@@ -29,9 +30,8 @@ export function LifecycleAnalyticsGrid({ products }: { products: ProductRecord[]
         <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-purple-300">Lifecycle Category Analytics</p>
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
       </div>
-      {FILTERS.map((filter) => (
-        <LifecycleCategoryPanel key={filter} asOf={asOf} filter={filter} products={products} />
-      ))}
+
+      <LifecycleCategoryPanel asOf={asOf} filter={filter} products={products} />
     </div>
   );
 }
@@ -55,17 +55,23 @@ function LifecycleCategoryPanel({
   const protectedShare = pool.length
     ? pool.filter((p) => classifyProtection(p.principalProtection) === "protected").length / pool.length
     : 0;
-  const coupons = useMemo(() => getCouponDistribution(pool), [pool]);
-  const protection = useMemo(() => getProtectionMix(pool), [pool]);
   const label = LIFECYCLE_FILTER_LABELS[filter];
 
-  if (pool.length === 0) return null;
+  if (pool.length === 0) {
+    return (
+      <Panel className="!p-5" glow="purple">
+        <p className="text-center text-sm text-slate-400">No products in {label.toLowerCase()}.</p>
+      </Panel>
+    );
+  }
 
   return (
     <HorizontalBand>
       <Panel className="!p-4" glow={filter === "expired" ? "purple" : "cyan"}>
         <SectionTitle>{label}</SectionTitle>
-        <p className="mt-1 text-sm text-slate-500">{formatNumber(pool.length)} products · updated {asOf.toLocaleTimeString("en-IN")}</p>
+        <p className="mt-1 text-sm text-slate-500">
+          {formatNumber(pool.length)} products · updated {asOf.toLocaleTimeString("en-IN")}
+        </p>
         <div className="mt-4">
           <KpiBand
             accents={["cyan", "green", "purple", "amber"]}
@@ -76,26 +82,6 @@ function LifecycleCategoryPanel({
               { label: "Protected", value: formatPercent(protectedShare) },
             ]}
           />
-        </div>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <ChartStage height="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={coupons.filter((c) => c.value > 0)} margin={barChartMargins}>
-                <PremiumGrid />
-                <CategoryAxis dataKey="bucket" />
-                <RechartsPremiumTooltip formatter={(v) => formatCrores(Number(v))} />
-                <Bar dataKey="value" fill="#22d3ee" maxBarSize={36} radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartStage>
-          <div className="flex flex-wrap gap-2">
-            {protection.map((slice) => (
-              <div key={slice.name} className="spec-rail-card flex-1 min-w-[140px]">
-                <p className="spec-rail-label">{slice.name}</p>
-                <p className="spec-rail-value">{formatCrores(slice.value)}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </Panel>
     </HorizontalBand>

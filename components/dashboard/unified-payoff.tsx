@@ -27,18 +27,18 @@ import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
 import {
   filterProductsByLifecycle,
-  type LifecycleFilter,
+  LIFECYCLE_FILTERS,
   LIFECYCLE_FILTER_LABELS,
+  type LifecycleFilter,
 } from "@/lib/product-lifecycle";
-import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
-import { MathZ } from "@/components/ui/math-text";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveLiveIndexLevel, resolveValuationLevel } from "@/lib/product-utils";
+import { describePayoffBand } from "@/lib/product-narrative-format";
+import { PayoffScenariosTable } from "@/components/ui/payoff-scenarios-table";
 import type { ProductRecord } from "@/lib/types";
 import { buildEnhancedPayoffScenarioTable, type PayoffRowFlags } from "@/lib/workbook/payoff-pivots";
 import { getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
 import { downloadProductsExcel } from "@/lib/workbook/export-products";
-import { evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
-import { irrFromReturn } from "@/lib/workbook/irr";
-import { cn, formatCrores, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
+import { cn, formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
 const TABS = [
   { id: "details", label: "Non-PP SP Details" },
@@ -64,19 +64,24 @@ export function UnifiedPayoffDashboard() {
   const marketMove = useMemo(() => {
     if (!product) return 0;
     const entry = getIndexEntryLevel(product);
-    const level = resolveValuationLevel(product, {
+    const level = resolveLiveIndexLevel(product, {
       niftyLevel: Number(selection.niftyLevel) || undefined,
       sensexLevel: Number(selection.sensexLevel) || undefined,
     });
     return entry > 0 ? level / entry - 1 : 0;
   }, [product, selection.niftyLevel, selection.sensexLevel]);
 
+  const payoffBandNote = useMemo(() => {
+    if (!product?.formulaText) return undefined;
+    return describePayoffBand(product.formulaText, marketMove);
+  }, [product, marketMove]);
+
   const scenarios = useMemo(() => {
     if (!product?.formulaText) return [];
     return buildEnhancedPayoffScenarioTable(
       product,
       {
-        debentures: Number(selection.debentures) || 100,
+        debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
         pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
         remainingTenorDays: getPayoffTenorDays(product),
       },
@@ -84,12 +89,10 @@ export function UnifiedPayoffDashboard() {
     );
   }, [product, selection.debentures, selection.pricePerDebenture, marketMove]);
 
-  const currentPayoff = useMemo(() => {
-    if (!product?.formulaText) return { returnOnInvestment: 0, irr: 0 };
-    const ret = evaluatePayoffFormula(product.formulaText, marketMove);
-    const irr = irrFromReturn(ret, getPayoffTenorDays(product));
-    return { returnOnInvestment: ret, irr };
-  }, [product, marketMove]);
+  const livePayoffIrr = useMemo(() => {
+    const live = scenarios.find((r) => r.isCurrent);
+    return live?.irr ?? 0;
+  }, [scenarios]);
 
   const targetDisplay = useMemo(() => {
     if (!product) return "—";
@@ -108,7 +111,7 @@ export function UnifiedPayoffDashboard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <SubTitle>Primary Payoff · Portfolio Filter</SubTitle>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(LIFECYCLE_FILTER_LABELS) as LifecycleFilter[]).map((key) => (
+              {LIFECYCLE_FILTERS.map((key) => (
                 <Button
                   key={key}
                   active={lifecycle === key}
@@ -130,8 +133,9 @@ export function UnifiedPayoffDashboard() {
 
       {tab === "details" ? (
         <NonPpSpDetails
-          currentPayoff={currentPayoff}
+          livePayoffIrr={livePayoffIrr}
           marketMove={marketMove}
+          payoffBandNote={payoffBandNote}
           pool={pool}
           product={product}
           scenarios={scenarios}
@@ -144,20 +148,30 @@ export function UnifiedPayoffDashboard() {
 }
 
 function NonPpSpDetails({
-  currentPayoff,
+  livePayoffIrr,
   marketMove,
+  payoffBandNote,
   pool,
   product,
   scenarios,
   targetDisplay,
 }: {
-  currentPayoff: { returnOnInvestment: number; irr: number };
+  livePayoffIrr: number;
   marketMove: number;
+  payoffBandNote?: string;
   pool: ProductRecord[];
   product?: ProductRecord;
   scenarios: PayoffRowFlags[];
   targetDisplay: string;
 }) {
+  const selection = useProductSelection();
+  const liveLevel = product
+    ? resolveLiveIndexLevel(product, {
+        niftyLevel: Number(selection.niftyLevel) || undefined,
+        sensexLevel: Number(selection.sensexLevel) || undefined,
+      })
+    : 0;
+  const indexLabel = product && isSensexLinked(product) ? "Sensex" : "Nifty";
   return (
     <>
       <HorizontalBand className="mt-4">
@@ -174,26 +188,24 @@ function NonPpSpDetails({
       {product ? (
         <>
           <HorizontalBand className="mt-4">
-            <KpiBand
-              accents={["cyan", "purple", "green", "amber"]}
-              items={[
-                { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
-                { label: "Target Level", value: targetDisplay },
-                {
-                  label: `Return @ ${formatFormulaReturn(marketMove, 1)} move`,
-                  value: formatFormulaReturn(currentPayoff.returnOnInvestment),
-                },
-                { label: "XIRR @ current move", value: formatPercent(currentPayoff.irr, 2) },
-              ]}
-            />
-          </HorizontalBand>
-
-          <HorizontalBand className="mt-4">
-            <ProductNarrative product={product} />
-          </HorizontalBand>
-
-          <HorizontalBand className="mt-4">
             <RevealOutput label="Click here to view payoff output">
+              <KpiBand
+                accents={["cyan", "purple", "green"]}
+                items={[
+                  { label: `Live ${indexLabel} Level`, value: formatNumber(liveLevel) },
+                  { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
+                  { label: "Target Level", value: targetDisplay },
+                  { label: "Live Index Move (Z)", value: formatPercent(marketMove, 1) },
+                  { label: "XIRR @ live move", value: formatPercent(livePayoffIrr, 2) },
+                ]}
+              />
+              {payoffBandNote ? (
+                <p className="mt-2 text-center text-xs italic text-amber-200/90">{payoffBandNote}</p>
+              ) : null}
+
+              <HorizontalBand className="mt-4">
+                <ProductNarrative product={product} />
+              </HorizontalBand>
               {product.formulaText ? (
                 <PayoffCurvePanel
                   entryLevel={getIndexEntryLevel(product)}
@@ -228,32 +240,7 @@ function NonPpSpDetails({
                   </div>
                   <SectionInfo {...SECTION_INFO["pay-output"]} />
                   <div className="mt-3 max-h-[min(56vh,560px)] overflow-auto">
-                    <DataTable>
-                      <thead>
-                        <tr>
-                          <th>Final Fixing</th>
-                          <th>Underlying&apos;s Performance</th>
-                          <th>Product Returns</th>
-                          <th>XIRR</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {scenarios.map((row) => (
-                          <tr
-                            key={`${row.performance}-${row.isPivot ? "p" : ""}${row.isCurrent ? "c" : ""}`}
-                            className={cn(
-                              row.isPivot && "pivot-row font-semibold",
-                              row.isCurrent && "current-row",
-                            )}
-                          >
-                            <td>{formatNumber(row.finalFixing)}</td>
-                            <td>{formatPercent(row.performance, 1)}</td>
-                            <td>{formatFormulaReturn(row.maturityValue)}</td>
-                            <td>{formatPercent(row.irr, 2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </DataTable>
+                    <PayoffScenariosTable rows={scenarios} />
                   </div>
                 </Panel>
               </HorizontalBand>

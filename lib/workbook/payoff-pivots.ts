@@ -17,8 +17,10 @@ export type PayoffRowFlags = PayoffScenarioRow & {
 /** Detect Z levels where payoff slope changes sharply (formula kinks / IF boundaries). */
 export function findPayoffPivotZs(formula: string, zMin = -0.55, zMax = 1.3): number[] {
   if (!formula?.trim()) return [];
+
+  const explicit = extractFormulaThresholds(formula);
   const step = 0.002;
-  const pivots: number[] = [];
+  const pivots: number[] = [...explicit];
   let prevSlope = 0;
   let z = zMin;
   let prevPayoff = evaluatePayoffFormula(formula, z);
@@ -37,6 +39,17 @@ export function findPayoffPivotZs(formula: string, zMin = -0.55, zMax = 1.3): nu
   }
 
   return pivots.sort((a, b) => b - a);
+}
+
+/** IF-boundary tokens like 32%, -15% → Z performance decimals. */
+function extractFormulaThresholds(formula: string): number[] {
+  const found: number[] = [];
+  for (const match of formula.matchAll(/([+-]?\d+(?:\.\d+)?)%/g)) {
+    const pct = Number(match[1]);
+    if (!Number.isFinite(pct) || Math.abs(pct) > 150) continue;
+    found.push(Math.round((pct / 100) * 1000) / 1000);
+  }
+  return [...new Set(found)];
 }
 
 function rowForPerformance(

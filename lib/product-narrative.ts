@@ -1,9 +1,10 @@
 import type { ProductRecord } from "@/lib/types";
+import { formatProductExplanation } from "@/lib/product-narrative-format";
 import { rawField } from "@/lib/product-utils";
 
 /** Build human-readable product overview — never exposes raw formula strings. */
 export function getProductOverview(product: ProductRecord) {
-  const explanation =
+  const rawExplanation =
     product.productExplanation?.trim() ||
     rawField(product, "Product Explanation", "Product explanation", "Description") ||
     "";
@@ -17,7 +18,7 @@ export function getProductOverview(product: ProductRecord) {
 
   return {
     title: product.name,
-    explanation,
+    explanation: formatProductExplanation(rawExplanation),
     structure,
     issuer: product.issuer,
     isin: product.isin,

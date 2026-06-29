@@ -11,8 +11,8 @@ npm run dev
 1. **Home** — Portfolio by Lifecycle shows counts; timestamp updates each minute.
 2. **Market** — Valuation inputs show today’s date + Nifty/Sensex (green “Live · Yahoo Finance” badge).
 3. **Valuation** — Select Gearing Accelerator INE093JA7Q38 → Click reveal → Current Value ~₹198k on live levels.
-4. **Payoff** — Nifty Accelerator INE093JA77C4 → Return @ move shows **actual** Z (e.g. 40.2% not hardcoded 40%).
-5. **Analytics** — Four lifecycle category panels with AUM / coupon / protection.
+4. **Payoff** — Nifty Accelerator INE093JA77C4 → Current Level read-only from Yahoo; Return @ move uses live Z (e.g. +40% at Nifty ~23,548 vs entry 16,800). Product Overview shows **76.0% (75.0% participation + 100% coupon)** not 7600%.
+5. **Analytics / Home** — One lifecycle category panel at a time; switching Ongoing / Expiring 3M / 1M / Expired updates AUM, coupon, protection mix.
 6. **Export** — “Export view” / “Full workbook” / per-page Download buttons produce `.xlsx`.
 
 ## API checks
@@ -65,7 +65,8 @@ Persists: ISIN, product code, name, debentures — **not** valuation date/levels
 | Wrong product value | `valuation-engine.ts`, `getClientInvestment()` |
 | Wrong payoff % | `formula-engine.ts`, `payoff-pivots.ts` |
 | Stale lifecycle counts | `product-lifecycle.ts`, `usePortfolioClock` |
-| Stale index | `/api/market/levels`, `use-market-sync.ts` |
+| Stale index | `/api/market/levels`, `use-market-sync.ts`, `resolveLiveIndexLevel()` |
+| 7600% / 7500% in narrative | `lib/product-narrative-format.ts` |
 | Export empty | `export-products.ts`, filter pool size |
 | Chart tooltip % on index | `payoff-underlying-chart.tsx` `dataKey === 'underlyingLevel'` |
 
