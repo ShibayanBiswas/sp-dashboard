@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { DESK_DEFAULTS } from "@/lib/desk-defaults";
+import { useMarketSync } from "@/lib/hooks/use-market-sync";
+import type { MarketLevels } from "@/lib/market-data";
 import { resolveProduct, getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
 import { useDataset } from "@/lib/context/dataset-provider";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
@@ -44,6 +46,9 @@ const DEFAULT_STATE: ProductSelectionState = {
 
 type ProductSelectionContextValue = ProductSelectionState & {
   resolvedProduct: ProductRecord | undefined;
+  marketStatus: "idle" | "loading" | "ready" | "error";
+  marketLevels: MarketLevels | null;
+  refreshMarket: () => Promise<MarketLevels | null>;
   setField: <K extends keyof ProductSelectionState>(key: K, value: ProductSelectionState[K]) => void;
   selectProduct: (product: ProductRecord) => void;
   setCategory: (category: ProductCategory | undefined) => void;
@@ -56,11 +61,33 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
   const [state, setState] = useState<ProductSelectionState>(DEFAULT_STATE);
   const [hydrated, setHydrated] = useState(false);
 
+  const applyMarket = useCallback((levels: MarketLevels) => {
+    setState((current) => ({
+      ...current,
+      valuationDate: levels.valuationDate,
+      niftyLevel: String(levels.niftyLevel),
+      sensexLevel: String(levels.sensexLevel),
+    }));
+  }, []);
+
+  const { status: marketStatus, levels: marketLevels, refresh: refreshMarket } = useMarketSync(applyMarket);
+
   useEffect(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
-        setState({ ...DEFAULT_STATE, ...(JSON.parse(cached) as ProductSelectionState) });
+        const parsed = JSON.parse(cached) as ProductSelectionState;
+        setState({
+          ...DEFAULT_STATE,
+          isin: parsed.isin,
+          productCode: parsed.productCode,
+          productName: parsed.productName,
+          category: parsed.category,
+          debentures: parsed.debentures,
+          purchaseDate: parsed.purchaseDate,
+          pricePerDebenture: parsed.pricePerDebenture,
+          currentLevel: parsed.currentLevel,
+        });
       } else if (dataset.products[0]) {
         setState((current) => ({ ...current, productName: dataset.products[0].name }));
       }
@@ -95,6 +122,9 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
     () => ({
       ...state,
       resolvedProduct,
+      marketStatus,
+      marketLevels,
+      refreshMarket,
       setField(key, value) {
         setState((current) => ({ ...current, [key]: value }));
       },
@@ -117,7 +147,7 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
         setState((current) => ({ ...current, category }));
       },
     }),
-    [resolvedProduct, state],
+    [resolvedProduct, state, marketStatus, marketLevels, refreshMarket],
   );
 
   return <ProductSelectionContext.Provider value={value}>{children}</ProductSelectionContext.Provider>;

@@ -34,17 +34,9 @@ import {
   getUnderlyingExposure,
 } from "@/lib/analytics";
 import { chartTheme } from "@/lib/chart-theme";
+import { LIFECYCLE_STATUS_LABELS } from "@/lib/product-lifecycle";
 import type { ProductRecord } from "@/lib/types";
 import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
-
-const lifecycleLabels: Record<string, string> = {
-  ongoing: "Ongoing",
-  expired: "Expired",
-  perpetual: "Perpetual",
-  upcoming: "Upcoming",
-  "maturing-soon": "Maturing 90D",
-  unknown: "Unknown",
-};
 
 export function ScienceLab({ products }: { products: ProductRecord[] }) {
   const lifecycle = getLifecycleChartData(products);
@@ -88,7 +80,7 @@ export function ScienceLab({ products }: { products: ProductRecord[] }) {
                 <Legend
                   formatter={(value) => {
                     const entry = lifecycle.find((e) => e.status === value);
-                    const label = lifecycleLabels[String(value)] ?? String(value);
+                    const label = LIFECYCLE_STATUS_LABELS[String(value) as keyof typeof LIFECYCLE_STATUS_LABELS] ?? String(value);
                     return entry ? `${label} · ${entry.count} · ${formatCrores(entry.notional)}` : label;
                   }}
                   iconType="circle"
@@ -225,7 +217,7 @@ export function ScienceLab({ products }: { products: ProductRecord[] }) {
 
       <HorizontalBand>
         <Panel glow="purple">
-          <SectionTitle>Ongoing Vs Expired Intelligence</SectionTitle>
+          <SectionTitle>Lifecycle Intelligence</SectionTitle>
           <div className="mt-4">
             <DataTable>
               <thead>
@@ -247,7 +239,7 @@ export function ScienceLab({ products }: { products: ProductRecord[] }) {
                             backgroundColor: lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
                           }}
                         />
-                        {lifecycleLabels[row.status] ?? row.status}
+                        {LIFECYCLE_STATUS_LABELS[row.status as keyof typeof LIFECYCLE_STATUS_LABELS] ?? row.status}
                       </span>
                     </td>
                     <td>{formatNumber(row.count)}</td>

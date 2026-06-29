@@ -1,5 +1,5 @@
 import type { ProductCategory, ProductRecord } from "@/lib/types";
-import { formatFormulaReturn } from "@/lib/utils";
+import { formatCouponDisplay, formatFormulaReturn } from "@/lib/utils";
 
 export function rawField(product: ProductRecord | undefined, ...keys: string[]) {
   if (!product) {
@@ -45,8 +45,14 @@ export function getEntryLevel(product: ProductRecord) {
 }
 
 export function getCouponLabel(product: ProductRecord): string | undefined {
-  const raw = rawField(product, "Coupon / PR / DM", "Coupon (%)", "Product return");
-  if (raw?.trim()) return raw.trim();
+  const headline = rawField(product, "Coupon (%)", "Coupon");
+  const headlineDisplay = formatCouponDisplay(headline);
+  if (headlineDisplay) return headlineDisplay;
+
+  const raw = rawField(product, "Coupon / PR / DM", "Product return");
+  const fromRaw = formatCouponDisplay(raw);
+  if (fromRaw) return fromRaw;
+
   const parsed = getCouponPercent(product);
   if (parsed !== undefined) return formatFormulaReturn(parsed);
   return undefined;

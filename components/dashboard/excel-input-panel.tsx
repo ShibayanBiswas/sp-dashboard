@@ -2,8 +2,9 @@
 
 import type { ReactNode } from "react";
 
+import { IsinSelect, ProductCodeSelect } from "@/components/ui/identity-selects";
 import { ProductSelectField } from "@/components/ui/product-select-field";
-import { FieldRow, FieldStack, Input, Select, SubTitle } from "@/components/layout/app-ui";
+import { Button, FieldRow, FieldStack, Input, Select, SubTitle } from "@/components/layout/app-ui";
 import {
   DEBENTURE_PRESETS,
   getPayoffSteps,
@@ -15,7 +16,7 @@ import {
 import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { getDebenturePrice, getIndexEntryLevel, rawField } from "@/lib/product-utils";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 
 export function ExcelInputPanel({
   category,
@@ -35,9 +36,21 @@ export function ExcelInputPanel({
   return (
     <div className="space-y-3">
       {!compact ? (
-        <p className="rounded-lg border border-amber-500/25 bg-amber-500/8 px-3 py-2 text-xs text-amber-100">
+        <p className="rounded-lg border border-amber-500/20 bg-transparent px-3 py-2 text-xs text-amber-100/90">
           {INPUT_HINT}
         </p>
+      ) : null}
+
+      {selection.marketLevels ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="market-live-badge">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Live · {selection.marketLevels.source === "yahoo" ? "Yahoo Finance" : "Desk fallback"}
+          </span>
+          <Button type="button" variant="ghost" onClick={() => void selection.refreshMarket()}>
+            Refresh levels
+          </Button>
+        </div>
       ) : null}
 
       {mode === "valuation" && fields ? (
@@ -50,6 +63,36 @@ export function ExcelInputPanel({
                   <p key={field.key} className="py-1 text-center text-xs font-bold uppercase tracking-[0.3em] text-slate-500">
                     — {field.label} —
                   </p>
+                );
+              }
+              if (field.key === "isin") {
+                return (
+                  <FieldRow key={field.key} label={field.label}>
+                    <IsinSelect
+                      products={products}
+                      value={selection.isin}
+                      onChange={(isin, product) => {
+                        selection.setField("isin", isin);
+                        if (product) selection.selectProduct(product);
+                        selection.setCategory(category);
+                      }}
+                    />
+                  </FieldRow>
+                );
+              }
+              if (field.key === "productCode") {
+                return (
+                  <FieldRow key={field.key} label={field.label}>
+                    <ProductCodeSelect
+                      products={products}
+                      value={selection.productCode}
+                      onChange={(code, product) => {
+                        selection.setField("productCode", code);
+                        if (product) selection.selectProduct(product);
+                        selection.setCategory(category);
+                      }}
+                    />
+                  </FieldRow>
                 );
               }
               if (field.key === "productName") {
@@ -69,23 +112,18 @@ export function ExcelInputPanel({
               if (field.key === "debentures") {
                 return (
                   <FieldRow key={field.key} label={field.label}>
-                    <DebentureSelect
-                      value={selection.debentures}
-                      onChange={(v) => selection.setField("debentures", v)}
-                    />
+                    <DebentureSelect value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
                   </FieldRow>
                 );
               }
-              const isLevelField = field.key === "niftyLevel" || field.key === "sensexLevel";
-              const stateKey = (isLevelField ? field.key : field.key) as keyof typeof selection;
-              if (!(stateKey in selection)) {
-                return null;
-              }
+              const stateKey = field.key as keyof typeof selection;
+              if (!(stateKey in selection)) return null;
               const value = String(selection[stateKey] ?? "");
               return (
                 <FieldRow key={field.key} label={field.label}>
                   <Input
-                    className={field.highlight ? "input-glow" : undefined}
+                    className={cn(field.highlight && "input-glow", field.key === "valuationDate" && "font-semibold text-amber-100")}
+                    readOnly={field.key === "valuationDate" && selection.marketStatus === "ready"}
                     type={field.type === "number" ? "number" : "text"}
                     value={value}
                     onChange={(e) => selection.setField(stateKey as "isin", e.target.value)}
@@ -165,6 +203,11 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
           onChange={(e) => selection.setField("pricePerDebenture", e.target.value)}
         />
       </FieldRow>
+      {product ? (
+        <p className="text-xs text-slate-500">
+          Live index: Nifty {formatNumber(Number(selection.niftyLevel) || 0)} · Sensex {formatNumber(Number(selection.sensexLevel) || 0)}
+        </p>
+      ) : null}
     </FieldStack>
   );
 }
@@ -174,7 +217,7 @@ function DebentureSelect({ value, onChange }: { value: string; onChange: (v: str
   return (
     <div className="flex gap-2">
       <Select
-        className="flex-1"
+        className="select-dark flex-1"
         value={isPreset ? value : "__custom__"}
         onChange={(e) => {
           if (e.target.value !== "__custom__") onChange(e.target.value);
@@ -187,9 +230,7 @@ function DebentureSelect({ value, onChange }: { value: string; onChange: (v: str
         ))}
         <option value="__custom__">Custom…</option>
       </Select>
-      {!isPreset ? (
-        <Input className="w-28" value={value} onChange={(e) => onChange(e.target.value)} />
-      ) : null}
+      {!isPreset ? <Input className="w-28" value={value} onChange={(e) => onChange(e.target.value)} /> : null}
     </div>
   );
 }
@@ -198,7 +239,7 @@ export function DisclaimerBox({ children, className }: { children: ReactNode; cl
   return (
     <div
       className={cn(
-        "rounded-2xl border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-xs leading-6 text-rose-200/90",
+        "rounded-2xl border border-rose-500/20 bg-transparent px-4 py-3 text-xs leading-6 text-rose-200/90",
         className,
       )}
     >

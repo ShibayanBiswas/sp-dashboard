@@ -34,19 +34,19 @@ export const horizontalBarMargins = { top: 12, right: 24, left: 8, bottom: 12 };
 
 
 
-export function PremiumGrid({ vertical = true }: { vertical?: boolean }) {
+export function PremiumGrid({ vertical = true, yAxisId }: { vertical?: boolean; yAxisId?: string }) {
 
   return (
 
     <>
 
-      <CartesianGrid stroke={chartTheme.gridFine} strokeDasharray="2 10" vertical={vertical} horizontal />
+      <CartesianGrid stroke={chartTheme.gridFine} strokeDasharray="3 12" vertical={vertical} horizontal yAxisId={yAxisId} />
 
-      <CartesianGrid stroke={chartTheme.gridMajor} strokeDasharray="1 6" vertical={vertical} horizontal />
+      <CartesianGrid stroke={chartTheme.gridMajor} strokeDasharray="1 5" vertical={vertical} horizontal yAxisId={yAxisId} />
 
-      <CartesianGrid stroke={chartTheme.gridMinor} strokeDasharray="4 8" vertical={vertical} horizontal />
+      <CartesianGrid stroke={chartTheme.gridMinor} strokeDasharray="6 10" vertical={vertical} horizontal yAxisId={yAxisId} />
 
-      <ReferenceLine stroke="rgba(34,211,238,0.2)" strokeDasharray="6 6" y={0} />
+      <ReferenceLine stroke="rgba(34,211,238,0.25)" strokeDasharray="5 5" y={0} yAxisId={yAxisId} />
 
     </>
 

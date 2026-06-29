@@ -1,48 +1,59 @@
 # SP Dashboard
 
-**Primary structured-products** desk dashboard — valuation, payoff scenarios, and portfolio analytics in one web app.
+Primary structured-products desk — valuation, payoff, portfolio lifecycle, and analytics mirroring the Excel workbooks.
 
-## Features
-
-- **Home** — live notional, maturity ladder, product search
-- **Valuation** — mark-to-market by product (inputs, KPIs, product list)
-- **Payoff** — scenario table and payoff curve per product formula
-- **Portfolio Analytics** — lifecycle, coupons, protection mix, tenor, top underlyings
-- **Master upload** — drop an updated `New Product Master_.xlsx` from Home
-
-## Quick start
+## Run
 
 ```bash
 npm install
-npm run bake      # optional — refresh seed from local Excel
-npm run dev       # http://localhost:3000
+npm run dev
 ```
 
-Reference workbooks stay local (see `.gitignore`).
+Open [http://localhost:3000](http://localhost:3000). Upload **New Product Master_.xlsx** from Home to refresh the book.
 
-## Recent updates (Jun 2026)
+## Modules
 
-- **Valuation IRR** — uses trade/allotment date from master, not purchase date; two-digit years parse correctly (e.g. `31-May-26` → 2026)
-- **Payoff table** — matches workbook: Z = performance sweep; final fixing = initial index × (1 + performance); tenor from **Payoff Tenor(Days)** column
-- **Charts** — money axis labels on one line (`₹13.5kCr`); wider left margin so ticks are not clipped
-- **Formatting** — Indian ₹ grouping; max 3 decimal places; no scientific notation on IRR
-- **Dynamic master** — entry level, formula, price/debenture, and tenor read from uploaded Primary sheet (no hardcoded product values)
+| Route | Purpose |
+|-------|---------|
+| `/` | Home — lifecycle lists, maturity ladder, desk shortcuts |
+| `/valuation` | Live mark-to-market (Excel Working sheet parity) |
+| `/payoff` | Payoff scenarios and curve |
+| `/portfolio/details` | Product details — horizontal layout, lifecycle filters |
+| `/portfolio/analytics` | Analytics lab + lifecycle export |
+| `/intelligence` | Logic atlas |
+| `/upload` | Master upload & validation |
+
+## Lifecycle buckets
+
+- **Ongoing** — maturity more than 3 months away  
+- **Expiring in 3M** — within 90 calendar days (includes 1M bucket)  
+- **Expiring in 1M** — within 30 calendar days  
+- **Expired** — past maturity (no live valuation)
+
+Each bucket has a searchable product list and **Export view** / **Full workbook** (multi-sheet `.xlsx` with all master fields).
+
+## Valuation logic
+
+Face value (typically ₹1L) drives client investment. Product value **X** = `max(V, U)` from the Working sheet; discount branch when last observation is before valuation date. IRR uses allotment → valuation elapsed days.
+
+## Scripts
+
+```bash
+npm run build      # production build
+npm run verify     # rebake seed + product checks
+npm run bake       # regenerate lib/data/master-seed.json
+```
 
 ## Documentation
 
-| Doc | What it covers |
-|-----|----------------|
-| [04-full-codebase-audit.md](docs/04-full-codebase-audit.md) | **Start here** — how the app works today |
-| [01-input-master-workbook.md](docs/01-input-master-workbook.md) | Primary sheet columns (reference) |
-| [02-primary-valuation-workbook.md](docs/02-primary-valuation-workbook.md) | Valuation workbook mapping |
-| [03-primary-payoff-workbook.md](docs/03-primary-payoff-workbook.md) | Payoff workbook mapping |
-
-**Portfolio → Product Details** (`/portfolio/details`) — combined product view with valuation KPIs, specs, payoff table, and chart.
+| Doc | Contents |
+|-----|----------|
+| [docs/01-architecture.md](docs/01-architecture.md) | Modules, routes, auto-update |
+| [docs/02-valuation-excel-parity.md](docs/02-valuation-excel-parity.md) | Working sheet formulas |
+| [docs/03-testing-debug.md](docs/03-testing-debug.md) | Smoke tests, debug map |
 
 ## Stack
 
-Next.js · React · TypeScript · Tailwind · Recharts · XLSX
+Next.js · TypeScript · Tailwind · Recharts · xlsx · date-fns
 
-## License
-
-Proprietary — Anand Rathi Wealth Limited desk tooling.
+Reference workbooks (local, gitignored): `New Product Master_.xlsx`, `Dashboards - 31st May 26/*.xlsm`.

@@ -1,9 +1,9 @@
 /** Shared Recharts styling for premium dark dashboards. */
 export const chartTheme = {
-  grid: "rgba(148, 163, 184, 0.08)",
-  gridMajor: "rgba(34, 211, 238, 0.18)",
-  gridMinor: "rgba(148, 163, 184, 0.06)",
-  gridFine: "rgba(168, 85, 247, 0.08)",
+  grid: "rgba(148, 163, 184, 0.1)",
+  gridMajor: "rgba(34, 211, 238, 0.28)",
+  gridMinor: "rgba(148, 163, 184, 0.08)",
+  gridFine: "rgba(168, 85, 247, 0.14)",
   axis: "#64748b",
   axisLine: "rgba(100, 116, 139, 0.35)",
   tick: "#94a3b8",

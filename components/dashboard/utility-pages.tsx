@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { useMemo, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { FileSpreadsheet, Upload as UploadIcon } from "lucide-react";
 
 import { PayoffCurvePanel } from "@/components/dashboard/payoff-curve";
 import { ExcelInputPanel } from "@/components/dashboard/excel-input-panel";
+import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { ProductNarrative } from "@/components/dashboard/product-narrative";
 import { ProductCombobox } from "@/components/ui/product-combobox";
 import { PivotTable } from "@/components/ui/pivot-table";
@@ -15,9 +16,7 @@ import {
   AppPage,
   Button,
   DataTable,
-  FieldGrid,
   FieldRow,
-  Input,
   KpiBand,
   Output,
   OutputGlow,
@@ -25,13 +24,25 @@ import {
   SectionTitle,
   SubTitle,
 } from "@/components/layout/app-ui";
+import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
+import {
+  filterProductsByLifecycle,
+  getProductLifecycleStatus,
+  isValuationApplicable,
+  LIFECYCLE_STATUS_LABELS,
+  type LifecycleFilter,
+} from "@/lib/product-lifecycle";
 import { categoryNeon } from "@/lib/chart-theme";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
 import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
+import { buildEnhancedPayoffScenarioTable } from "@/lib/workbook/payoff-pivots";
+import { downloadProductsExcel } from "@/lib/workbook/export-products";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
-import { formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
+import { cn, formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent, formatProductUnitValue } from "@/lib/utils";
+import { RevealOutput } from "@/components/ui/reveal-output";
+import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 
 export function ProductSearchPage() {
   const { dataset } = useDataset();
@@ -236,9 +247,23 @@ export function UploadDiagnosticsPage() {
 export function ProductDetailsPage() {
   const { dataset } = useDataset();
   const selection = useProductSelection();
-  const product = selection.resolvedProduct;
+  const { asOf } = usePortfolioClock();
+  const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
 
-  const valuation = product
+  const pool = useMemo(
+    () => filterProductsByLifecycle(dataset.products, lifecycle, asOf),
+    [dataset.products, lifecycle, asOf],
+  );
+
+  const product =
+    selection.resolvedProduct && pool.some((p) => p.rowId === selection.resolvedProduct?.rowId)
+      ? selection.resolvedProduct
+      : pool[0];
+
+  const canValue = product ? isValuationApplicable(product, asOf) : false;
+  const lifecycleStatus = product ? getProductLifecycleStatus(product, asOf) : undefined;
+
+  const valuation = product && canValue
     ? computeValuation(product, {
         valuationDate: selection.valuationDate,
         currentLevel: resolveValuationLevel(product, {
@@ -250,103 +275,156 @@ export function ProductDetailsPage() {
       })
     : null;
 
+  const marketMove = useMemo(() => {
+    if (!product) return 0;
+    const entry = getIndexEntryLevel(product);
+    const level = resolveValuationLevel(product, {
+      niftyLevel: Number(selection.niftyLevel) || undefined,
+      sensexLevel: Number(selection.sensexLevel) || undefined,
+    });
+    return entry > 0 ? level / entry - 1 : 0;
+  }, [product, selection.niftyLevel, selection.sensexLevel]);
+
   const scenarios = product?.formulaText
-    ? buildPayoffScenarioTable(product, {
-        debentures: Number(selection.debentures) || 100,
-        pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
-        remainingTenorDays: getPayoffTenorDays(product),
-      }).slice(0, 8)
+    ? buildEnhancedPayoffScenarioTable(
+        product,
+        {
+          debentures: Number(selection.debentures) || 100,
+          pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+          remainingTenorDays: getPayoffTenorDays(product),
+        },
+        marketMove,
+      )
+    : [];
+
+  const specCards = product
+    ? [
+        { label: "Category", value: product.category },
+        { label: "Issuer", value: product.issuer ?? "—" },
+        { label: "ISIN", value: product.isin ?? "—" },
+        { label: "Entry Level", value: String(rawField(product, "Entry Level", "Initial Level") ?? getIndexEntryLevel(product)) },
+        { label: "Maturity", value: product.maturityRaw ?? "—" },
+        { label: "Notional", value: formatCrores(product.tradeAmount ?? 0) },
+      ]
     : [];
 
   return (
     <AppPage dense title="Product Details">
-      <Panel glow="cyan" className="mb-6">
-        <SubTitle>Select Product</SubTitle>
-        <div className="mt-3">
-          <ExcelInputPanel
-            category={product?.category ?? "Primary"}
-            mode="valuation"
-            products={dataset.products}
-          />
-        </div>
-      </Panel>
+      <HorizontalBand>
+        <LifecycleProductList
+          compact
+          filter={lifecycle}
+          products={dataset.products}
+          selectedId={product?.rowId}
+          onFilterChange={setLifecycle}
+          onSelect={(p) => selection.selectProduct(p)}
+        />
+      </HorizontalBand>
 
       {!product ? (
-        <Panel>
-          <Output>Select a product from the dropdown above or the Products page.</Output>
-        </Panel>
+        <HorizontalBand className="mt-4">
+          <Panel>
+            <Output>No products in this lifecycle bucket — switch category or upload master data.</Output>
+          </Panel>
+        </HorizontalBand>
       ) : (
-        <div className="space-y-4">
-          <KpiBand
-            accents={["cyan", "purple", "green"]}
-            items={[
-              { label: "Product Value", value: formatCurrency(valuation?.productValue ?? 0) },
-              { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0) },
-              { label: "IRR", value: formatPercent(valuation?.productIrr ?? 0) },
-            ]}
-          />
-        <div className="grid gap-4 xl:grid-cols-[1fr_1.2fr]">
-          <div className="grid gap-4">
-            <ProductNarrative product={product} />
-            <Panel glow="purple" className="!p-4">
-              <SectionTitle icon={FileSpreadsheet}>Specifications</SectionTitle>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <FieldRow label="Category">
-                  <OutputGlow accent="cyan">{product.category}</OutputGlow>
-                </FieldRow>
-                <FieldRow label="Issuer">
-                  <Output>{product.issuer ?? "—"}</Output>
-                </FieldRow>
-                <FieldRow label="ISIN">
-                  <Output className="font-mono">{product.isin ?? "—"}</Output>
-                </FieldRow>
-                <FieldRow label="Entry Level">
-                  <OutputGlow accent="purple">
-                    {rawField(product, "Entry Level", "Initial Level") ?? getIndexEntryLevel(product)}
-                  </OutputGlow>
-                </FieldRow>
+        <div className="mt-4 space-y-4">
+          <HorizontalBand>
+            <Panel className="!p-4" glow="cyan">
+              <SubTitle>Desk Inputs</SubTitle>
+              <div className="mt-3">
+                <ExcelInputPanel category={product.category} compact mode="valuation" products={pool} />
               </div>
             </Panel>
-            <Panel glow="cyan" className="!p-4">
-              <SectionTitle>Payoff Scenarios</SectionTitle>
-              <div className="mt-3 max-h-64 overflow-auto">
-                <DataTable>
-                  <thead>
-                    <tr>
-                      <th>Final Fixing</th>
-                      <th>Z</th>
-                      <th>Return</th>
-                      <th>IRR</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scenarios.map((row) => (
-                      <tr key={row.performance}>
-                        <td>{formatNumber(row.finalFixing)}</td>
-                        <td>{formatPercent(row.z)}</td>
-                        <td>{formatFormulaReturn(row.maturityValue)}</td>
-                        <td>{formatPercent(row.irr)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </DataTable>
-              </div>
-            </Panel>
-          </div>
-          <motion.div animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 12 }}>
-            {product.formulaText ? (
-              <PayoffCurvePanel
-                entryLevel={getIndexEntryLevel(product)}
-                formula={product.formulaText}
-                title={product.name}
-              />
-            ) : (
-              <Panel>
-                <Output>Payoff analysis unavailable for this product.</Output>
-              </Panel>
-            )}
-          </motion.div>
-        </div>
+          </HorizontalBand>
+
+          <HorizontalBand>
+            <RevealOutput label="Click here to view product output">
+              {!canValue ? (
+                <Panel className="!p-5" glow="purple">
+                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200">
+                    {lifecycleStatus ? LIFECYCLE_STATUS_LABELS[lifecycleStatus] : "Inactive"}
+                  </p>
+                  <p className="mt-2 text-center text-sm text-slate-400">
+                    Live valuation not applicable — payoff structure and specs remain below.
+                  </p>
+                </Panel>
+              ) : (
+                <KpiBand
+                  accents={["cyan", "purple", "green"]}
+                  items={[
+                    { label: "Current Value", value: formatProductUnitValue(valuation?.productValue ?? 0) },
+                    { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0) },
+                    { label: "IRR", value: formatPercent(valuation?.productIrr ?? 0) },
+                  ]}
+                />
+              )}
+
+              <HorizontalBand className="mt-4">
+                <ProductNarrative product={product} />
+              </HorizontalBand>
+
+              {product.formulaText ? (
+                <HorizontalBand className="mt-4">
+                  <PayoffCurvePanel
+                    entryLevel={getIndexEntryLevel(product)}
+                    formula={product.formulaText}
+                    marketMove={marketMove}
+                    title={product.name}
+                  />
+                </HorizontalBand>
+              ) : null}
+
+              <HorizontalBand className="mt-4">
+                <HorizontalRail>
+                  {specCards.map((spec) => (
+                    <RailCard key={spec.label} minWidth="min-w-[160px]">
+                      <div className="spec-rail-card">
+                        <p className="spec-rail-label">{spec.label}</p>
+                        <p className={cn("spec-rail-value", spec.label === "ISIN" && "font-mono text-xs")}>{spec.value}</p>
+                      </div>
+                    </RailCard>
+                  ))}
+                </HorizontalRail>
+              </HorizontalBand>
+
+              <HorizontalBand className="mt-4">
+                <Panel glow="cyan" className="!p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <SectionTitle>Payoff Scenarios</SectionTitle>
+                    <Button variant="ghost" onClick={() => downloadProductsExcel([product], `SP-Details-${product.isin ?? "product"}.xlsx`)}>
+                      Download
+                    </Button>
+                  </div>
+                  <div className="mt-3 max-h-80 overflow-auto">
+                    <DataTable>
+                      <thead>
+                        <tr>
+                          <th>Final Fixing</th>
+                          <th>Z</th>
+                          <th>Return</th>
+                          <th>IRR</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {scenarios.map((row) => (
+                          <tr
+                            key={`${row.performance}-${row.isPivot ? "p" : "b"}${row.isCurrent ? "c" : ""}`}
+                            className={cn(row.isPivot && "pivot-row", row.isCurrent && "current-row")}
+                          >
+                            <td>{formatNumber(row.finalFixing)}</td>
+                            <td>{formatPercent(row.performance, 1)}</td>
+                            <td>{formatFormulaReturn(row.maturityValue)}</td>
+                            <td>{formatPercent(row.irr, 2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </DataTable>
+                  </div>
+                </Panel>
+              </HorizontalBand>
+            </RevealOutput>
+          </HorizontalBand>
         </div>
       )}
     </AppPage>

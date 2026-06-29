@@ -132,11 +132,11 @@ export function formatPercent(value: number, digits = 1) {
   return `${pct.toFixed(places)}%`;
 }
 
-/** Per-debenture desk value — e.g. ₹1,62,500.000 max 3 decimals */
+/** Per-debenture desk value — whole rupees for valuation marks (Excel parity). */
 export function formatProductUnitValue(value: number) {
   const num = Number.isFinite(value) ? value : 0;
   const sign = num < 0 ? "-" : "";
-  return `${sign}₹${Math.abs(num).toLocaleString("en-IN", { maximumFractionDigits: 3 })}`;
+  return `${sign}₹${Math.round(Math.abs(num)).toLocaleString("en-IN")}`;
 }
 
 /** Excel-style valuation header date */
@@ -147,6 +147,21 @@ export function formatValuationAsOf(dateRaw?: string) {
 
 export function formatNumber(value: number, maxFractionDigits = 3) {
   return formatDecimal(value, maxFractionDigits);
+}
+
+/** Human-readable coupon line from master — avoids raw PR/DM formula strings in UI. */
+export function formatCouponDisplay(raw?: string | null) {
+  if (!raw?.trim()) return undefined;
+  const text = raw.trim();
+
+  const headline = text.match(/^(\d+(?:\.\d+)?%)/);
+  if (headline) return headline[1];
+
+  const pr = text.match(/PR1:\s*(\d+(?:\.\d+)?%?)/i);
+  if (pr) return `${pr[1].includes("%") ? pr[1] : `${pr[1]}%`} participation`;
+
+  const pct = text.match(/\d+(?:\.\d+)?%/);
+  return pct?.[0] ?? text.split(/[,/]/)[0]?.trim();
 }
 
 export function toTitleCase(value: string) {

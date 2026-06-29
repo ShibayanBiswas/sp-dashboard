@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useMemo, useState } from "react";
 
+import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
 import {
   AppPage,
@@ -15,30 +16,28 @@ import {
   SectionTitle,
 } from "@/components/layout/app-ui";
 import { SECTION_INFO } from "@/lib/section-info";
-import { ProductCombobox } from "@/components/ui/product-combobox";
 import { ChartStage, CroreLacYAxis, DiagonalCategoryAxis, PremiumGrid, RechartsPremiumTooltip, barChartMargins } from "@/components/charts/chart-kit";
 import { getMaturityLadder, getPortfolioHeadlineStats } from "@/lib/analytics";
+import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import {
   filterProductsByLifecycle,
   type LifecycleFilter,
-  LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
 import { useDataset } from "@/lib/context/dataset-provider";
-import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { formatCrores, formatNumber } from "@/lib/utils";
 import { Bar, BarChart, ResponsiveContainer } from "recharts";
 
 export function DashboardShell() {
   const { dataset, isLoading, uploadWorkbook } = useDataset();
-  const selection = useProductSelection();
+  const { asOf } = usePortfolioClock();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
   const filteredProducts = useMemo(
-    () => filterProductsByLifecycle(dataset.products, lifecycle),
-    [dataset.products, lifecycle],
+    () => filterProductsByLifecycle(dataset.products, lifecycle, asOf),
+    [dataset.products, lifecycle, asOf],
   );
 
-  const summary = getPortfolioHeadlineStats(dataset);
-  const maturityLadder = getMaturityLadder(filteredProducts);
+  const summary = useMemo(() => getPortfolioHeadlineStats(dataset, asOf), [dataset, asOf]);
+  const maturityLadder = getMaturityLadder(filteredProducts, asOf);
 
   return (
     <AppPage
@@ -65,48 +64,23 @@ export function DashboardShell() {
 
       <HorizontalBand className="mt-1">
         <KpiBand
-          accents={["cyan", "green", "purple", "amber"]}
+          accents={["cyan", "green", "purple", "amber", "rose"]}
           items={[
             { label: "Live Notional", value: formatCrores(summary.liveNotional) },
-            { label: "Active", value: formatNumber(summary.activeCount) },
+            { label: "Ongoing", value: formatNumber(summary.ongoingCount) },
+            { label: "Expiring in 3M", value: formatNumber(summary.maturingSoon) },
+            { label: "Expiring in 1M", value: formatNumber(summary.expiring1m) },
             { label: "Expired", value: formatNumber(summary.expiredCount) },
-            { label: "Maturing 90D", value: formatNumber(summary.maturingSoon) },
           ]}
         />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">
-        <Panel className="!p-4" glow="cyan">
-          <SectionInfo {...SECTION_INFO["home-filter"]} />
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <SectionTitle>Portfolio Filter</SectionTitle>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(LIFECYCLE_FILTER_LABELS) as LifecycleFilter[]).map((key) => (
-                <Button
-                  key={key}
-                  active={lifecycle === key}
-                  variant="pill"
-                  onClick={() => setLifecycle(key)}
-                >
-                  {LIFECYCLE_FILTER_LABELS[key]}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </Panel>
-      </HorizontalBand>
-
-      <HorizontalBand className="mt-4">
-        <Panel className="!p-4" glow="purple">
-          <SectionTitle>Product Search</SectionTitle>
-          <div className="mt-3">
-            <ProductCombobox
-              products={filteredProducts}
-              value={selection.productName}
-              onSelect={(p) => selection.selectProduct(p)}
-            />
-          </div>
-        </Panel>
+        <LifecycleProductList
+          filter={lifecycle}
+          products={dataset.products}
+          onFilterChange={setLifecycle}
+        />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">
@@ -156,6 +130,11 @@ export function DashboardShell() {
                 <Button className="w-full" variant="primary">
                   Payoff
                 </Button>
+              </Link>
+            </RailCard>
+            <RailCard minWidth="min-w-[200px]">
+              <Link href={"/portfolio/details" as Route}>
+                <Button className="w-full">Product Details</Button>
               </Link>
             </RailCard>
             <RailCard minWidth="min-w-[200px]">

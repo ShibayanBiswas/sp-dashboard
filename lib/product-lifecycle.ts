@@ -4,15 +4,37 @@ import type { ProductRecord } from "@/lib/types";
 import { rawField } from "@/lib/product-utils";
 import { parseExcelishDate } from "@/lib/workbook/dates";
 
-export type LifecycleStatus = "ongoing" | "expired" | "perpetual" | "maturing-soon" | "unknown" | "upcoming";
+/** Calendar-day horizons — labelled as months in the UI. */
+export const EXPIRING_1M_DAYS = 30;
+export const EXPIRING_3M_DAYS = 90;
 
-export type LifecycleFilter = "ongoing" | "expired" | "upcoming" | "all";
+export type LifecycleStatus =
+  | "ongoing"
+  | "expired"
+  | "perpetual"
+  | "expiring-1m"
+  | "expiring-3m"
+  | "unknown"
+  | "upcoming";
+
+export type LifecycleFilter = "ongoing" | "expired" | "expiring-3m" | "expiring-1m" | "all";
 
 export const LIFECYCLE_FILTER_LABELS: Record<LifecycleFilter, string> = {
-  ongoing: "Live Book",
+  ongoing: "Ongoing",
   expired: "Expired",
-  upcoming: "Upcoming",
+  "expiring-3m": "Expiring in 3M",
+  "expiring-1m": "Expiring in 1M",
   all: "All Products",
+};
+
+export const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
+  ongoing: "Ongoing",
+  expired: "Expired",
+  perpetual: "Perpetual",
+  "expiring-1m": "Expiring in 1M",
+  "expiring-3m": "Expiring in 3M",
+  unknown: "Unknown",
+  upcoming: "Upcoming",
 };
 
 function getTradeOrAllotmentDate(product: ProductRecord): Date | null {
@@ -44,8 +66,23 @@ export function getProductLifecycleStatus(product: ProductRecord, asOf = new Dat
 
   const days = differenceInCalendarDays(anchor, asOf);
   if (days < 0) return "expired";
-  if (days <= 90) return "maturing-soon";
+  if (days <= EXPIRING_1M_DAYS) return "expiring-1m";
+  if (days <= EXPIRING_3M_DAYS) return "expiring-3m";
   return "ongoing";
+}
+
+export function getDaysToMaturity(product: ProductRecord, asOf = new Date()): number | undefined {
+  const maturity = parseExcelishDate(product.maturityRaw);
+  const lastObs = parseExcelishDate(product.lastObservationDateRaw);
+  const anchor = maturity ?? lastObs;
+  if (!anchor) return undefined;
+  return differenceInCalendarDays(anchor, asOf);
+}
+
+/** Live marks apply only to non-expired, non-upcoming products. */
+export function isValuationApplicable(product: ProductRecord, asOf = new Date()): boolean {
+  const status = getProductLifecycleStatus(product, asOf);
+  return status !== "expired" && status !== "upcoming";
 }
 
 export function filterProductsByLifecycle(
@@ -58,10 +95,11 @@ export function filterProductsByLifecycle(
   return products.filter((product) => {
     const status = getProductLifecycleStatus(product, asOf);
     if (filter === "ongoing") {
-      return status === "ongoing" || status === "perpetual" || status === "maturing-soon" || status === "unknown";
+      return status === "ongoing" || status === "perpetual" || status === "unknown";
     }
     if (filter === "expired") return status === "expired";
-    if (filter === "upcoming") return status === "upcoming";
+    if (filter === "expiring-1m") return status === "expiring-1m";
+    if (filter === "expiring-3m") return status === "expiring-1m" || status === "expiring-3m";
     return true;
   });
 }
@@ -71,7 +109,8 @@ export function partitionByLifecycle(products: ProductRecord[], asOf = new Date(
     ongoing: [],
     expired: [],
     perpetual: [],
-    "maturing-soon": [],
+    "expiring-1m": [],
+    "expiring-3m": [],
     unknown: [],
     upcoming: [],
   };

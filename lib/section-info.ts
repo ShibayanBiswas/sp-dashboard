@@ -8,7 +8,7 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
     title: "Understanding these headline numbers",
     paragraphs: [
       "These four tiles give you a quick snapshot of the portfolio. Live Notional is the total amount currently invested across all products, shown in crores of rupees. Active tells you how many products are still running and have not yet reached their maturity date.",
-      "Expired counts products that have already matured and paid out. Maturing 90D highlights deals that will mature within the next ninety days — the ones worth watching closely for reinvestment or client conversations.",
+      "Expired counts products that have already matured and paid out. Expiring in 3M and Expiring in 1M highlight deals maturing soon — worth watching for reinvestment or client conversations.",
       "All amounts are shown in rupees with the ₹ symbol, using the same comma style you see on bank and demat statements.",
       "When you upload an updated product file from the home page, these numbers refresh automatically.",
     ],
@@ -16,7 +16,7 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
   "home-filter": {
     title: "How the portfolio filter works",
     paragraphs: [
-      "Every product has a life story: it starts, it runs for a period, and then it matures. This filter lets you view the live book, expired deals, upcoming trades, or everything together.",
+      "Every product has a life story: it starts, it runs for a period, and then it matures. Filter by Ongoing, Expiring in 3M, Expiring in 1M, Expired, or view all products together.",
       "Whatever you choose here updates the whole page — the summary tiles, the maturity chart, and the shortcuts below all follow the same filter.",
       "The default view is the live book, which is what most people want for a day-to-day check.",
       "Changing this filter only affects what you see on the home page. It does not change a product you may have picked elsewhere in the app.",
@@ -133,7 +133,7 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
       "This chart splits the book by status — ongoing, maturing soon, expired, and so on — and sizes each slice by the money in it, in crores. It is the big-picture view of where the portfolio stands.",
       "A large ongoing slice means most money is still invested. A large expired slice means much of the historical book has already paid out.",
       "The legend shows both the number of products and the rupee amount in each slice.",
-      "Maturing soon is shown separately so deals due within ninety days are easy to spot.",
+      "Maturing within three months and one month are shown separately so near-term expiries are easy to spot.",
     ],
   },
   "an-coupon": {

@@ -15,6 +15,7 @@ export interface ValuationResult {
   productValue: number;
   absReturn: number;
   productIrr: number;
+  formulaReturn: number;
   z: number;
   indexEntryLevel: number;
   currentLevel: number;
@@ -153,13 +154,14 @@ export function computeValuation(product: ProductRecord, inputs: ValuationInputs
   const productIrr = annualizedIrr(growth, elapsedDays);
 
   return {
-    productValue,
+    productValue: Math.round(productValue),
     absReturn,
     productIrr,
+    formulaReturn,
     z: performance,
     indexEntryLevel,
     currentLevel,
-    totalAmount,
+    totalAmount: Math.round(totalAmount),
     remainingTenorDays,
     elapsedDays,
     clientInvestment,

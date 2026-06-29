@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { ExcelInputPanel } from "@/components/dashboard/excel-input-panel";
 import { ProductNarrative } from "@/components/dashboard/product-narrative";
+import { RevealOutput } from "@/components/ui/reveal-output";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import {
   AppPage,
@@ -25,22 +26,23 @@ import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
 import {
   filterProductsByLifecycle,
+  isValuationApplicable,
   type LifecycleFilter,
   LIFECYCLE_FILTER_LABELS,
 } from "@/lib/product-lifecycle";
-import { getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
+import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
+import { downloadProductsExcel } from "@/lib/workbook/export-products";
 import {
   formatCrores,
   formatCurrency,
+  formatFormulaReturn,
   formatNumber,
   formatPercent,
   formatProductUnitValue,
   formatValuationAsOf,
 } from "@/lib/utils";
-import { MathZ } from "@/components/ui/math-text";
-
 const TABS = [
   { id: "interface", label: "Valuation Interface" },
   { id: "products", label: "Product List" },
@@ -63,7 +65,7 @@ export function UnifiedValuationDashboard() {
       : pool[0];
 
   const valuation = useMemo(() => {
-    if (!product) return null;
+    if (!product || !isValuationApplicable(product)) return null;
     const currentLevel = resolveValuationLevel(product, {
       niftyLevel: Number(selection.niftyLevel) || undefined,
       sensexLevel: Number(selection.sensexLevel) || undefined,
@@ -149,28 +151,47 @@ function ValuationInterface({
           </HorizontalBand>
 
           <HorizontalBand className="mt-4">
-            <KpiBand
-              items={[
-                {
-                  label: "Product Value",
-                  value: formatProductUnitValue(valuation?.productValue ?? 0),
-                },
-                { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0, 1) },
-                { label: "Product IRR", value: formatPercent(valuation?.productIrr ?? 0, 2) },
-                { label: "Total Amount", value: formatCurrency(valuation?.totalAmount ?? 0, false) },
-              ]}
-            />
-          </HorizontalBand>
+            <RevealOutput label="Click here to view valuation output">
+              {!isValuationApplicable(product) ? (
+                <Panel className="!p-5" glow="purple">
+                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200">
+                    Live valuation not applicable
+                  </p>
+                  <p className="mt-2 text-center text-sm text-slate-400">
+                    This product is expired or not yet live. Switch to Ongoing or Expiring buckets for mark-to-market values.
+                  </p>
+                </Panel>
+              ) : (
+                <KpiBand
+                  items={[
+                    {
+                      label: "Current Value",
+                      value: formatProductUnitValue(valuation?.productValue ?? 0),
+                    },
+                    { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0, 1) },
+                    { label: "Product IRR", value: formatPercent(valuation?.productIrr ?? 0, 2) },
+                    { label: "Total Amount", value: formatCurrency(valuation?.totalAmount ?? 0, false) },
+                  ]}
+                />
+              )}
 
-          <HorizontalBand className="mt-4">
-            <ProductNarrative product={product} />
-          </HorizontalBand>
+              <HorizontalBand className="mt-4">
+                <ProductNarrative product={product} />
+              </HorizontalBand>
 
-          <HorizontalBand className="mt-4">
-            <Panel className="!p-4" glow="cyan">
-              <SectionInfo {...SECTION_INFO["val-output"]} />
-              <SectionTitle>Output Sheet</SectionTitle>
-              <FieldStack>
+              <HorizontalBand className="mt-4">
+                <Panel className="!p-4" glow="cyan">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <SectionTitle>Output Sheet</SectionTitle>
+                    <Button
+                      variant="ghost"
+                      onClick={() => product && downloadProductsExcel([product], `SP-Valuation-${product.isin ?? "product"}.xlsx`)}
+                    >
+                      Download
+                    </Button>
+                  </div>
+                  <SectionInfo {...SECTION_INFO["val-output"]} />
+                  <FieldStack>
                 <FieldRow label="Product Name">
                   <Output>{product.name}</Output>
                 </FieldRow>
@@ -197,20 +218,28 @@ function ValuationInterface({
                     {String(getTargetLevel(product) ?? rawField(product, "Target Level", "Target Nifty ") ?? "—")}
                   </Output>
                 </FieldRow>
-                <FieldRow
-                  label={
-                    <>
-                      <MathZ /> Performance
-                    </>
-                  }
-                >
-                  <OutputGlow accent="green">{formatPercent(valuation?.z ?? 0)}</OutputGlow>
+                <FieldRow label="Client Investment (Face)">
+                  <OutputGlow accent="purple">{formatProductUnitValue(valuation?.clientInvestment ?? 0)}</OutputGlow>
+                </FieldRow>
+                <FieldRow label="Price / Debenture">
+                  <Output>{formatProductUnitValue(getDebenturePrice(product))}</Output>
+                </FieldRow>
+                <FieldRow label="Index Performance (Z)">
+                  <OutputGlow accent="green">{formatPercent(valuation?.z ?? 0, 1)}</OutputGlow>
+                </FieldRow>
+                <FieldRow label="Formula Return (S)">
+                  <OutputGlow accent="green">{formatFormulaReturn(valuation?.formulaReturn ?? 0)}</OutputGlow>
+                </FieldRow>
+                <FieldRow label="Current Value (X)">
+                  <OutputGlow accent="cyan">{formatProductUnitValue(valuation?.productValue ?? 0)}</OutputGlow>
                 </FieldRow>
                 <FieldRow label="Notional">
                   <OutputGlow accent="cyan">{formatCrores(product.tradeAmount ?? 0)}</OutputGlow>
                 </FieldRow>
               </FieldStack>
-            </Panel>
+                </Panel>
+              </HorizontalBand>
+            </RevealOutput>
           </HorizontalBand>
         </>
       ) : (

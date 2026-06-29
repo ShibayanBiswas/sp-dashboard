@@ -36,7 +36,7 @@ export function AppPage({
       <div className="orb orb-cyan" />
       <div className="orb orb-purple" />
       <div className="orb orb-amber" />
-      <header className="brand-header sticky top-0 z-50">
+      <header className="brand-header sticky top-0 z-50 font-ui">
         <div className="brand-header-glow" />
         <div className="relative mx-auto flex max-w-full items-center justify-between gap-4 px-4 py-2.5 lg:px-6">
           <div>
@@ -95,7 +95,7 @@ export function Panel({
 
 export function SectionTitle({ children, icon: Icon }: { children: ReactNode; icon?: LucideIcon }) {
   return (
-    <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight text-white">
+    <h2 className="font-ui flex items-center gap-2 text-lg font-bold tracking-tight text-white">
       {Icon ? <Icon className="h-5 w-5 text-cyan-400" /> : null}
       {children}
     </h2>
@@ -306,14 +306,16 @@ export function DataTable({ children }: { children: ReactNode }) {
 
 const kpiIcons: Record<string, LucideIcon> = {
   "Product Value": Wallet,
+  "Current Value": Wallet,
+  Ongoing: LineChart,
   "Abs. Return": BarChart3,
   "Product IRR": LineChart,
   IRR: LineChart,
   "Live Notional": Wallet,
   Products: Package,
   "Avg Coupon": Calculator,
-  "Maturing in 90d": LineChart,
-  Ongoing: LineChart,
+  "Expiring in 3M": LineChart,
+  "Expiring in 1M": LineChart,
   Active: LineChart,
   Expired: LineChart,
   "Logic Modules": Brain,
@@ -326,12 +328,17 @@ export function KpiBand({
   accents = ["cyan", "purple", "green"],
 }: {
   items: Array<{ label: string; value: string }>;
-  accents?: Array<"cyan" | "purple" | "green" | "amber">;
+  accents?: Array<"cyan" | "purple" | "green" | "amber" | "rose">;
 }) {
-  const colors = { cyan: "#22d3ee", purple: "#a855f7", green: "#4ade80", amber: "#fbbf24" };
+  const colors = { cyan: "#22d3ee", purple: "#a855f7", green: "#4ade80", amber: "#fbbf24", rose: "#fb7185" };
 
   return (
-    <div className={cn("grid gap-4", items.length >= 4 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>
+    <div
+      className={cn(
+        "grid gap-4",
+        items.length >= 5 ? "md:grid-cols-2 xl:grid-cols-5" : items.length >= 4 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3",
+      )}
+    >
       {items.map((item, index) => {
         const accent = accents[index % accents.length] ?? "cyan";
         const Icon = kpiIcons[item.label] ?? Calculator;

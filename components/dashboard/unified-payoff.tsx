@@ -5,7 +5,8 @@ import { useMemo, useState } from "react";
 import { ExcelInputPanel } from "@/components/dashboard/excel-input-panel";
 import { PayoffCurvePanel } from "@/components/dashboard/payoff-curve";
 import { ProductNarrative } from "@/components/dashboard/product-narrative";
-import { HorizontalBand } from "@/components/layout/horizontal-rail";
+import { RevealOutput } from "@/components/ui/reveal-output";
+import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
 import {
   AppPage,
   Button,
@@ -32,7 +33,9 @@ import {
 import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveValuationLevel } from "@/lib/product-utils";
 import { MathZ } from "@/components/ui/math-text";
 import type { ProductRecord } from "@/lib/types";
-import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
+import { buildEnhancedPayoffScenarioTable, type PayoffRowFlags } from "@/lib/workbook/payoff-pivots";
+import { getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
+import { downloadProductsExcel } from "@/lib/workbook/export-products";
 import { evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
 import { irrFromReturn } from "@/lib/workbook/irr";
 import { cn, formatCrores, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
@@ -70,12 +73,16 @@ export function UnifiedPayoffDashboard() {
 
   const scenarios = useMemo(() => {
     if (!product?.formulaText) return [];
-    return buildPayoffScenarioTable(product, {
-      debentures: Number(selection.debentures) || 100,
-      pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
-      remainingTenorDays: getPayoffTenorDays(product),
-    });
-  }, [product, selection.debentures, selection.pricePerDebenture]);
+    return buildEnhancedPayoffScenarioTable(
+      product,
+      {
+        debentures: Number(selection.debentures) || 100,
+        pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+        remainingTenorDays: getPayoffTenorDays(product),
+      },
+      marketMove,
+    );
+  }, [product, selection.debentures, selection.pricePerDebenture, marketMove]);
 
   const currentPayoff = useMemo(() => {
     if (!product?.formulaText) return { returnOnInvestment: 0, irr: 0 };
@@ -148,7 +155,7 @@ function NonPpSpDetails({
   marketMove: number;
   pool: ProductRecord[];
   product?: ProductRecord;
-  scenarios: ReturnType<typeof buildPayoffScenarioTable>;
+  scenarios: PayoffRowFlags[];
   targetDisplay: string;
 }) {
   return (
@@ -173,7 +180,7 @@ function NonPpSpDetails({
                 { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
                 { label: "Target Level", value: targetDisplay },
                 {
-                  label: `Return @ ${formatFormulaReturn(marketMove, 0)} move`,
+                  label: `Return @ ${formatFormulaReturn(marketMove, 1)} move`,
                   value: formatFormulaReturn(currentPayoff.returnOnInvestment),
                 },
                 { label: "XIRR @ current move", value: formatPercent(currentPayoff.irr, 2) },
@@ -186,53 +193,71 @@ function NonPpSpDetails({
           </HorizontalBand>
 
           <HorizontalBand className="mt-4">
-            <ProductSpecifications product={product} />
-          </HorizontalBand>
+            <RevealOutput label="Click here to view payoff output">
+              {product.formulaText ? (
+                <PayoffCurvePanel
+                  entryLevel={getIndexEntryLevel(product)}
+                  formula={product.formulaText}
+                  marketMove={marketMove}
+                  title={product.name}
+                />
+              ) : null}
 
-          {product.formulaText ? (
-            <HorizontalBand className="mt-4">
-              <PayoffCurvePanel
-                entryLevel={getIndexEntryLevel(product)}
-                formula={product.formulaText}
-                marketMove={marketMove}
-                title={product.name}
-              />
-            </HorizontalBand>
-          ) : null}
+              <HorizontalBand className="mt-4">
+                <HorizontalRail>
+                  <RailCard minWidth="min-w-full">
+                    <ProductSpecifications product={product} />
+                  </RailCard>
+                </HorizontalRail>
+              </HorizontalBand>
 
-          <HorizontalBand className="mt-4">
-            <Panel className="!p-4" glow="cyan">
-              <SectionInfo {...SECTION_INFO["pay-output"]} />
-              <SectionTitle>Product Payoff</SectionTitle>
-              <p className="mt-1 text-sm text-slate-500">
-                Maturity payoff across underlying scenarios — mirrors the Product Payoff table of the Excel dashboard.
-              </p>
-              <div className="mt-3 max-h-[min(56vh,560px)] overflow-auto">
-                <DataTable>
-                  <thead>
-                    <tr>
-                      <th>Final Fixing</th>
-                      <th>Underlying&apos;s Performance</th>
-                      <th>Product Returns</th>
-                      <th>XIRR</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scenarios.map((row) => {
-                      const isAnchor = Math.abs(row.performance - marketMove) < 0.04;
-                      return (
-                        <tr key={row.performance} className={isAnchor ? "bg-cyan-500/10 font-semibold" : undefined}>
-                          <td>{formatNumber(row.finalFixing)}</td>
-                          <td>{formatPercent(row.performance)}</td>
-                          <td>{formatFormulaReturn(row.maturityValue)}</td>
-                          <td>{formatPercent(row.irr, 2)}</td>
+              <HorizontalBand className="mt-4">
+                <Panel className="!p-4" glow="cyan">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <SectionTitle>Product Payoff</SectionTitle>
+                    <Button
+                      variant="ghost"
+                      onClick={() =>
+                        downloadProductsExcel([product], `SP-Payoff-${product.isin ?? product.name}.xlsx`, {
+                          sheetName: "Payoff",
+                        })
+                      }
+                    >
+                      Download
+                    </Button>
+                  </div>
+                  <SectionInfo {...SECTION_INFO["pay-output"]} />
+                  <div className="mt-3 max-h-[min(56vh,560px)] overflow-auto">
+                    <DataTable>
+                      <thead>
+                        <tr>
+                          <th>Final Fixing</th>
+                          <th>Underlying&apos;s Performance</th>
+                          <th>Product Returns</th>
+                          <th>XIRR</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </DataTable>
-              </div>
-            </Panel>
+                      </thead>
+                      <tbody>
+                        {scenarios.map((row) => (
+                          <tr
+                            key={`${row.performance}-${row.isPivot ? "p" : ""}${row.isCurrent ? "c" : ""}`}
+                            className={cn(
+                              row.isPivot && "pivot-row font-semibold",
+                              row.isCurrent && "current-row",
+                            )}
+                          >
+                            <td>{formatNumber(row.finalFixing)}</td>
+                            <td>{formatPercent(row.performance, 1)}</td>
+                            <td>{formatFormulaReturn(row.maturityValue)}</td>
+                            <td>{formatPercent(row.irr, 2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </DataTable>
+                  </div>
+                </Panel>
+              </HorizontalBand>
+            </RevealOutput>
           </HorizontalBand>
         </>
       ) : (
@@ -268,20 +293,16 @@ function ProductSpecifications({ product }: { product: ProductRecord }) {
   return (
     <Panel className="!p-4" glow="purple">
       <SectionTitle>Product Specifications</SectionTitle>
-      <p className="mt-1 text-sm text-slate-500">Deal terms sourced from the Primary master — one parameter per row.</p>
-      <FieldStack>
-        {specs.map((spec, index) => (
-          <FieldRow key={spec.label} label={spec.label}>
-            {index === 1 ? (
-              <Output className="font-mono text-sm">{spec.value}</Output>
-            ) : spec.label === "Underlying" || spec.label === "Initial Fixing" || spec.label === "Target Level" ? (
-              <OutputGlow accent="cyan">{spec.value}</OutputGlow>
-            ) : (
-              <Output>{spec.value}</Output>
-            )}
-          </FieldRow>
+      <HorizontalRail className="mt-4">
+        {specs.map((spec) => (
+          <RailCard key={spec.label} minWidth="min-w-[168px]">
+            <div className="spec-rail-card border-0 bg-transparent p-0 shadow-none">
+              <p className="spec-rail-label">{spec.label}</p>
+              <p className={cn("spec-rail-value", spec.label === "ISIN" && "font-mono text-xs")}>{spec.value}</p>
+            </div>
+          </RailCard>
         ))}
-      </FieldStack>
+      </HorizontalRail>
     </Panel>
   );
 }

@@ -15,7 +15,8 @@ export function MarketStrip() {
     { icon: Zap, label: "Live", value: formatCurrency(stats.liveNotional), color: "text-cyan-400" },
     { icon: TrendingUp, label: "Active", value: formatNumber(stats.activeCount), color: "text-emerald-400" },
     { icon: TrendingDown, label: "Expired", value: formatNumber(stats.expiredCount), color: "text-slate-400" },
-    { icon: Activity, label: "90d", value: formatNumber(stats.maturingSoon), color: "text-rose-400" },
+    { icon: Activity, label: "3M", value: formatNumber(stats.maturingSoon), color: "text-orange-400" },
+    { icon: Activity, label: "1M", value: formatNumber(stats.expiring1m), color: "text-rose-400" },
   ];
 
   return (

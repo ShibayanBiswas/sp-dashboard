@@ -1,11 +1,18 @@
 import { differenceInCalendarDays } from "date-fns";
 
 import type { DashboardDataset, ProductRecord } from "@/lib/types";
-import { getLifecycleNotional, partitionByLifecycle, type LifecycleStatus } from "@/lib/product-lifecycle";
+import {
+  EXPIRING_1M_DAYS,
+  EXPIRING_3M_DAYS,
+  getLifecycleNotional,
+  LIFECYCLE_STATUS_LABELS,
+  partitionByLifecycle,
+  type LifecycleStatus,
+} from "@/lib/product-lifecycle";
 import { classifyProtection, getCouponPercent } from "@/lib/product-utils";
 import { parseExcelishDate } from "@/lib/workbook/dates";
 
-export function getPortfolioHeadlineStats(dataset: DashboardDataset) {
+export function getPortfolioHeadlineStats(dataset: DashboardDataset, asOf = new Date()) {
   const liveNotional = dataset.products.reduce((sum, product) => sum + (product.tradeAmount ?? 0), 0);
   const coupons = dataset.products
     .map((product) => getCouponPercent(product))
@@ -19,14 +26,19 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset) {
 
   const maturingSoon = dataset.products.filter((product) => {
     const parsed = parseExcelishDate(product.maturityRaw);
-    if (!parsed) {
-      return false;
-    }
-    const diff = differenceInCalendarDays(parsed, new Date());
-    return diff >= 0 && diff <= 90;
+    if (!parsed) return false;
+    const diff = differenceInCalendarDays(parsed, asOf);
+    return diff >= 0 && diff <= EXPIRING_3M_DAYS;
   }).length;
 
-  const lifecycle = getLifecycleNotional(dataset.products);
+  const expiring1m = dataset.products.filter((product) => {
+    const parsed = parseExcelishDate(product.maturityRaw);
+    if (!parsed) return false;
+    const diff = differenceInCalendarDays(parsed, asOf);
+    return diff >= 0 && diff <= EXPIRING_1M_DAYS;
+  }).length;
+
+  const lifecycle = getLifecycleNotional(dataset.products, asOf);
   const statusCount = (status: LifecycleStatus) => lifecycle.find((e) => e.status === status)?.count ?? 0;
   const statusNotional = (status: LifecycleStatus) => lifecycle.find((e) => e.status === status)?.notional ?? 0;
 
@@ -37,11 +49,13 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset) {
 
   // Active / live book = everything that has NOT matured and is not a future-dated upcoming trade.
   // This mirrors the "Live Book" lifecycle filter (ongoing + maturing-soon + perpetual + unknown).
-  const maturingSoonStatus = statusCount("maturing-soon");
-  const activeCount = ongoingCount + maturingSoonStatus + perpetualCount + unknownCount;
+  const expiring1mStatus = statusCount("expiring-1m");
+  const expiring3mStatus = statusCount("expiring-3m");
+  const activeCount = ongoingCount + expiring1mStatus + expiring3mStatus + perpetualCount + unknownCount;
   const activeNotional =
     statusNotional("ongoing") +
-    statusNotional("maturing-soon") +
+    statusNotional("expiring-1m") +
+    statusNotional("expiring-3m") +
     statusNotional("perpetual") +
     statusNotional("unknown");
 
@@ -52,6 +66,7 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset) {
     listedShare: dataset.products.length > 0 ? listed / dataset.products.length : 0,
     protectedShare: dataset.products.length > 0 ? protectedCount / dataset.products.length : 0,
     maturingSoon,
+    expiring1m,
     activeCount,
     activeNotional,
     ongoingCount,
@@ -63,7 +78,7 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset) {
   };
 }
 
-export function getMaturityLadder(products: ProductRecord[]) {
+export function getMaturityLadder(products: ProductRecord[], asOf = new Date()) {
   const buckets = new Map<string, number>([
     ["0-3M", 0],
     ["3-6M", 0],
@@ -78,8 +93,8 @@ export function getMaturityLadder(products: ProductRecord[]) {
       buckets.set("Unknown", (buckets.get("Unknown") ?? 0) + (product.tradeAmount ?? 0));
       continue;
     }
-    const days = differenceInCalendarDays(maturity, new Date());
-    if (days <= 90) {
+    const days = differenceInCalendarDays(maturity, asOf);
+    if (days <= EXPIRING_3M_DAYS) {
       buckets.set("0-3M", (buckets.get("0-3M") ?? 0) + (product.tradeAmount ?? 0));
     } else if (days <= 180) {
       buckets.set("3-6M", (buckets.get("3-6M") ?? 0) + (product.tradeAmount ?? 0));
@@ -98,14 +113,15 @@ const LIFECYCLE_COLORS: Record<LifecycleStatus, string> = {
   expired: "#64748b",
   perpetual: "#facc15",
   upcoming: "#a855f7",
-  "maturing-soon": "#fb7185",
+  "expiring-1m": "#fb7185",
+  "expiring-3m": "#f97316",
   unknown: "#475569",
 };
 
 export function getLifecycleChartData(products: ProductRecord[]) {
   return getLifecycleNotional(products).map((entry) => ({
     ...entry,
-    label: entry.status.replace("-", " "),
+    label: LIFECYCLE_STATUS_LABELS[entry.status],
     color: LIFECYCLE_COLORS[entry.status],
   }));
 }
@@ -208,7 +224,7 @@ export function getTenorDistribution(products: ProductRecord[]) {
 
 export function getExpiredVsOngoingTable(products: ProductRecord[]) {
   const buckets = partitionByLifecycle(products);
-  return (["ongoing", "upcoming", "maturing-soon", "expired", "perpetual", "unknown"] as LifecycleStatus[]).map((status) => {
+  return (["ongoing", "expiring-3m", "expiring-1m", "upcoming", "expired", "perpetual", "unknown"] as LifecycleStatus[]).map((status) => {
     const pool = buckets[status];
     const coupons = pool.map((p) => getCouponPercent(p)).filter((c): c is number => c !== undefined);
     return {

@@ -113,7 +113,7 @@ export function ProductNarrative({
         ) : null}
         {couponLabel ? (
           <span>
-            <strong className="text-purple-300">Coupon / PR:</strong> <em>{couponLabel}</em>
+            <strong className="text-purple-300">Coupon:</strong> <em>{couponLabel}</em>
           </span>
         ) : null}
       </div>
