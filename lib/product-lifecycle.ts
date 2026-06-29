@@ -80,6 +80,18 @@ export function getDaysToMaturity(product: ProductRecord, asOf = new Date()): nu
   return differenceInCalendarDays(anchor, asOf);
 }
 
+/** Primary master rows with parseable lifecycle and finite notional — excludes unknown / NaN. */
+export function isValidMasterProduct(product: ProductRecord, asOf = new Date()): boolean {
+  if (product.category !== "Primary") return false;
+  const notional = product.tradeAmount;
+  if (notional == null || !Number.isFinite(notional) || notional <= 0) return false;
+  return getProductLifecycleStatus(product, asOf) !== "unknown";
+}
+
+export function filterValidMasterProducts(products: ProductRecord[], asOf = new Date()): ProductRecord[] {
+  return products.filter((product) => isValidMasterProduct(product, asOf));
+}
+
 /** Live marks apply only to non-expired, non-upcoming products. */
 export function isValuationApplicable(product: ProductRecord, asOf = new Date()): boolean {
   const status = getProductLifecycleStatus(product, asOf);
@@ -97,7 +109,7 @@ export function filterProductsByLifecycle(
 /** Whether a granular lifecycle status belongs to a UI tab bucket. */
 export function lifecycleStatusMatchesFilter(status: LifecycleStatus, filter: LifecycleFilter): boolean {
   if (filter === "ongoing") {
-    return status === "ongoing" || status === "perpetual" || status === "unknown";
+    return status === "ongoing" || status === "perpetual";
   }
   if (filter === "expired") return status === "expired";
   if (filter === "expiring-1m") return status === "expiring-1m";

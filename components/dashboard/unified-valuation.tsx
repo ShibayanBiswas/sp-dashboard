@@ -23,7 +23,7 @@ import {
 } from "@/components/layout/app-ui";
 import { SECTION_INFO } from "@/lib/section-info";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
-import { useDataset } from "@/lib/context/dataset-provider";
+import { useMasterProducts } from "@/lib/hooks/use-master-products";
 import {
   filterProductsByLifecycle,
   isValuationApplicable,
@@ -50,14 +50,14 @@ const TABS = [
 ];
 
 export function UnifiedValuationDashboard() {
-  const { dataset } = useDataset();
+  const masterProducts = useMasterProducts();
   const selection = useProductSelection();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
   const [tab, setTab] = useState("interface");
 
   const pool = useMemo(
-    () => filterProductsByLifecycle(dataset.products, lifecycle),
-    [dataset.products, lifecycle],
+    () => filterProductsByLifecycle(masterProducts, lifecycle),
+    [masterProducts, lifecycle],
   );
 
   const product =

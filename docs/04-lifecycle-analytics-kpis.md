@@ -15,7 +15,7 @@ Shared logic with Science Lab when the same lifecycle tab is selected.
 |------------------|-----------------|
 | `ongoing` (maturity > 90 days away) | Yes |
 | `perpetual` | Yes |
-| `unknown` (no maturity on file) | Yes |
+| `unknown` (no maturity on file) | **No** — excluded from all UI tables via `filterValidMasterProducts` |
 | `expiring-1m` / `expiring-3m` | **No** — use Expiring tabs |
 | `expired` | No |
 | `upcoming` (trade date in future) | No |

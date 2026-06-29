@@ -24,7 +24,7 @@ import {
 } from "@/components/layout/app-ui";
 import { SECTION_INFO } from "@/lib/section-info";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
-import { useDataset } from "@/lib/context/dataset-provider";
+import { useMasterProducts } from "@/lib/hooks/use-master-products";
 import {
   filterProductsByLifecycle,
   LIFECYCLE_FILTERS,
@@ -46,14 +46,14 @@ const TABS = [
 ];
 
 export function UnifiedPayoffDashboard() {
-  const { dataset } = useDataset();
+  const masterProducts = useMasterProducts();
   const selection = useProductSelection();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
   const [tab, setTab] = useState("details");
 
   const pool = useMemo(
-    () => filterProductsByLifecycle(dataset.products, lifecycle),
-    [dataset.products, lifecycle],
+    () => filterProductsByLifecycle(masterProducts, lifecycle),
+    [masterProducts, lifecycle],
   );
 
   const product =

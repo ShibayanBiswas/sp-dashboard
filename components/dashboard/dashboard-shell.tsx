@@ -7,7 +7,6 @@ import { useMemo, useState } from "react";
 import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
 import { LifecycleIntelligencePanel } from "@/components/analytics/lifecycle-intelligence";
-import { ScienceLab } from "@/components/analytics/science-lab";
 import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
 import {
   AppPage,
@@ -27,19 +26,24 @@ import {
   type LifecycleFilter,
 } from "@/lib/product-lifecycle";
 import { useDataset } from "@/lib/context/dataset-provider";
+import { useMasterProducts } from "@/lib/hooks/use-master-products";
 import { formatCrores, formatNumber } from "@/lib/utils";
 import { Bar, BarChart, ResponsiveContainer } from "recharts";
 
 export function DashboardShell() {
   const { dataset, isLoading, uploadWorkbook } = useDataset();
+  const masterProducts = useMasterProducts();
   const { asOf } = usePortfolioClock();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
   const filteredProducts = useMemo(
-    () => filterProductsByLifecycle(dataset.products, lifecycle, asOf),
-    [dataset.products, lifecycle, asOf],
+    () => filterProductsByLifecycle(masterProducts, lifecycle, asOf),
+    [masterProducts, lifecycle, asOf],
   );
 
-  const summary = useMemo(() => getPortfolioHeadlineStats(dataset, asOf), [dataset, asOf]);
+  const summary = useMemo(
+    () => getPortfolioHeadlineStats({ ...dataset, products: masterProducts }, asOf),
+    [dataset, masterProducts, asOf],
+  );
   const maturityLadder = getMaturityLadder(filteredProducts, asOf);
 
   return (
@@ -81,21 +85,17 @@ export function DashboardShell() {
       <HorizontalBand className="mt-4">
         <LifecycleProductList
           filter={lifecycle}
-          products={dataset.products}
+          products={masterProducts}
           onFilterChange={setLifecycle}
         />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">
-        <LifecycleAnalyticsGrid filter={lifecycle} products={dataset.products} />
+        <LifecycleAnalyticsGrid filter={lifecycle} products={masterProducts} />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">
-        <ScienceLab filter={lifecycle} products={dataset.products} />
-      </HorizontalBand>
-
-      <HorizontalBand className="mt-4">
-        <LifecycleIntelligencePanel filter={lifecycle} products={dataset.products} />
+        <LifecycleIntelligencePanel filter={lifecycle} products={masterProducts} />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">

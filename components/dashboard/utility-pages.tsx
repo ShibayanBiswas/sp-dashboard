@@ -43,20 +43,21 @@ import { computeValuation } from "@/lib/workbook/valuation-engine";
 import { cn, formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent, formatProductUnitValue } from "@/lib/utils";
 import { RevealOutput } from "@/components/ui/reveal-output";
 import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
+import { useMasterProducts } from "@/lib/hooks/use-master-products";
 
 export function ProductSearchPage() {
-  const { dataset } = useDataset();
+  const masterProducts = useMasterProducts();
   const selection = useProductSelection();
 
   const results = useMemo(() => {
-    if (!selection.productName) return dataset.products;
+    if (!selection.productName) return masterProducts;
     const needle = selection.productName.toLowerCase();
-    return dataset.products.filter((product) =>
+    return masterProducts.filter((product) =>
       [product.name, product.issuer, product.isin, product.series, product.underlying, product.formulaText]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle)),
     );
-  }, [dataset.products, selection.productName]);
+  }, [masterProducts, selection.productName]);
 
   const pivotData = useMemo(
     () =>
@@ -79,7 +80,7 @@ export function ProductSearchPage() {
         <SubTitle>Product Finder</SubTitle>
         <div className="mt-4">
           <ProductCombobox
-            products={dataset.products}
+            products={masterProducts}
             value={selection.productName}
             onSelect={(p) => selection.selectProduct(p)}
           />
@@ -245,14 +246,14 @@ export function UploadDiagnosticsPage() {
 }
 
 export function ProductDetailsPage() {
-  const { dataset } = useDataset();
+  const masterProducts = useMasterProducts();
   const selection = useProductSelection();
   const { asOf } = usePortfolioClock();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
 
   const pool = useMemo(
-    () => filterProductsByLifecycle(dataset.products, lifecycle, asOf),
-    [dataset.products, lifecycle, asOf],
+    () => filterProductsByLifecycle(masterProducts, lifecycle, asOf),
+    [masterProducts, lifecycle, asOf],
   );
 
   const product =
@@ -314,7 +315,7 @@ export function ProductDetailsPage() {
         <LifecycleProductList
           compact
           filter={lifecycle}
-          products={dataset.products}
+          products={masterProducts}
           selectedId={product?.rowId}
           onFilterChange={setLifecycle}
           onSelect={(p) => selection.selectProduct(p)}

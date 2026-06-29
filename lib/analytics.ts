@@ -117,7 +117,9 @@ const LIFECYCLE_COLORS: Record<LifecycleStatus, string> = {
 };
 
 export function getLifecycleChartData(products: ProductRecord[], asOf = new Date()) {
-  return getLifecycleNotional(products, asOf).map((entry) => ({
+  return getLifecycleNotional(products, asOf)
+    .filter((entry) => entry.status !== "unknown" && entry.count > 0)
+    .map((entry) => ({
     ...entry,
     label: LIFECYCLE_STATUS_LABELS[entry.status],
     color: LIFECYCLE_COLORS[entry.status],
@@ -229,7 +231,6 @@ export function getExpiredVsOngoingTable(products: ProductRecord[], asOf = new D
     "upcoming",
     "expired",
     "perpetual",
-    "unknown",
   ];
 
   return statusOrder

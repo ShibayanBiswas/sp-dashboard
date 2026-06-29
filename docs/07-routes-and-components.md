@@ -25,7 +25,7 @@ Tabs: **Ongoing · Expiring in 3M · Expiring in 1M · Expired** (no “All Prod
 | `lifecycle-product-list.tsx` | Searchable table + export — **full book** in scroll (no row cap) |
 | `lifecycle-lab.tsx` | Four KPIs per tab |
 | `lifecycle-intelligence.tsx` | Full-book status table — **Home only**; highlights rows in active tab |
-| `science-lab.tsx` | Charts filtered by lifecycle tab — **Home + Analytics Lab** |
+| `science-lab.tsx` | Charts filtered by lifecycle tab — **Analytics Lab only** |
 
 State: `useState<LifecycleFilter>("ongoing")` passed to both list and analytics on Home/Analytics.
 
