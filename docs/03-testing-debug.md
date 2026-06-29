@@ -1,5 +1,26 @@
 # Testing & Debug Guide
 
+## Full catalog QA (all products · ongoing + expired)
+
+```bash
+npm run verify:full    # reads New Product Master_.xlsx (or master-seed.json fallback)
+npm run verify         # bake seed + count check + full suite
+```
+
+Validates **every Primary product** in lifecycle buckets (Ongoing, Expiring 3M/1M, Expired):
+
+| Check | What it does |
+|-------|----------------|
+| `FORMULA_EVAL` | Payoff formula compiles and returns finite values across Z sweep |
+| `NARRATIVE_FORMAT` | Excel-scale percents (600%, 7500%, 4850%) desk-formatted in UI text |
+| `NARRATIVE_FORMULA_MISMATCH` | Participation in description vs formula token (informational) |
+| `PAYOFF_TABLE` | Enhanced scenario table builds without error |
+| `VALUATION` | `computeValuation` for applicable ongoing products |
+
+**CI gate:** fails only on **ongoing** critical issues + spot checks (Nifty Accelerator 637, 600% decay band).
+
+Spot checks verify 600% → 6.0% per 1% move and formula `(35%-Z)*6` at Z=35/36/40%.
+
 ## Quick smoke test
 
 ```bash

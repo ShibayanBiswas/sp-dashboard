@@ -72,7 +72,11 @@ export function formatProductExplanation(text: string): string {
     },
   );
 
-  // Fix duplicated numbering "2. ... 2. For" → newline
+  // coupon of 4850% → coupon of 48.5%
+  out = out.replace(/\bcoupon of (\d{3,})%/gi, (_, n) => `coupon of ${(Number(n) / 100).toFixed(1)}%`);
+
+  // Remaining Excel-scale percents (4+ digits) → desk display
+  out = out.replace(/\b(\d{4,})%/g, (_, n) => `${(Number(n) / 100).toFixed(1)}%`);
   out = out.replace(/(\d+\.\s[^2]+?)\s+2\.\s/g, "$1\n2. ");
   out = out.replace(/(\d+\.\s[^3]+?)\s+3\.\s/g, "$1\n3. ");
   out = out.replace(/(\d+\.\s[^4]+?)\s+4\.\s/g, "$1\n4. ");

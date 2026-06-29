@@ -55,6 +55,18 @@ function parseIf(expression: string): string {
   return expression;
 }
 
+/** Excel payoff strings often chain multiple IF(...); convert all of them. */
+function parseAllIfs(expression: string): string {
+  let out = expression;
+  for (let i = 0; i < 64; i += 1) {
+    if (!/\bIF\s*\(/i.test(out)) break;
+    const next = parseIf(out);
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
 function splitTopLevel(value: string, delimiter: string) {
   const parts: string[] = [];
   let depth = 0;
@@ -101,7 +113,7 @@ function closeExcelFunctions(expression: string) {
 
 function compileFormula(formula: string) {
   const normalized = normalizeFormula(formula);
-  const withIf = parseIf(normalized);
+  const withIf = parseAllIfs(normalized);
   const withFunctions = replaceFunctions(withIf);
   const source = `"use strict"; return ${withFunctions};`;
   // eslint-disable-next-line no-new-func
@@ -118,6 +130,26 @@ export function evaluatePayoffFormula(formula: string, z: number) {
     return Number.isFinite(result) ? result : 0;
   } catch {
     return 0;
+  }
+}
+
+/** Strict evaluation for QA — surfaces compile/runtime errors instead of swallowing them. */
+export function tryEvaluatePayoffFormula(
+  formula: string,
+  z: number,
+): { ok: true; value: number } | { ok: false; error: string } {
+  if (!formula?.trim()) {
+    return { ok: true, value: 0 };
+  }
+  try {
+    const evaluator = compileFormula(formula);
+    const result = evaluator(z, Math);
+    if (!Number.isFinite(result)) {
+      return { ok: false, error: `Non-finite result at z=${z}` };
+    }
+    return { ok: true, value: result };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
