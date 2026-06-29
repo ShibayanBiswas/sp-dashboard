@@ -13,7 +13,7 @@ import {
   type LifecycleFilter,
   type LifecycleStatus,
 } from "@/lib/product-lifecycle";
-import { classifyProtection, getCouponPercent } from "@/lib/product-utils";
+import { classifyProtection, getCouponPercent, rawField } from "@/lib/product-utils";
 import { parseExcelishDate } from "@/lib/workbook/dates";
 
 export function getPortfolioHeadlineStats(dataset: DashboardDataset, asOf = new Date()) {
@@ -127,32 +127,39 @@ export function getLifecycleChartData(products: ProductRecord[], asOf = new Date
 }
 
 export function getCouponDistribution(products: ProductRecord[]) {
-  const buckets = new Map<string, number>([
-    ["0-5%", 0],
-    ["5-10%", 0],
-    ["10-15%", 0],
-    ["15%+", 0],
-    ["No coupon", 0],
-  ]);
+  /** Desk bands — finer splits above 15% where Primary coupons cluster. */
+  const bands: Array<{ label: string; min: number; max: number }> = [
+    { label: "0-5%", min: 0, max: 5 },
+    { label: "5-10%", min: 5, max: 10 },
+    { label: "10-15%", min: 10, max: 15 },
+    { label: "15-50%", min: 15, max: 50 },
+    { label: "50-75%", min: 50, max: 75 },
+    { label: "75-90%", min: 75, max: 90 },
+    { label: "90-95%", min: 90, max: 95 },
+    { label: "95-100%", min: 95, max: 100 },
+    { label: "100%+", min: 100, max: Number.POSITIVE_INFINITY },
+  ];
+
+  const buckets = new Map<string, number>(bands.map((b) => [b.label, 0]));
+  buckets.set("No coupon", 0);
 
   for (const product of products) {
+    const weight = product.tradeAmount ?? 0;
     const coupon = getCouponPercent(product);
-    const weight = product.tradeAmount ?? 1;
     const couponPct = coupon === undefined ? undefined : coupon * 100;
     if (couponPct === undefined || couponPct === 0) {
       buckets.set("No coupon", (buckets.get("No coupon") ?? 0) + weight);
-    } else if (couponPct < 5) {
-      buckets.set("0-5%", (buckets.get("0-5%") ?? 0) + weight);
-    } else if (couponPct < 10) {
-      buckets.set("5-10%", (buckets.get("5-10%") ?? 0) + weight);
-    } else if (couponPct < 15) {
-      buckets.set("10-15%", (buckets.get("10-15%") ?? 0) + weight);
-    } else {
-      buckets.set("15%+", (buckets.get("15%+") ?? 0) + weight);
+      continue;
+    }
+    const band = bands.find((b) => couponPct >= b.min && (b.max === Number.POSITIVE_INFINITY ? couponPct >= b.min : couponPct < b.max));
+    if (band) {
+      buckets.set(band.label, (buckets.get(band.label) ?? 0) + weight);
     }
   }
 
-  return [...buckets.entries()].map(([bucket, value]) => ({ bucket, value }));
+  return [...buckets.entries()]
+    .map(([bucket, value]) => ({ bucket, value }))
+    .filter((row) => row.value > 0);
 }
 
 export function getProtectionMix(products: ProductRecord[]) {
@@ -191,22 +198,26 @@ export function getUnderlyingExposure(products: ProductRecord[]) {
     .slice(0, 10);
 }
 
-export function getTenorDistribution(products: ProductRecord[]) {
-  const buckets = new Map<string, number>([
-    ["< 1Y", 0],
-    ["1-2Y", 0],
-    ["2-3Y", 0],
-    ["3-5Y", 0],
-    ["5Y+", 0],
-    ["Unknown", 0],
-  ]);
+export function getTenorDistribution(products: ProductRecord[], asOf = new Date()) {
+  const bandOrder = ["< 1Y", "1-2Y", "2-3Y", "3-5Y", "5Y+"] as const;
+  const buckets = new Map<string, number>(bandOrder.map((b) => [b, 0]));
 
   for (const product of products) {
-    const weight = product.tradeAmount ?? 1;
-    const days = product.tenorDays;
-    if (!days) {
-      buckets.set("Unknown", (buckets.get("Unknown") ?? 0) + weight);
-    } else if (days < 365) {
+    const weight = product.tradeAmount ?? 0;
+    let days = product.tenorDays;
+    if (!days || days <= 0) {
+      const maturity = parseExcelishDate(product.maturityRaw);
+      const lastObs = parseExcelishDate(product.lastObservationDateRaw);
+      const anchor = maturity ?? lastObs;
+      if (anchor) {
+        const trade = parseExcelishDate(String(rawField(product, "Trade Date/Opening date", "Trade Date") ?? ""));
+        const start = trade ?? asOf;
+        days = Math.max(0, differenceInCalendarDays(anchor, start));
+      }
+    }
+    if (!days || days <= 0) continue;
+
+    if (days < 365) {
       buckets.set("< 1Y", (buckets.get("< 1Y") ?? 0) + weight);
     } else if (days < 730) {
       buckets.set("1-2Y", (buckets.get("1-2Y") ?? 0) + weight);
@@ -219,7 +230,7 @@ export function getTenorDistribution(products: ProductRecord[]) {
     }
   }
 
-  return [...buckets.entries()].map(([bucket, value]) => ({ bucket, value }));
+  return bandOrder.map((bucket) => ({ bucket, value: buckets.get(bucket) ?? 0 })).filter((row) => row.value > 0);
 }
 
 export function getExpiredVsOngoingTable(products: ProductRecord[], asOf = new Date()) {

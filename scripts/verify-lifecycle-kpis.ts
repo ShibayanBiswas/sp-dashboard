@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { filterProductsByLifecycle, LIFECYCLE_FILTERS, type LifecycleFilter } from "../lib/product-lifecycle";
+import { filterProductsByLifecycle, filterValidMasterProducts, LIFECYCLE_FILTERS, type LifecycleFilter } from "../lib/product-lifecycle";
 import { getCouponPercent, classifyProtection } from "../lib/product-utils";
 import type { ProductRecord } from "../lib/types";
 import { formatCrores, formatNumber, formatPercent } from "../lib/utils";
@@ -54,10 +54,11 @@ const filters = filterArg && LIFECYCLE_FILTERS.includes(filterArg) ? [filterArg]
 console.log("Loading products…");
 const products = loadProducts();
 const asOf = new Date();
+const master = filterValidMasterProducts(products, asOf);
 console.log(`As of: ${asOf.toLocaleString("en-IN")}\n`);
 
 for (const filter of filters) {
-  const pool = filterProductsByLifecycle(products, filter, asOf);
+  const pool = filterProductsByLifecycle(master, filter, asOf);
   const k = computeKpis(pool);
   console.log(`=== ${filter.toUpperCase()} ===`);
   console.log(`  Products:    ${formatNumber(k.count)}`);

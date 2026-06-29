@@ -58,8 +58,8 @@ export function ScienceLab({
   const lifecycle = getLifecycleChartData(pool, asOf);
   const couponDist = getCouponDistribution(pool);
   const protection = getProtectionMix(pool);
-  const underlyings = getUnderlyingExposure(pool).slice(0, 3);
-  const tenor = getTenorDistribution(pool);
+  const underlyings = getUnderlyingExposure(pool).filter((u) => u.value > 0).slice(0, 3);
+  const tenor = getTenorDistribution(pool, asOf);
 
   if (pool.length === 0) {
     return (
@@ -180,7 +180,7 @@ export function ScienceLab({
       </HorizontalBand>
 
       <HorizontalBand>
-        <ChartPanel glow="purple" icon="chart" title="Underlying Exposure · Top 3">
+        <ChartPanel glow="purple" icon="chart" title={`Underlying Exposure · Top ${Math.max(underlyings.length, 1)}`}>
           <SectionInfo {...SECTION_INFO["an-underlying"]} />
           <ChartStage height="h-52">
             <ResponsiveContainer width="100%" height="100%">
