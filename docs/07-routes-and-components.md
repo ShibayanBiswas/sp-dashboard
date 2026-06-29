@@ -4,11 +4,11 @@
 
 | URL | File | Purpose |
 |-----|------|---------|
-| `/` | `components/dashboard/dashboard-shell.tsx` | Home — lifecycle tabs, KPIs, maturity ladder |
+| `/` | `components/dashboard/dashboard-shell.tsx` | Home — lifecycle tabs, KPIs, lifecycle intelligence, maturity ladder |
 | `/valuation` | `components/dashboard/unified-valuation.tsx` | Mark-to-market |
 | `/payoff` | `components/dashboard/unified-payoff.tsx` | Payoff scenarios + curve |
 | `/portfolio/details` | `components/dashboard/utility-pages.tsx` | Product details |
-| `/portfolio/analytics` | `components/dashboard/portfolio-analytics.tsx` | Analytics lab |
+| `/portfolio/analytics` | `components/dashboard/portfolio-analytics.tsx` | Analytics lab — KPIs + product list |
 | `/intelligence` | Logic atlas | Formula documentation |
 | `/upload` | Upload + validation | Master file ingest |
 | `/api/market/levels` | `app/api/market/levels/route.ts` | Yahoo Nifty/Sensex |
@@ -22,9 +22,9 @@ Tabs: **Ongoing · Expiring in 3M · Expiring in 1M · Expired** (no “All Prod
 
 | Component | Role |
 |-----------|------|
-| `lifecycle-product-list.tsx` | Searchable table + export |
+| `lifecycle-product-list.tsx` | Searchable table + export — **full book** in scroll (no row cap) |
 | `lifecycle-lab.tsx` | Four KPIs per tab |
-| `science-lab.tsx` | Charts filtered by same tab |
+| `lifecycle-intelligence.tsx` | Status breakdown table — **Home only** |
 
 State: `useState<LifecycleFilter>("ongoing")` passed to both list and analytics on Home/Analytics.
 

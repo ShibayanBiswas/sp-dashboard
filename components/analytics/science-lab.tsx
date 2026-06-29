@@ -23,12 +23,11 @@ import {
   chartMargins,
   horizontalBarMargins,
 } from "@/components/charts/chart-kit";
-import { ChartPanel, DataTable, Panel, SectionInfo, SectionTitle } from "@/components/layout/app-ui";
+import { ChartPanel, Panel, SectionInfo, SectionTitle } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import { SECTION_INFO } from "@/lib/section-info";
 import {
   getCouponDistribution,
-  getExpiredVsOngoingTable,
   getLifecycleChartData,
   getProtectionMix,
   getTenorDistribution,
@@ -43,7 +42,7 @@ import {
 } from "@/lib/product-lifecycle";
 import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import type { ProductRecord } from "@/lib/types";
-import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
+import { formatCrores } from "@/lib/utils";
 
 export function ScienceLab({
   products,
@@ -61,7 +60,6 @@ export function ScienceLab({
   const protection = getProtectionMix(pool);
   const underlyings = getUnderlyingExposure(pool).slice(0, 3);
   const tenor = getTenorDistribution(pool);
-  const lifecycleTable = getExpiredVsOngoingTable(pool);
 
   if (pool.length === 0) {
     return (
@@ -240,44 +238,6 @@ export function ScienceLab({
             </ResponsiveContainer>
           </ChartStage>
         </ChartPanel>
-      </HorizontalBand>
-
-      <HorizontalBand>
-        <Panel glow="purple">
-          <SectionTitle>Lifecycle Intelligence</SectionTitle>
-          <div className="mt-4">
-            <DataTable>
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Products</th>
-                  <th>Notional</th>
-                  <th>Avg Coupon</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lifecycleTable.map((row) => (
-                  <tr key={row.status}>
-                    <td>
-                      <span className="inline-flex items-center gap-2 font-semibold capitalize">
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{
-                            backgroundColor: lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
-                          }}
-                        />
-                        {LIFECYCLE_STATUS_LABELS[row.status as keyof typeof LIFECYCLE_STATUS_LABELS] ?? row.status}
-                      </span>
-                    </td>
-                    <td>{formatNumber(row.count)}</td>
-                    <td>{formatCrores(row.notional)}</td>
-                    <td>{formatPercent(row.avgCoupon)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
-          </div>
-        </Panel>
       </HorizontalBand>
     </div>
   );

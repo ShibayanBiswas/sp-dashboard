@@ -219,19 +219,19 @@ function ValuationInterface({
                     {String(getTargetLevel(product) ?? rawField(product, "Target Level", "Target Nifty ") ?? "—")}
                   </Output>
                 </FieldRow>
-                <FieldRow label="Client Investment (Face)">
+                <FieldRow label="Client Investment">
                   <OutputGlow accent="purple">{formatProductUnitValue(valuation?.clientInvestment ?? 0)}</OutputGlow>
                 </FieldRow>
                 <FieldRow label="Price / Debenture">
                   <Output>{formatProductUnitValue(getDebenturePrice(product))}</Output>
                 </FieldRow>
-                <FieldRow label="Index Performance (Z)">
+                <FieldRow label="Index Performance">
                   <OutputGlow accent="green">{formatPercent(valuation?.z ?? 0, 1)}</OutputGlow>
                 </FieldRow>
-                <FieldRow label="Formula Return (S)">
+                <FieldRow label="Formula Return">
                   <OutputGlow accent="green">{formatFormulaReturn(valuation?.formulaReturn ?? 0)}</OutputGlow>
                 </FieldRow>
-                <FieldRow label="Current Value (X)">
+                <FieldRow label="Current Value">
                   <OutputGlow accent="cyan">{formatProductUnitValue(valuation?.productValue ?? 0)}</OutputGlow>
                 </FieldRow>
                 <FieldRow label="Notional">
@@ -295,7 +295,7 @@ function ProductListTab({ products, selectedId }: { products: ProductRecord[]; s
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 500).map((p, index) => (
+              {filtered.map((p, index) => (
                 <tr
                   key={p.rowId}
                   className={p.rowId === selectedId ? "bg-cyan-500/10" : "cursor-pointer hover:bg-white/5"}

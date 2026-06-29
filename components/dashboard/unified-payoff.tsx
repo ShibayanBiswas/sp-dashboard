@@ -195,7 +195,7 @@ function NonPpSpDetails({
                   { label: `Live ${indexLabel} Level`, value: formatNumber(liveLevel) },
                   { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
                   { label: "Target Level", value: targetDisplay },
-                  { label: "Live Index Move (Z)", value: formatPercent(marketMove, 1) },
+                  { label: "Live Index Move", value: formatPercent(marketMove, 1) },
                   { label: "XIRR @ live move", value: formatPercent(livePayoffIrr, 2) },
                 ]}
               />
@@ -341,7 +341,7 @@ function ProductSearchTab({ products, selectedId }: { products: ProductRecord[];
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 500).map((p) => {
+              {filtered.map((p) => {
                 const isActive = p.rowId === selectedId || p.name === selectedName;
                 return (
                   <tr

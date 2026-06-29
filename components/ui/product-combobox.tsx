@@ -46,15 +46,13 @@ export function ProductCombobox({
   const selected = products.find((p) => p.name === value);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return products.slice(0, 80);
+    if (!query.trim()) return products;
     const needle = query.toLowerCase();
-    return products
-      .filter((p) =>
-        [p.name, p.isin, p.issuer, p.series, p.underlying, p.category]
-          .filter(Boolean)
-          .some((v) => String(v).toLowerCase().includes(needle)),
-      )
-      .slice(0, 80);
+    return products.filter((p) =>
+      [p.name, p.isin, p.issuer, p.series, p.underlying, p.category]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(needle)),
+    );
   }, [products, query]);
 
   // Anchor the portal menu to the trigger; track scroll/resize so it stays put.
@@ -143,6 +141,9 @@ export function ProductCombobox({
                         onChange={(e) => setQuery(e.target.value)}
                       />
                     </div>
+                    <p className="mt-2 text-center text-[10px] font-semibold uppercase tracking-widest text-muted">
+                      {filtered.length.toLocaleString("en-IN")} products
+                    </p>
                   </div>
                   {filtered.length === 0 ? (
                     <p className="px-4 py-6 text-center text-sm text-muted">No products match “{query}”.</p>

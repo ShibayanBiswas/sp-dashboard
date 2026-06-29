@@ -41,7 +41,8 @@ npm run dev
 1. **Home** — Portfolio by Lifecycle shows counts; timestamp updates each minute.
 2. **Market** — Valuation inputs show today’s date + Nifty/Sensex (green “Live · Yahoo Finance” badge).
 3. **Valuation** — Select Gearing Accelerator INE093JA7Q38 → Click reveal → Current Value ~₹198k on live levels.
-4. **Payoff** — Nifty Accelerator INE093JA77C4 → Current Level read-only from Yahoo; Return @ move uses live Z (e.g. +40% at Nifty ~23,548 vs entry 16,800). Product Overview shows **76.0% (75.0% participation + 100% coupon)** not 7600%.
+4. **Payoff** — Nifty Accelerator INE093JA77C4 → Current Level read-only from Yahoo; Live Index Move uses live Z. Product Overview shows **76.0% — 75.0% participation + 100% coupon** not 7600%. Labels omit Excel cell refs — no `(Z)`, `(S)`, or `(X)` in the UI.
+5. **Product lists** — Home lifecycle table, Valuation list, and Payoff search show **all** filtered products (scroll; sticky header). No 500-row cap.
 5. **Analytics / Home** — One lifecycle category panel at a time; switching Ongoing / Expiring 3M / 1M / Expired updates AUM, coupon, protection mix.
 6. **Export** — “Export view” / “Full workbook” / per-page Download buttons produce `.xlsx`.
 

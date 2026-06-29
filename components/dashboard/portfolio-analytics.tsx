@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import { ScienceLab } from "@/components/analytics/science-lab";
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
 import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { AppPage, KpiBand } from "@/components/layout/app-ui";
@@ -38,7 +37,6 @@ export function PortfolioAnalyticsPage() {
           />
         </HorizontalBand>
         <LifecycleAnalyticsGrid filter={lifecycle} products={dataset.products} />
-        <ScienceLab filter={lifecycle} products={dataset.products} />
       </div>
     </AppPage>
   );

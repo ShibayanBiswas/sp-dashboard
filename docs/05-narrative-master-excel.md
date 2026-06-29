@@ -31,12 +31,12 @@ Applied in `getProductOverview()` before UI render.
 
 | Pattern | Output |
 |---------|--------|
-| `PR of 7600% (7500%+100%)` | `PR of 76.0% (75.0% participation + 100% coupon)` |
-| `upside decay of 600%` | `upside decay of 6.0% per 1% index move (600% Excel participation)` |
-| `600% participation` | `6.0% participation (for every 1% index move → 6.0% return)` |
+| `PR of 7600% (7500%+100%)` | `PR of 76.0% — 75.0% participation + 100% coupon` |
+| `upside decay of 600%` | `upside decay of 6.0% per 1% index move` |
+| `600% participation` | `6.0% participation — for every 1% index move → 6.0% return` |
 | `coupon of 4850%` | `coupon of 48.5%` |
-| `132% of Initial Nifty` | `132% of initial fixing (+32.0% index move)` |
-| `from 109% to 111% of Initial Nifty` | `from 109% to 111% of initial fixing (+9.0% to +11.0% index move)` |
+| `132% of Initial Nifty` | `132% of initial fixing — +32.0% index move` |
+| `from 109% to 111% of Initial Nifty` | `from 109% to 111% of initial fixing — +9.0% to +11.0% index move` |
 | Remaining `\d{4,}%` | Divided by 100 (catch-all) |
 
 ---
@@ -72,7 +72,7 @@ Automated check: `npm run verify:full` spot check **600% upside decay product**.
 
 | Excel | Desk |
 |-------|------|
-| PR of 7600% (7500%+100%) | 76.0% (75.0% participation + 100% coupon) |
+| PR of 7600% (7500%+100%) | 76.0% — 75.0% participation + 100% coupon |
 | 132% to 133% of Initial | +32% to +33% index move band |
 
 Formula: `… MAX(0%,(Z-32%)*7500%) …` at live Z ≈ +40% → flat 100% coupon.

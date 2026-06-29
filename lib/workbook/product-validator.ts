@@ -60,17 +60,16 @@ export function formulaContainsExcelParticipation(formula: string, excelPct: num
   return spaced.test(formula);
 }
 
-/** Formatted narrative must not leave raw Excel-scale percents visible (except Excel participation note). */
+/** Formatted narrative must not leave raw Excel-scale percents visible. */
 export function findRawExcelPercentsInFormatted(formatted: string): string[] {
-  const stripped = formatted.replace(/\(\d+% Excel participation\)/gi, "");
   const bad: string[] = [];
-  for (const match of stripped.matchAll(/\b(\d{4,})%/g)) {
+  for (const match of formatted.matchAll(/\b(\d{4,})%/g)) {
     bad.push(`${match[1]}%`);
   }
-  if (/\bupside decay of \d{3,}%/i.test(stripped)) {
+  if (/\bupside decay of \d{3,}%/i.test(formatted)) {
     bad.push("upside decay not desk-formatted");
   }
-  if (/\bPR of \d{4,}%/i.test(stripped)) {
+  if (/\bPR of \d{4,}%/i.test(formatted)) {
     bad.push("PR not desk-formatted");
   }
   return bad;

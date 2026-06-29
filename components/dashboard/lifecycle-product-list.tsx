@@ -111,7 +111,7 @@ export function LifecycleProductList({
         </div>
       ) : null}
 
-      <div className={`mt-4 overflow-auto ${compact ? "max-h-[min(40vh,360px)]" : "max-h-[min(56vh,520px)]"}`}>
+      <div className={`mt-4 overflow-auto ${compact ? "max-h-[min(48vh,480px)]" : "max-h-[min(72vh,720px)]"}`}>
         <DataTable>
           <thead>
             <tr>
@@ -127,7 +127,7 @@ export function LifecycleProductList({
             </tr>
           </thead>
           <tbody>
-            {filtered.slice(0, 500).map((p, index) => {
+            {filtered.map((p, index) => {
               const status = getProductLifecycleStatus(p, asOf);
               const days = getDaysToMaturity(p, asOf);
               return (
@@ -161,9 +161,6 @@ export function LifecycleProductList({
           </tbody>
         </DataTable>
       </div>
-      {filtered.length > 500 ? (
-        <p className="mt-2 text-xs text-slate-500">Showing first 500 of {formatNumber(filtered.length)} — export for the full list.</p>
-      ) : null}
     </Panel>
   );
 }

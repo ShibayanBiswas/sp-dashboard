@@ -119,7 +119,7 @@ export function PayoffUnderlyingChart({
     <div className="space-y-3">
       <div className="grid gap-2 sm:grid-cols-3">
         <div>
-          <p className="label-chip mb-1.5">Index move (Z)</p>
+          <p className="label-chip mb-1.5">Index move</p>
           <InputGlow
             step="0.01"
             type="number"
@@ -160,7 +160,7 @@ export function PayoffUnderlyingChart({
               dataKey="z"
               height={40}
               label={{
-                value: "Underlying performance (Z)",
+                value: "Underlying performance",
                 fill: chartTheme.tick,
                 fontSize: 11,
                 fontWeight: 600,

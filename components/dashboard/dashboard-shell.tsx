@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 
 import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
+import { LifecycleIntelligencePanel } from "@/components/analytics/lifecycle-intelligence";
 import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
 import {
   AppPage,
@@ -86,6 +87,10 @@ export function DashboardShell() {
 
       <HorizontalBand className="mt-4">
         <LifecycleAnalyticsGrid filter={lifecycle} products={dataset.products} />
+      </HorizontalBand>
+
+      <HorizontalBand className="mt-4">
+        <LifecycleIntelligencePanel filter={lifecycle} products={dataset.products} />
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">

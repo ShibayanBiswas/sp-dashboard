@@ -67,7 +67,8 @@ Analytics Lab               Product Details
 ## Product narrative formatting
 
 - Master sheet stores participation as `7500%` meaning **75.0%** (Excel ×100 convention).
-- `lib/product-narrative-format.ts` converts e.g. `PR of 7600% (7500%+100%)` → **76.0% (75.0% participation + 100% coupon)**.
+- `lib/product-narrative-format.ts` converts e.g. `PR of 7600% (7500%+100%)` → **76.0% — 75.0% participation + 100% coupon** (no parenthetical Excel cell refs in UI labels).
+- Product lists render the **entire filtered set** (2,000+ rows) inside scroll regions with sticky headers — use Export for Excel.
 - Level bands like `132% of Initial Nifty` display as **132% of initial fixing (+32% index move)**.
 - Product Overview renders inside **RevealOutput** on Payoff, Valuation, and Product Details.
 
