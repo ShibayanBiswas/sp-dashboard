@@ -20,12 +20,34 @@ export function formatProductExplanation(text: string): string {
   // Standalone 4+ digit percents in PR context → divide by 100
   out = out.replace(/\bPR of (\d{4,})%/gi, (_, n) => `PR of ${(Number(n) / 100).toFixed(1)}%`);
 
-  // Fix duplicated numbering "2. ... 2. For" → newline
-  out = out.replace(/(\d+\.\s[^2]+?)\s+2\.\s/g, "$1\n2. ");
-
-  // Range bands: 132% to 133% of Initial Nifty → +32% to +33% index move
+  // Upside/downside decay participation: 600% in Excel = 6.0% per 1% index move (×100 stored)
   out = out.replace(
-    /from (\d+(?:\.\d+)?)% to (\d+(?:\.\d+)?)% of Initial Nifty/gi,
+    /\b(upside decay of|downside,?)\s*(\d{3,})%/gi,
+    (match, label, n) => {
+      const num = Number(n);
+      if (num >= 100) {
+        const desk = (num / 100).toFixed(1);
+        return `${label} ${desk}% per 1% index move (${num}% Excel participation)`;
+      }
+      return match;
+    },
+  );
+
+  // Generic "600% participation" prose (Portfolio Insurance style)
+  out = out.replace(
+    /\b(\d{3,})% participation\b/gi,
+    (match, n) => {
+      const num = Number(n);
+      if (num >= 100) {
+        return `${(num / 100).toFixed(1)}% participation (for every 1% index move → ${(num / 100).toFixed(1)}% return)`;
+      }
+      return match;
+    },
+  );
+
+  // Range bands: 109% to 111% of Initial Nifty → +9% to +11% index move
+  out = out.replace(
+    /from (\d+(?:\.\d+)?)% to (\d+(?:\.\d+)?)% of Initial Nifty(?: Level)?/gi,
     (_, lo, hi) => {
       const moveLo = Number(lo) - 100;
       const moveHi = Number(hi) - 100;
@@ -33,9 +55,31 @@ export function formatProductExplanation(text: string): string {
     },
   );
 
+  // Level references above/below thresholds
+  out = out.replace(
+    /above (\d+(?:\.\d+)?)% of Initial Nifty Level/gi,
+    (_, pct) => {
+      const move = Number(pct) - 100;
+      return `above ${pct}% of initial fixing (+${move.toFixed(1)}% index move)`;
+    },
+  );
+
+  out = out.replace(
+    /at or above (\d+(?:\.\d+)?)% of Initial Nifty Level/gi,
+    (_, pct) => {
+      const move = Number(pct) - 100;
+      return `at or above ${pct}% of initial fixing (+${move.toFixed(1)}% index move)`;
+    },
+  );
+
+  // Fix duplicated numbering "2. ... 2. For" → newline
+  out = out.replace(/(\d+\.\s[^2]+?)\s+2\.\s/g, "$1\n2. ");
+  out = out.replace(/(\d+\.\s[^3]+?)\s+3\.\s/g, "$1\n3. ");
+  out = out.replace(/(\d+\.\s[^4]+?)\s+4\.\s/g, "$1\n4. ");
+
   // Normalize level references: 132% of Initial → 132% of initial fixing (+32% move)
   out = out.replace(
-    /(\d+(?:\.\d+)?)% of Initial Nifty/gi,
+    /(\d+(?:\.\d+)?)% of Initial Nifty(?: Level)?/gi,
     (match, pct) => {
       const level = Number(pct);
       const move = level - 100;
