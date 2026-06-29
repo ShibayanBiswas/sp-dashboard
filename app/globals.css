@@ -231,6 +231,46 @@ textarea {
     @apply bg-cyan-500/[0.06] text-white;
   }
 
+  .data-table-row-alt td {
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  .status-badge {
+    @apply inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide;
+  }
+
+  .status-badge-ongoing {
+    @apply border-emerald-400/35 bg-emerald-500/10 text-emerald-300;
+  }
+
+  .status-badge-perpetual {
+    @apply border-cyan-400/35 bg-cyan-500/10 text-cyan-300;
+  }
+
+  .status-badge-expiring-3m {
+    @apply border-amber-400/35 bg-amber-500/10 text-amber-200;
+  }
+
+  .status-badge-expiring-1m {
+    @apply border-orange-400/40 bg-orange-500/10 text-orange-200;
+  }
+
+  .status-badge-expired {
+    @apply border-slate-500/35 bg-slate-700/30 text-slate-400;
+  }
+
+  .status-badge-upcoming {
+    @apply border-purple-400/35 bg-purple-500/10 text-purple-200;
+  }
+
+  .status-badge-unknown {
+    @apply border-rose-400/35 bg-rose-500/10 text-rose-300;
+  }
+
+  .chart-panel-body {
+    @apply relative overflow-hidden rounded-2xl border border-white/5 bg-black/15 p-1;
+  }
+
   .btn-primary {
     @apply relative overflow-hidden rounded-xl border border-cyan-400/35 bg-transparent px-5 py-2.5 text-sm font-bold text-cyan-100 backdrop-blur-md transition;
     box-shadow:

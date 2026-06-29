@@ -60,6 +60,7 @@ export const logicModules: LogicModule[] = [
       { from: "upload", to: "normalize", label: "parse" },
       { from: "normalize", to: "formula", label: "enrich" },
       { from: "normalize", to: "obs", label: "dates" },
+      { from: "normalize", to: "ext", label: "archive" },
       { from: "formula", to: "feed" },
       { from: "obs", to: "feed" },
       { from: "ext", to: "feed", label: "history" },

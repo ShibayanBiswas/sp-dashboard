@@ -99,7 +99,7 @@ export function DashboardShell() {
       </HorizontalBand>
 
       <HorizontalBand className="mt-4">
-        <ChartPanel glow="cyan" icon="chart" title="Maturity Ladder">
+        <ChartPanel glow="cyan" icon="chart" subtitle="Notional by maturity window for the active lifecycle tab" title="Maturity Ladder">
           <SectionInfo {...SECTION_INFO["home-maturity"]} />
           <ChartStage height="h-72">
             <ResponsiveContainer width="100%" height="100%">

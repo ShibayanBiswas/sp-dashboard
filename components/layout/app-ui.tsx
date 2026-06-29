@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Cpu,
   Info,
+  Layers,
   LineChart,
   Package,
   Wallet,
@@ -16,11 +17,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { DeskFooter } from "@/components/layout/desk-footer";
 import { SiteNav } from "@/components/layout/site-nav";
 import { cn } from "@/lib/utils";
 
 export function AppPage({
   title,
+  subtitle,
   children,
   actions,
   dense,
@@ -32,24 +35,35 @@ export function AppPage({
   dense?: boolean;
 }) {
   return (
-    <div className="relative min-h-screen bg-mesh font-serif">
+    <div className="relative flex min-h-screen flex-col bg-mesh font-serif">
       <div className="orb orb-cyan" />
       <div className="orb orb-purple" />
       <div className="orb orb-amber" />
       <header className="brand-header sticky top-0 z-50 font-ui">
         <div className="brand-header-glow" />
-        <div className="relative mx-auto flex max-w-full items-center justify-between gap-4 px-4 py-2.5 lg:px-6">
-          <div>
-            <motion.h1
-              animate={{ opacity: [0.92, 1, 0.92] }}
-              className="brand-title text-lg md:text-xl"
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              SP Dashboard
-            </motion.h1>
-            {title && title !== "SP Dashboard" ? (
-              <p className="mt-0.5 text-sm font-medium italic text-slate-500">{title}</p>
-            ) : null}
+        <div className="relative mx-auto flex max-w-full items-center justify-between gap-4 px-4 py-3 lg:px-6">
+          <div className="flex min-w-0 items-center gap-4">
+            <div aria-hidden className="brand-logo shrink-0">
+              <Layers className="relative z-10 h-6 w-6 text-white drop-shadow-lg" />
+            </div>
+            <div className="min-w-0">
+              <p className="brand-eyebrow">Structured Products Desk</p>
+              <motion.h1
+                animate={{ opacity: [0.92, 1, 0.92] }}
+                className="brand-title"
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                SP Dashboard
+              </motion.h1>
+              {title && title !== "SP Dashboard" ? (
+                <p className="brand-subtitle">
+                  {title}
+                  {subtitle ? ` · ${subtitle}` : null}
+                </p>
+              ) : subtitle ? (
+                <p className="brand-subtitle">{subtitle}</p>
+              ) : null}
+            </div>
           </div>
           {actions}
         </div>
@@ -57,12 +71,13 @@ export function AppPage({
       </header>
       <motion.main
         animate={{ opacity: 1 }}
-        className={cn("relative z-10 mx-auto w-full max-w-full px-4 lg:px-6", dense ? "py-3" : "py-5")}
+        className={cn("relative z-10 mx-auto w-full max-w-full flex-1 px-4 lg:px-6", dense ? "py-3" : "py-5")}
         initial={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
         {children}
       </motion.main>
+      <DeskFooter />
     </div>
   );
 }
@@ -421,12 +436,14 @@ export function KpiBand({
 
 export function ChartPanel({
   title,
+  subtitle,
   children,
   glow,
   icon,
   className,
 }: {
   title: string;
+  subtitle?: string;
   children: ReactNode;
   glow?: "cyan" | "purple";
   icon?: "chart";
@@ -434,8 +451,16 @@ export function ChartPanel({
 }) {
   return (
     <Panel glow={glow} className={className}>
-      <SectionTitle icon={icon === "chart" ? BarChart3 : undefined}>{title.toUpperCase()}</SectionTitle>
-      <div className="mt-5">{children}</div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <SectionTitle icon={icon === "chart" ? BarChart3 : undefined}>{title.toUpperCase()}</SectionTitle>
+          {subtitle ? <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p> : null}
+        </div>
+        <span className="rounded-full border border-cyan-500/25 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-300/90">
+          Live chart
+        </span>
+      </div>
+      <div className="chart-panel-body mt-5">{children}</div>
     </Panel>
   );
 }

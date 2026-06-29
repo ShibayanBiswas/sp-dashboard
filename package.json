@@ -2,12 +2,16 @@
   "name": "sp-dashboard",
   "version": "0.1.0",
   "private": false,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "verify:stack": "npm run typecheck && npm run lint && npm run build && npm run verify:kpis",
     "verify": "npx tsx scripts/bake-master-seed.ts && npx tsx scripts/verify-products.ts && npx tsx scripts/verify-full-suite.ts",
     "verify:full": "npx tsx scripts/verify-full-suite.ts",
     "verify:kpis": "npx tsx scripts/verify-lifecycle-kpis.ts",
@@ -33,10 +37,13 @@
     "zod": "latest"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
     "postcss": "latest",
     "tailwindcss": "^3.4.17",
     "typescript": "latest"
