@@ -91,16 +91,26 @@ export function filterProductsByLifecycle(
   filter: LifecycleFilter,
   asOf = new Date(),
 ): ProductRecord[] {
-  return products.filter((product) => {
-    const status = getProductLifecycleStatus(product, asOf);
-    if (filter === "ongoing") {
-      return status === "ongoing" || status === "perpetual" || status === "unknown";
-    }
-    if (filter === "expired") return status === "expired";
-    if (filter === "expiring-1m") return status === "expiring-1m";
-    if (filter === "expiring-3m") return status === "expiring-1m" || status === "expiring-3m";
-    return false;
-  });
+  return products.filter((product) => lifecycleStatusMatchesFilter(getProductLifecycleStatus(product, asOf), filter));
+}
+
+/** Whether a granular lifecycle status belongs to a UI tab bucket. */
+export function lifecycleStatusMatchesFilter(status: LifecycleStatus, filter: LifecycleFilter): boolean {
+  if (filter === "ongoing") {
+    return status === "ongoing" || status === "perpetual" || status === "unknown";
+  }
+  if (filter === "expired") return status === "expired";
+  if (filter === "expiring-1m") return status === "expiring-1m";
+  if (filter === "expiring-3m") return status === "expiring-1m" || status === "expiring-3m";
+  return false;
+}
+
+export function countProductsByLifecycleFilter(
+  products: ProductRecord[],
+  filter: LifecycleFilter,
+  asOf = new Date(),
+): number {
+  return filterProductsByLifecycle(products, filter, asOf).length;
 }
 
 export function partitionByLifecycle(products: ProductRecord[], asOf = new Date()) {

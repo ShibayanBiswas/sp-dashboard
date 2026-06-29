@@ -55,7 +55,7 @@ export function ScienceLab({
   const pool = useMemo(() => filterProductsByLifecycle(products, filter, asOf), [products, filter, asOf]);
   const categoryLabel = LIFECYCLE_FILTER_LABELS[filter];
 
-  const lifecycle = getLifecycleChartData(pool);
+  const lifecycle = getLifecycleChartData(pool, asOf);
   const couponDist = getCouponDistribution(pool);
   const protection = getProtectionMix(pool);
   const underlyings = getUnderlyingExposure(pool).slice(0, 3);

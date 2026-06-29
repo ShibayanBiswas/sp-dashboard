@@ -4,16 +4,18 @@ import { useMemo } from "react";
 
 import { DataTable, Panel, SectionTitle } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
-import { getExpiredVsOngoingTable, getLifecycleChartData } from "@/lib/analytics";
+import { getExpiredVsOngoingTable, getLifecycleChartData, getLifecycleTableTotals } from "@/lib/analytics";
 import {
   filterProductsByLifecycle,
   LIFECYCLE_FILTER_LABELS,
   LIFECYCLE_STATUS_LABELS,
+  lifecycleStatusMatchesFilter,
   type LifecycleFilter,
+  type LifecycleStatus,
 } from "@/lib/product-lifecycle";
 import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import type { ProductRecord } from "@/lib/types";
-import { formatCrores, formatNumber, formatPercent } from "@/lib/utils";
+import { cn, formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
 export function LifecycleIntelligencePanel({
   products,
@@ -23,15 +25,17 @@ export function LifecycleIntelligencePanel({
   filter?: LifecycleFilter;
 }) {
   const { asOf } = usePortfolioClock();
-  const pool = useMemo(() => filterProductsByLifecycle(products, filter, asOf), [products, filter, asOf]);
   const categoryLabel = LIFECYCLE_FILTER_LABELS[filter];
-  const lifecycle = getLifecycleChartData(pool);
-  const lifecycleTable = getExpiredVsOngoingTable(pool);
+  const tabPool = useMemo(() => filterProductsByLifecycle(products, filter, asOf), [products, filter, asOf]);
+  const tabTotals = useMemo(() => getLifecycleTableTotals(tabPool, asOf), [tabPool, asOf]);
+  const lifecycleTable = useMemo(() => getExpiredVsOngoingTable(products, asOf), [products, asOf]);
+  const lifecycle = useMemo(() => getLifecycleChartData(products, asOf), [products, asOf]);
+  const bookTotals = useMemo(() => getLifecycleTableTotals(products, asOf), [products, asOf]);
 
-  if (pool.length === 0) {
+  if (products.length === 0) {
     return (
       <Panel className="!p-5" glow="purple">
-        <p className="text-center text-sm text-slate-400">No lifecycle intelligence for {categoryLabel.toLowerCase()}.</p>
+        <p className="text-center text-sm text-slate-400">No lifecycle intelligence available.</p>
       </Panel>
     );
   }
@@ -50,7 +54,8 @@ export function LifecycleIntelligencePanel({
         <Panel glow="purple">
           <SectionTitle>Lifecycle Intelligence</SectionTitle>
           <p className="mt-1 text-sm text-slate-500">
-            Status breakdown within {categoryLabel.toLowerCase()} · updated {asOf.toLocaleTimeString("en-IN")}
+            Full book status breakdown · {categoryLabel} tab: {formatNumber(tabTotals.count)} products ·{" "}
+            {formatCrores(tabTotals.notional)} AUM · updated {asOf.toLocaleTimeString("en-IN")}
           </p>
           <div className="mt-4">
             <DataTable>
@@ -63,24 +68,41 @@ export function LifecycleIntelligencePanel({
                 </tr>
               </thead>
               <tbody>
-                {lifecycleTable.map((row) => (
-                  <tr key={row.status}>
-                    <td>
-                      <span className="inline-flex items-center gap-2 font-semibold capitalize">
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{
-                            backgroundColor: lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
-                          }}
-                        />
-                        {LIFECYCLE_STATUS_LABELS[row.status as keyof typeof LIFECYCLE_STATUS_LABELS] ?? row.status}
-                      </span>
-                    </td>
-                    <td>{formatNumber(row.count)}</td>
-                    <td>{formatCrores(row.notional)}</td>
-                    <td>{formatPercent(row.avgCoupon)}</td>
-                  </tr>
-                ))}
+                {lifecycleTable.map((row) => {
+                  const inActiveTab = lifecycleStatusMatchesFilter(row.status as LifecycleStatus, filter);
+                  return (
+                    <tr
+                      key={row.status}
+                      className={cn(inActiveTab && "bg-cyan-500/[0.07] ring-1 ring-inset ring-cyan-400/20")}
+                    >
+                      <td>
+                        <span className="inline-flex items-center gap-2 font-semibold capitalize">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{
+                              backgroundColor: lifecycle.find((e) => e.status === row.status)?.color ?? "#64748b",
+                            }}
+                          />
+                          {LIFECYCLE_STATUS_LABELS[row.status as keyof typeof LIFECYCLE_STATUS_LABELS] ?? row.status}
+                          {inActiveTab ? (
+                            <span className="rounded-full border border-cyan-400/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                              In tab
+                            </span>
+                          ) : null}
+                        </span>
+                      </td>
+                      <td>{formatNumber(row.count)}</td>
+                      <td>{formatCrores(row.notional)}</td>
+                      <td>{formatPercent(row.avgCoupon)}</td>
+                    </tr>
+                  );
+                })}
+                <tr className="border-t border-cyan-500/25 bg-white/[0.03] font-semibold">
+                  <td>Total book</td>
+                  <td>{formatNumber(bookTotals.count)}</td>
+                  <td>{formatCrores(bookTotals.notional)}</td>
+                  <td>{formatPercent(bookTotals.avgCoupon)}</td>
+                </tr>
               </tbody>
             </DataTable>
           </div>

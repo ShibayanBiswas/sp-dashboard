@@ -126,11 +126,10 @@ Run `npm run verify:kpis` to regenerate from current master + clock.
 | Location | What it shows |
 |----------|----------------|
 | **Lifecycle Category Analytics** | KPIs for **selected tab only** |
-| **Home top band** (Live Notional, Ongoing count, …) | **Whole book** via `getPortfolioHeadlineStats()` |
+| **Lifecycle Intelligence table** | **Full book** status breakdown; rows in the active tab are highlighted |
+| **Home top band** (Live Notional, Ongoing count, …) | Tab-aligned counts via `filterProductsByLifecycle` — same logic as lifecycle tabs |
 
-Ongoing **count** on Home uses `getLifecycleNotional()` status `ongoing` only (excludes perpetual/unknown from strict ongoing status but filter includes them — see note below).
-
-**Count discrepancy:** UI tab "Ongoing" = 2,301 includes perpetual + unknown. Strict status `ongoing` in partition may differ slightly; the **tab filter** is authoritative for the analytics panel.
+Headline **Ongoing** = Ongoing tab count (includes perpetual + unknown). **Expiring in 3M** = Expiring 3M tab count (includes 1M + 3M statuses). Matches `npm run verify:kpis`.
 
 ---
 

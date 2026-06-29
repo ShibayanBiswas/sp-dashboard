@@ -5,11 +5,13 @@ import { Activity, TrendingDown, TrendingUp, Zap } from "lucide-react";
 
 import { getPortfolioHeadlineStats } from "@/lib/analytics";
 import { useDataset } from "@/lib/context/dataset-provider";
+import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import { cn, formatCurrency, formatNumber } from "@/lib/utils";
 
 export function MarketStrip() {
   const { dataset, uploadState } = useDataset();
-  const stats = useMemo(() => getPortfolioHeadlineStats(dataset), [dataset]);
+  const { asOf } = usePortfolioClock();
+  const stats = useMemo(() => getPortfolioHeadlineStats(dataset, asOf), [dataset, asOf]);
 
   const items = [
     { icon: Zap, label: "Live", value: formatCurrency(stats.liveNotional), color: "text-cyan-400" },

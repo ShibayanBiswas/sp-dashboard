@@ -4,9 +4,13 @@ import type { DashboardDataset, ProductRecord } from "@/lib/types";
 import {
   EXPIRING_1M_DAYS,
   EXPIRING_3M_DAYS,
+  countProductsByLifecycleFilter,
+  filterProductsByLifecycle,
   getLifecycleNotional,
+  LIFECYCLE_FILTERS,
   LIFECYCLE_STATUS_LABELS,
   partitionByLifecycle,
+  type LifecycleFilter,
   type LifecycleStatus,
 } from "@/lib/product-lifecycle";
 import { classifyProtection, getCouponPercent } from "@/lib/product-utils";
@@ -24,40 +28,31 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset, asOf = new 
     (product) => classifyProtection(product.principalProtection) === "protected",
   ).length;
 
-  const maturingSoon = dataset.products.filter((product) => {
-    const parsed = parseExcelishDate(product.maturityRaw);
-    if (!parsed) return false;
-    const diff = differenceInCalendarDays(parsed, asOf);
-    return diff >= 0 && diff <= EXPIRING_3M_DAYS;
-  }).length;
-
-  const expiring1m = dataset.products.filter((product) => {
-    const parsed = parseExcelishDate(product.maturityRaw);
-    if (!parsed) return false;
-    const diff = differenceInCalendarDays(parsed, asOf);
-    return diff >= 0 && diff <= EXPIRING_1M_DAYS;
-  }).length;
+  const maturingSoon = countProductsByLifecycleFilter(dataset.products, "expiring-3m", asOf);
+  const expiring1m = countProductsByLifecycleFilter(dataset.products, "expiring-1m", asOf);
 
   const lifecycle = getLifecycleNotional(dataset.products, asOf);
   const statusCount = (status: LifecycleStatus) => lifecycle.find((e) => e.status === status)?.count ?? 0;
   const statusNotional = (status: LifecycleStatus) => lifecycle.find((e) => e.status === status)?.notional ?? 0;
 
-  const ongoingCount = statusCount("ongoing");
-  const expiredCount = statusCount("expired");
+  const ongoingCount = countProductsByLifecycleFilter(dataset.products, "ongoing", asOf);
+  const expiredCount = countProductsByLifecycleFilter(dataset.products, "expired", asOf);
   const perpetualCount = statusCount("perpetual");
   const unknownCount = statusCount("unknown");
 
   // Active / live book = everything that has NOT matured and is not a future-dated upcoming trade.
   // This mirrors the "Live Book" lifecycle filter (ongoing + maturing-soon + perpetual + unknown).
-  const expiring1mStatus = statusCount("expiring-1m");
-  const expiring3mStatus = statusCount("expiring-3m");
-  const activeCount = ongoingCount + expiring1mStatus + expiring3mStatus + perpetualCount + unknownCount;
-  const activeNotional =
-    statusNotional("ongoing") +
-    statusNotional("expiring-1m") +
-    statusNotional("expiring-3m") +
-    statusNotional("perpetual") +
-    statusNotional("unknown");
+  // Live book = Ongoing tab + Expiring tab (disjoint buckets).
+  const activeCount = ongoingCount + maturingSoon;
+  const ongoingTabNotional = filterProductsByLifecycle(dataset.products, "ongoing", asOf).reduce(
+    (s, p) => s + (p.tradeAmount ?? 0),
+    0,
+  );
+  const expiringTabNotional = filterProductsByLifecycle(dataset.products, "expiring-3m", asOf).reduce(
+    (s, p) => s + (p.tradeAmount ?? 0),
+    0,
+  );
+  const activeNotional = ongoingTabNotional + expiringTabNotional;
 
   return {
     liveNotional,
@@ -73,6 +68,9 @@ export function getPortfolioHeadlineStats(dataset: DashboardDataset, asOf = new 
     expiredCount,
     perpetualCount,
     unknownCount,
+    tabCounts: Object.fromEntries(
+      LIFECYCLE_FILTERS.map((key) => [key, countProductsByLifecycleFilter(dataset.products, key, asOf)]),
+    ) as Record<LifecycleFilter, number>,
     ongoingNotional: statusNotional("ongoing"),
     expiredNotional: statusNotional("expired"),
   };
@@ -118,8 +116,8 @@ const LIFECYCLE_COLORS: Record<LifecycleStatus, string> = {
   unknown: "#475569",
 };
 
-export function getLifecycleChartData(products: ProductRecord[]) {
-  return getLifecycleNotional(products).map((entry) => ({
+export function getLifecycleChartData(products: ProductRecord[], asOf = new Date()) {
+  return getLifecycleNotional(products, asOf).map((entry) => ({
     ...entry,
     label: LIFECYCLE_STATUS_LABELS[entry.status],
     color: LIFECYCLE_COLORS[entry.status],
@@ -222,16 +220,37 @@ export function getTenorDistribution(products: ProductRecord[]) {
   return [...buckets.entries()].map(([bucket, value]) => ({ bucket, value }));
 }
 
-export function getExpiredVsOngoingTable(products: ProductRecord[]) {
-  const buckets = partitionByLifecycle(products);
-  return (["ongoing", "expiring-3m", "expiring-1m", "upcoming", "expired", "perpetual", "unknown"] as LifecycleStatus[]).map((status) => {
-    const pool = buckets[status];
-    const coupons = pool.map((p) => getCouponPercent(p)).filter((c): c is number => c !== undefined);
-    return {
-      status,
-      count: pool.length,
-      notional: pool.reduce((s, p) => s + (p.tradeAmount ?? 0), 0),
-      avgCoupon: coupons.length > 0 ? coupons.reduce((s, c) => s + c, 0) / coupons.length : 0,
-    };
-  });
+export function getExpiredVsOngoingTable(products: ProductRecord[], asOf = new Date()) {
+  const buckets = partitionByLifecycle(products, asOf);
+  const statusOrder: LifecycleStatus[] = [
+    "ongoing",
+    "expiring-3m",
+    "expiring-1m",
+    "upcoming",
+    "expired",
+    "perpetual",
+    "unknown",
+  ];
+
+  return statusOrder
+    .map((status) => {
+      const pool = buckets[status];
+      const coupons = pool.map((p) => getCouponPercent(p)).filter((c): c is number => c !== undefined);
+      return {
+        status,
+        count: pool.length,
+        notional: pool.reduce((s, p) => s + (p.tradeAmount ?? 0), 0),
+        avgCoupon: coupons.length > 0 ? coupons.reduce((s, c) => s + c, 0) / coupons.length : 0,
+      };
+    })
+    .filter((row) => row.count > 0);
+}
+
+export function getLifecycleTableTotals(products: ProductRecord[], asOf = new Date()) {
+  const coupons = products.map((p) => getCouponPercent(p)).filter((c): c is number => c !== undefined);
+  return {
+    count: products.length,
+    notional: products.reduce((s, p) => s + (p.tradeAmount ?? 0), 0),
+    avgCoupon: coupons.length > 0 ? coupons.reduce((s, c) => s + c, 0) / coupons.length : 0,
+  };
 }

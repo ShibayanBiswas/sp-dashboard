@@ -3,17 +3,20 @@
 import { useMemo, useState } from "react";
 
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
+import { ScienceLab } from "@/components/analytics/science-lab";
 import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-list";
 import { AppPage, KpiBand } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import { getPortfolioHeadlineStats } from "@/lib/analytics";
 import { useDataset } from "@/lib/context/dataset-provider";
+import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import type { LifecycleFilter } from "@/lib/product-lifecycle";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 
 export function PortfolioAnalyticsPage() {
   const { dataset } = useDataset();
-  const stats = useMemo(() => getPortfolioHeadlineStats(dataset), [dataset]);
+  const { asOf } = usePortfolioClock();
+  const stats = useMemo(() => getPortfolioHeadlineStats(dataset, asOf), [dataset, asOf]);
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
 
   return (
@@ -37,6 +40,7 @@ export function PortfolioAnalyticsPage() {
           />
         </HorizontalBand>
         <LifecycleAnalyticsGrid filter={lifecycle} products={dataset.products} />
+        <ScienceLab filter={lifecycle} products={dataset.products} />
       </div>
     </AppPage>
   );
