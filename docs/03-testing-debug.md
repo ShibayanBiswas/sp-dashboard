@@ -1,5 +1,14 @@
 # Testing & Debug Guide
 
+> **Full doc index:** [docs/README.md](README.md) · KPI formulas: [04-lifecycle-analytics-kpis.md](04-lifecycle-analytics-kpis.md)
+
+## Lifecycle KPI audit
+
+```bash
+npm run verify:kpis ongoing     # match UI: AUM, Avg Coupon, Listed, Protected
+npm run verify:kpis             # all four buckets
+```
+
 ## Full catalog QA (all products · ongoing + expired)
 
 ```bash

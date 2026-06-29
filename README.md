@@ -36,21 +36,31 @@ Each bucket has a searchable product list and **Export view** / **Full workbook*
 
 Face value (typically ₹1L) drives client investment. Product value **X** = `max(V, U)` from the Working sheet; discount branch when last observation is before valuation date. IRR uses allotment → valuation elapsed days.
 
-## Scripts
-
-```bash
-npm run build      # production build
-npm run verify     # rebake seed + product checks
-npm run bake       # regenerate lib/data/master-seed.json
-```
-
 ## Documentation
+
+**Start here → [docs/README.md](docs/README.md)** (full index)
 
 | Doc | Contents |
 |-----|----------|
+| [docs/README.md](docs/README.md) | **Index** — links to all reference docs |
 | [docs/01-architecture.md](docs/01-architecture.md) | Modules, routes, auto-update |
 | [docs/02-valuation-excel-parity.md](docs/02-valuation-excel-parity.md) | Working sheet formulas |
-| [docs/03-testing-debug.md](docs/03-testing-debug.md) | Smoke tests, debug map |
+| [docs/03-testing-debug.md](docs/03-testing-debug.md) | Smoke tests, verify scripts, debug map |
+| [docs/04-lifecycle-analytics-kpis.md](docs/04-lifecycle-analytics-kpis.md) | **AUM, Avg Coupon, Listed, Protected** |
+| [docs/05-narrative-master-excel.md](docs/05-narrative-master-excel.md) | 600%, 7500%, master columns |
+| [docs/06-payoff-formulas.md](docs/06-payoff-formulas.md) | Z, formula engine, scenarios |
+| [docs/07-routes-and-components.md](docs/07-routes-and-components.md) | Page → file map |
+| [docs/08-debug-playbook.md](docs/08-debug-playbook.md) | Step-by-step troubleshooting |
+
+## Scripts
+
+```bash
+npm run build         # production build
+npm run verify        # bake seed + counts + full product QA
+npm run verify:full   # all products (formulas + narrative)
+npm run verify:kpis   # lifecycle KPI audit (Ongoing / Expired / …)
+npm run bake          # regenerate lib/data/master-seed.json
+```
 
 ## Stack
 
