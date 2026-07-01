@@ -6,7 +6,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
+    "dev:all": "bash start-dashboard.sh",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -46,6 +47,7 @@
     "eslint-config-next": "^16.2.9",
     "postcss": "latest",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.4",
     "typescript": "latest"
   }
 }

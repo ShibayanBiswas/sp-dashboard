@@ -29,13 +29,13 @@ export function buildCategoryRiskGauges(dataset: DashboardDataset): GaugeRow[] {
 }
 
 function bandColors(score: number) {
-  if (score <= 35) return { label: "LOW", color: "#4ade80" };
-  if (score <= 65) return { label: "MODERATE", color: "#fbbf24" };
-  return { label: "ELEVATED", color: "#fb7185" };
+  if (score <= 35) return { label: "LOW", color: "#15803d" };
+  if (score <= 65) return { label: "MODERATE", color: "#b45309" };
+  return { label: "ELEVATED", color: "#be123c" };
 }
 
 function SpeedometerGauge({ row, index }: { row: GaugeRow; index: number }) {
-  const accent = categoryNeon[row.category] ?? "#22d3ee";
+  const accent = categoryNeon[row.category] ?? "#d4b24c";
   const band = bandColors(row.riskScore);
   const needleAngle = -90 + (row.riskScore / 100) * 180;
   const needleRad = (needleAngle * Math.PI) / 180;
@@ -116,13 +116,13 @@ function SpeedometerGauge({ row, index }: { row: GaugeRow; index: number }) {
           y1="100"
           y2={needleY}
         />
-        <circle cx="100" cy="100" fill={accent} r="7" stroke="#0f172a" strokeWidth="2" />
+        <circle cx="100" cy="100" fill={accent} r="7" stroke="#78716c" strokeWidth="2" />
         <circle cx="100" cy="100" fill="#fff" opacity="0.9" r="3" />
 
-        <text fill="#94a3b8" fontSize="9" fontWeight="700" textAnchor="middle" x="34" y="112">
+        <text fill="#57534e" fontSize="9" fontWeight="700" textAnchor="middle" x="34" y="112">
           0
         </text>
-        <text fill="#94a3b8" fontSize="9" fontWeight="700" textAnchor="middle" x="166" y="112">
+        <text fill="#57534e" fontSize="9" fontWeight="700" textAnchor="middle" x="166" y="112">
           100
         </text>
       </svg>
@@ -142,21 +142,21 @@ function SpeedometerGauge({ row, index }: { row: GaugeRow; index: number }) {
         </p>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[9px] uppercase tracking-wide text-slate-500">
-        <div className="rounded-lg border border-white/8 bg-black/25 px-2 py-1.5">
-          <span className="block font-bold text-emerald-400">{row.credible.toFixed(0)}%</span>
+      <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[9px] uppercase tracking-wide text-stone-500">
+        <div className="rounded-lg border border-stone-200 bg-stone-100 px-2 py-1.5">
+          <span className="block font-bold text-emerald-800">{row.credible.toFixed(0)}%</span>
           Credible Issuer
         </div>
-        <div className="rounded-lg border border-white/8 bg-black/25 px-2 py-1.5">
-          <span className="block font-bold text-cyan-400">{row.listed.toFixed(0)}%</span>
+        <div className="rounded-lg border border-stone-200 bg-stone-100 px-2 py-1.5">
+          <span className="block font-bold text-gold-dark">{row.listed.toFixed(0)}%</span>
           Listed
         </div>
-        <div className="rounded-lg border border-white/8 bg-black/25 px-2 py-1.5">
-          <span className="block font-bold text-purple-400">{row.avgTenorYears.toFixed(1)}y</span>
+        <div className="rounded-lg border border-stone-200 bg-stone-100 px-2 py-1.5">
+          <span className="block font-bold text-maroon">{row.avgTenorYears.toFixed(1)}y</span>
           Avg Tenor
         </div>
       </div>
-      <p className="mt-2 text-center text-[9px] leading-relaxed text-slate-500">
+      <p className="mt-2 text-center text-[9px] leading-relaxed text-stone-500">
         Score reflects issuer quality, capital protection, time to maturity, and market linkage.
       </p>
     </motion.div>

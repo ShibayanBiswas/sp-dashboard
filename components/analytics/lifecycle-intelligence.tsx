@@ -35,7 +35,7 @@ export function LifecycleIntelligencePanel({
   if (products.length === 0) {
     return (
       <Panel className="!p-5" glow="purple">
-        <p className="text-center text-sm text-slate-400">No lifecycle intelligence available.</p>
+        <p className="text-center text-sm text-stone-600">No lifecycle intelligence available.</p>
       </Panel>
     );
   }
@@ -43,17 +43,17 @@ export function LifecycleIntelligencePanel({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-purple-300">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-maroon/40 to-transparent" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-maroon">
           Lifecycle Intelligence · {categoryLabel}
         </p>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
       </div>
 
       <HorizontalBand>
         <Panel glow="purple">
           <SectionTitle>Lifecycle Intelligence</SectionTitle>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-stone-500">
             Full book status breakdown · {categoryLabel} tab: {formatNumber(tabTotals.count)} products ·{" "}
             {formatCrores(tabTotals.notional)} AUM · updated {asOf.toLocaleTimeString("en-IN")}
           </p>
@@ -73,7 +73,7 @@ export function LifecycleIntelligencePanel({
                   return (
                     <tr
                       key={row.status}
-                      className={cn(inActiveTab && "bg-cyan-500/[0.07] ring-1 ring-inset ring-cyan-400/20")}
+                      className={cn(inActiveTab && "bg-gold/[0.07] ring-1 ring-inset ring-gold/25")}
                     >
                       <td>
                         <span className="inline-flex items-center gap-2 font-semibold capitalize">
@@ -85,7 +85,7 @@ export function LifecycleIntelligencePanel({
                           />
                           {LIFECYCLE_STATUS_LABELS[row.status as keyof typeof LIFECYCLE_STATUS_LABELS] ?? row.status}
                           {inActiveTab ? (
-                            <span className="rounded-full border border-cyan-400/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-cyan-300">
+                            <span className="rounded-full border border-gold/35 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-gold-dark">
                               In tab
                             </span>
                           ) : null}
@@ -97,7 +97,7 @@ export function LifecycleIntelligencePanel({
                     </tr>
                   );
                 })}
-                <tr className="border-t border-cyan-500/25 bg-white/[0.03] font-semibold">
+                <tr className="border-t border-gold/30 bg-stone-50 font-semibold">
                   <td>Total book</td>
                   <td>{formatNumber(bookTotals.count)}</td>
                   <td>{formatCrores(bookTotals.notional)}</td>

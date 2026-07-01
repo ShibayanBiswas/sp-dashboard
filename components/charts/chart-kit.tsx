@@ -46,7 +46,7 @@ export function PremiumGrid({ vertical = true, yAxisId }: { vertical?: boolean; 
 
       <CartesianGrid stroke={chartTheme.gridMinor} strokeDasharray="6 10" vertical={vertical} horizontal yAxisId={yAxisId} />
 
-      <ReferenceLine stroke="rgba(34,211,238,0.25)" strokeDasharray="5 5" y={0} yAxisId={yAxisId} />
+      <ReferenceLine stroke="rgba(212,178,76,0.35)" strokeDasharray="5 5" y={0} yAxisId={yAxisId} />
 
     </>
 
@@ -434,7 +434,7 @@ export function ChartTooltip({
 
       {label ? (
 
-        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-300">{label}</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gold-dark">{label}</p>
 
       ) : null}
 

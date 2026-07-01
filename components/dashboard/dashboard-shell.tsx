@@ -8,6 +8,7 @@ import { LifecycleProductList } from "@/components/dashboard/lifecycle-product-l
 import { LifecycleAnalyticsGrid } from "@/components/analytics/lifecycle-lab";
 import { LifecycleIntelligencePanel } from "@/components/analytics/lifecycle-intelligence";
 import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
+import { MasterUploadButton } from "@/components/ui/master-upload-button";
 import {
   AppPage,
   Button,
@@ -31,7 +32,7 @@ import { formatCrores, formatNumber } from "@/lib/utils";
 import { Bar, BarChart, ResponsiveContainer } from "recharts";
 
 export function DashboardShell() {
-  const { dataset, isLoading, uploadWorkbook } = useDataset();
+  const { dataset } = useDataset();
   const masterProducts = useMasterProducts();
   const { asOf } = usePortfolioClock();
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>("ongoing");
@@ -48,22 +49,8 @@ export function DashboardShell() {
 
   return (
     <AppPage
-      actions={
-        <label className="cursor-pointer">
-          <Button variant="primary">{isLoading ? "Uploading..." : "Upload Master"}</Button>
-          <input
-            accept=".xlsx,.xlsm"
-            className="hidden"
-            type="file"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void uploadWorkbook(file);
-            }}
-          />
-        </label>
-      }
+      actions={<MasterUploadButton />}
       dense
-      title="Home"
     >
       <HorizontalBand>
         <SectionInfo {...SECTION_INFO["home-kpis"]} />
@@ -106,9 +93,9 @@ export function DashboardShell() {
               <BarChart data={maturityLadder} margin={barChartMargins}>
                 <defs>
                   <linearGradient id="maturityGrad" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#22d3ee" />
-                    <stop offset="55%" stopColor="#06b6d4" />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.45} />
+                    <stop offset="0%" stopColor="#e5cf94" />
+                    <stop offset="55%" stopColor="#d4b24c" />
+                    <stop offset="100%" stopColor="#7a1e2c" stopOpacity={0.5} />
                   </linearGradient>
                 </defs>
                 <PremiumGrid />
@@ -159,7 +146,7 @@ export function DashboardShell() {
             </RailCard>
             <RailCard minWidth="min-w-[200px]">
               <Link href={"/intelligence" as Route}>
-                <Button className="w-full">Logic Atlas</Button>
+                <Button className="w-full">Intel · Logic Atlas</Button>
               </Link>
             </RailCard>
           </HorizontalRail>

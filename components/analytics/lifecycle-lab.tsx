@@ -26,9 +26,9 @@ export function LifecycleAnalyticsGrid({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-purple-300">Lifecycle Category Analytics</p>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-maroon/30 to-transparent" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-maroon">Lifecycle Category Analytics</p>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
       </div>
 
       <LifecycleCategoryPanel asOf={asOf} filter={filter} products={products} />
@@ -60,7 +60,7 @@ function LifecycleCategoryPanel({
   if (pool.length === 0) {
     return (
       <Panel className="!p-5" glow="purple">
-        <p className="text-center text-sm text-slate-400">No products in {label.toLowerCase()}.</p>
+        <p className="text-center text-sm text-stone-600">No products in {label.toLowerCase()}.</p>
       </Panel>
     );
   }
@@ -69,7 +69,7 @@ function LifecycleCategoryPanel({
     <HorizontalBand>
       <Panel className="!p-4" glow={filter === "expired" ? "purple" : "cyan"}>
         <SectionTitle>{label}</SectionTitle>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-stone-500">
           {formatNumber(pool.length)} products · updated {asOf.toLocaleTimeString("en-IN")}
         </p>
         <div className="mt-4">

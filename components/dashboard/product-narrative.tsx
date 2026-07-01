@@ -26,20 +26,20 @@ export function ProductNarrative({
       initial={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.45 }}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/10 pb-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-stone-200 pb-4">
         <div>
-          <p className="font-serif text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200/90">
+          <p className="font-serif text-[11px] font-bold uppercase tracking-[0.2em] text-amber-900/90">
             Product Overview
           </p>
-          <h3 className="font-serif text-xl font-bold italic text-white">{overview.title}</h3>
+          <h3 className="font-serif text-xl font-bold italic text-ink">{overview.title}</h3>
           {overview.issuer ? (
-            <p className="mt-1 font-serif text-sm text-slate-400">
-              <span className="font-bold text-slate-300">Issuer:</span>{" "}
+            <p className="mt-1 font-serif text-sm text-stone-600">
+              <span className="font-bold text-stone-700">Issuer:</span>{" "}
               <em>{overview.issuer}</em>
               {overview.isin ? (
                 <>
                   {" "}
-                  · <span className="font-bold text-slate-300">ISIN:</span> <em>{overview.isin}</em>
+                  · <span className="font-bold text-stone-700">ISIN:</span> <em>{overview.isin}</em>
                 </>
               ) : null}
             </p>
@@ -58,7 +58,7 @@ export function ProductNarrative({
       </div>
 
       {blocks.length > 0 ? (
-        <div className="mt-4 space-y-3 font-serif text-[15px] leading-7 text-slate-200">
+        <div className="mt-4 space-y-3 font-serif text-[15px] leading-7 text-stone-800">
           {blocks.map((block, i) => {
             if (block.type === "point") {
               const match = block.content.match(/^(\d+[\.\)])\s*(.*)$/);
@@ -79,7 +79,7 @@ export function ProductNarrative({
             }
             if (block.type === "heading") {
               return (
-                <p key={i} className="font-bold text-cyan-100">
+                <p key={i} className="font-bold text-maroon">
                   {block.content}
                 </p>
               );
@@ -90,7 +90,7 @@ export function ProductNarrative({
           })}
         </div>
       ) : (
-        <p className="mt-4 font-serif text-sm italic text-slate-500">
+        <p className="mt-4 font-serif text-sm italic text-stone-500">
           Product description will appear once the master file includes an explanation for this structure.
         </p>
       )}
@@ -98,22 +98,22 @@ export function ProductNarrative({
       {overview.structure.length > 0 ? (
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           {overview.structure.map((line) => (
-            <div key={line} className="rounded-xl border border-white/8 bg-black/25 px-3 py-2 font-serif text-sm">
+            <div key={line} className="rounded-xl border border-stone-200 bg-stone-100 px-3 py-2 font-serif text-sm">
               <span dangerouslySetInnerHTML={{ __html: emphasizeNarrative(line) }} />
             </div>
           ))}
         </div>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap gap-4 border-t border-white/8 pt-4 font-serif text-sm">
+      <div className="mt-4 flex flex-wrap gap-4 border-t border-stone-200 pt-4 font-serif text-sm">
         {product.tradeAmount ? (
           <span>
-            <strong className="text-cyan-300">Notional:</strong> <em>{formatCurrency(product.tradeAmount)}</em>
+            <strong className="text-gold-dark">Notional:</strong> <em>{formatCurrency(product.tradeAmount)}</em>
           </span>
         ) : null}
         {couponLabel ? (
           <span>
-            <strong className="text-purple-300">Coupon:</strong> <em>{couponLabel}</em>
+            <strong className="text-maroon">Coupon:</strong> <em>{couponLabel}</em>
           </span>
         ) : null}
       </div>
@@ -124,7 +124,7 @@ export function ProductNarrative({
 /** Bold key financial terms; italicize percentages and levels in prose. */
 function emphasizeNarrative(text: string) {
   return text
-    .replace(/(\d+(\.\d+)?%)/g, "<em class='text-amber-200'>$1</em>")
+    .replace(/(\d+(\.\d+)?%)/g, "<em class='text-amber-900'>$1</em>")
     .replace(
       /\b(Principal|Coupon|Nifty|Sensex|Capital|Protected|Participation|Final Fixing|Initial Level|Target Level|Maturity)\b/gi,
       "<strong>$1</strong>",

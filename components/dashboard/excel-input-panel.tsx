@@ -56,12 +56,12 @@ export function ExcelInputPanel({
 
       {mode === "valuation" && fields ? (
         <div>
-          <p className="mb-3 text-sm font-semibold text-cyan-300">{IDENTITY_HINT}</p>
+          <p className="mb-3 text-sm font-semibold text-gold-dark">{IDENTITY_HINT}</p>
           <FieldStack>
             {fields.map((field) => {
               if (field.type === "divider") {
                 return (
-                  <p key={field.key} className="py-1 text-center text-xs font-bold uppercase tracking-[0.3em] text-slate-500">
+                  <p key={field.key} className="py-1 text-center text-xs font-bold uppercase tracking-[0.3em] text-stone-500">
                     — {field.label} —
                   </p>
                 );
@@ -140,15 +140,15 @@ export function ExcelInputPanel({
       )}
 
       {steps ? (
-        <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4">
+        <div className="rounded-2xl border border-maroon/20 bg-maroon/5 p-4">
           <SubTitle>Steps</SubTitle>
           <ol className="mt-3 space-y-4">
             {steps.map((s) => (
               <li key={s.step}>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-ink">
                   {s.step}) {s.title}
                 </p>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5 text-slate-400">
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5 text-stone-600">
                   {s.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
@@ -189,11 +189,11 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
       <FieldRow hint={INPUT_FIELD_HINTS.currentLevel} label={`Current Level (${indexLabel})`}>
         <Input
           readOnly
-          className="input-glow font-semibold text-cyan-100"
+          className="input-glow font-semibold text-maroon"
           value={liveLevel > 0 ? formatNumber(liveLevel) : "Fetching from Yahoo…"}
         />
       </FieldRow>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-stone-500">
         Live {indexLabel} from Yahoo Finance · updates hourly with valuation inputs
       </p>
       <FieldRow hint={INPUT_FIELD_HINTS.purchaseDate} label="Purchase Date">
@@ -214,7 +214,7 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
         />
       </FieldRow>
       {product ? (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Live index: Nifty {formatNumber(Number(selection.niftyLevel) || 0)} · Sensex {formatNumber(Number(selection.sensexLevel) || 0)}
         </p>
       ) : null}
@@ -253,7 +253,7 @@ export function DisclaimerBox({ children, className }: { children: ReactNode; cl
         className,
       )}
     >
-      <span className="font-bold uppercase tracking-wider text-rose-300">Disclaimer · </span>
+      <span className="font-bold uppercase tracking-wider text-rose-800">Disclaimer · </span>
       {children}
     </div>
   );

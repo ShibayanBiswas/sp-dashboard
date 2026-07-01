@@ -178,7 +178,7 @@ function NonPpSpDetails({
         <Panel className="!p-4" glow="purple">
           <SectionInfo {...SECTION_INFO["pay-inputs"]} />
           <SectionTitle>Non-PP SP Details · Input</SectionTitle>
-          <p className="mt-1 text-sm italic text-amber-200/90">Change the highlighted cells based on the client deal</p>
+          <p className="mt-1 text-sm italic text-amber-900/90">Change the highlighted cells based on the client deal</p>
           <div className="mt-3">
             <ExcelInputPanel category={product?.category ?? "Primary"} compact mode="payoff" products={pool} />
           </div>
@@ -200,7 +200,7 @@ function NonPpSpDetails({
                 ]}
               />
               {payoffBandNote ? (
-                <p className="mt-2 text-center text-xs italic text-amber-200/90">{payoffBandNote}</p>
+                <p className="mt-2 text-center text-xs italic text-amber-900/90">{payoffBandNote}</p>
               ) : null}
 
               <HorizontalBand className="mt-4">
@@ -317,7 +317,7 @@ function ProductSearchTab({ products, selectedId }: { products: ProductRecord[];
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <SectionTitle>Product Search</SectionTitle>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-stone-500">
               {formatNumber(filtered.length)} products · click a row to load it into the payoff interface
             </p>
           </div>
@@ -348,7 +348,7 @@ function ProductSearchTab({ products, selectedId }: { products: ProductRecord[];
                     key={p.rowId}
                     className={cn(
                       "cursor-pointer transition",
-                      isActive ? "bg-cyan-500/15 ring-1 ring-inset ring-cyan-400/40" : "hover:bg-white/5",
+                      isActive ? "bg-gold/15 ring-1 ring-inset ring-gold/35" : "hover:bg-stone-100",
                     )}
                     onClick={() => selection.selectProduct(p)}
                   >

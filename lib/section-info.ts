@@ -35,7 +35,7 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
     title: "What the desk modules do",
     paragraphs: [
       "These buttons take you straight to the main areas of the app. Valuation shows what a product is worth today. Payoff shows what it could pay at maturity under different market levels.",
-      "Portfolio is a searchable list of every product. Logic Atlas explains how calculations work behind the scenes for anyone who wants the detail.",
+      "Portfolio is a searchable list of every product. Intel · Logic Atlas explains how calculations work behind the scenes for anyone who wants the detail.",
       "Each area uses the same data and rules as the desk’s standard spreadsheets, but in a faster, interactive layout.",
       "Pick the module that matches your question — today’s value, future payoff, full list, or technical logic.",
     ],
@@ -179,6 +179,35 @@ export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[]
       "Read them together: high coupon with lower protection suggests a more ambitious profile; the opposite suggests a more conservative one.",
       "The risk score weighs issuer credibility, capital protection, tenor, and market linkage — structured products are designed with partial protection, so scores reflect that context.",
       "Figures beneath each gauge — credible issuer share, listed share, and average tenor — help explain the needle position in plain terms.",
+    ],
+  },
+
+  // ---------------------------------------------------------------- Intel / Logic Atlas
+  "intel-overview": {
+    title: "What Logic Atlas shows",
+    paragraphs: [
+      "Logic Atlas is the technical map of how this dashboard works — from master file ingest through valuation, payoff, and portfolio analytics. It is written for analysts and engineers who want the pipeline view without opening spreadsheets.",
+      "Each module card represents a major desk surface. Select one to walk its pipeline nodes left to right. Click any node to read what it does in plain language.",
+      "Live KPI tiles at the top reflect the current valid Primary book loaded in the app — the same filtered registry used on Home and Analytics Lab.",
+      "Nothing here changes product data. It documents and validates the logic paths the rest of the app relies on.",
+    ],
+  },
+  "intel-pipeline": {
+    title: "Reading a pipeline flow",
+    paragraphs: [
+      "Arrows show how data moves between stages — parse, enrich, filter, aggregate, and output. A green pipeline badge means every node is connected; a warning means a stage is orphaned and should be reviewed.",
+      "Some modules branch in parallel — for example the master registry feeds payoff definitions and observation calendars at the same time before joining the desk data bus.",
+      "The Analytics Laboratory module is scoped to Analytics Lab in the UI. Home uses the Desk Command Center module instead, which includes lifecycle intelligence but not ScienceLab charts.",
+      "Use the module selector rail to compare valuation, payoff, analytics, and data foundation side by side.",
+    ],
+  },
+  "intel-primitives": {
+    title: "Computation primitives",
+    paragraphs: [
+      "Primitives are the abstract building blocks repeated across thousands of product rows — lookups, conditionals, IRR solvers, Z substitution, and roll-ups. Counts are indicative of registry complexity, not live runtime calls.",
+      "No raw Excel formula text appears here. The app resolves formulas internally when you run valuation or payoff.",
+      "Conditional branching routes logic by protection flag, listing status, and tenor state — the same rules that drive lifecycle classification.",
+      "Aggregation roll-ups power every chart on Analytics Lab and every KPI tile on Home.",
     ],
   },
 };

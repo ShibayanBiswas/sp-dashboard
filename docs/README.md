@@ -16,12 +16,17 @@ All desk reference docs live in **`docs/`**. Start here.
 ## Quick commands
 
 ```bash
-npm run dev              # local app http://localhost:3000
-npm run verify           # bake seed + counts + full product QA
-npm run verify:full        # all products: formulas + narrative + payoff
-npm run verify:kpis        # lifecycle KPI audit (Ongoing / Expired / …)
-npm run bake               # New Product Master_.xlsx → master-seed.json
+bash start-dashboard.sh   # Linux/macOS — Python API + Next.js (kills stale :3000/:8000)
+npm run dev               # Next.js only http://localhost:3000
+npm run verify            # bake seed + counts + full product QA
+npm run verify:full       # all products: formulas + narrative + payoff
+npm run verify:kpis       # lifecycle KPI audit (Ongoing / Expired / …)
+npm run bake              # New Product Master_.xlsx → master-seed.json
 ```
+
+**Full stack:** `start-dashboard.sh` starts the Python analytics API on `http://127.0.0.1:8000` and Next.js on `http://localhost:3000`. Stop with `bash start-dashboard.sh --stop`.
+
+**Python venv:** `backend/python/.venv` (created on first run; gitignored).
 
 ## Master Excel (local, gitignored)
 

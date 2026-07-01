@@ -91,15 +91,15 @@ export function PivotTable({
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <LayoutGrid className="h-4 w-4 text-cyan-400" />
+          <LayoutGrid className="h-4 w-4 text-gold-dark" />
           <SubTitle>{title}</SubTitle>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button className={cn(mode === "flat" && "border-cyan-500/40 text-cyan-300")} onClick={() => setMode("flat")}>
+          <Button className={cn(mode === "flat" && "border-gold/40 text-gold-dark")} onClick={() => setMode("flat")}>
             Flat Table
           </Button>
           <Button
-            className={cn(mode === "pivot" && "border-purple-500/40 text-purple-300")}
+            className={cn(mode === "pivot" && "border-maroon/30 text-maroon")}
             onClick={() => setMode("pivot")}
           >
             Pivot View
@@ -113,7 +113,7 @@ export function PivotTable({
 
       {mode === "pivot" ? (
         <>
-          <div className="grid gap-3 rounded-2xl border border-white/10 bg-black/30 p-4 lg:grid-cols-4">
+          <div className="grid gap-3 rounded-2xl border border-stone-200 bg-stone-100 p-4 lg:grid-cols-4">
             <PivotZone label="Rows" options={fields} selected={rows} onChange={setRows} />
             <PivotZone label="Columns" options={fields} selected={columns} onChange={setColumns} />
             <PivotZone
@@ -133,7 +133,7 @@ export function PivotTable({
                 <option value="max">Max</option>
               </Select>
               {result ? (
-                <p className="mt-2 text-[10px] text-slate-500">Engine: {result.engine}</p>
+                <p className="mt-2 text-[10px] text-stone-500">Engine: {result.engine}</p>
               ) : null}
             </div>
           </div>
@@ -156,7 +156,7 @@ export function PivotTable({
                     {result.matrix[ri]?.map((cell, ci) => (
                       <td key={ci}>{formatCell(Number(cell), values[0])}</td>
                     ))}
-                    <td className="font-semibold text-cyan-300">
+                    <td className="font-semibold text-gold-dark">
                       {formatCell(Number(result.rowTotals[ri] ?? 0), values[0])}
                     </td>
                   </tr>
@@ -168,12 +168,12 @@ export function PivotTable({
                       {formatCell(Number(t), values[0])}
                     </td>
                   ))}
-                  <td className="font-bold text-purple-300">{formatCell(Number(result.grandTotal), values[0])}</td>
+                  <td className="font-bold text-maroon">{formatCell(Number(result.grandTotal), values[0])}</td>
                 </tr>
               </tbody>
             </DataTable>
           ) : (
-            <p className="text-sm text-slate-500">Add row/column fields to build a pivot.</p>
+            <p className="text-sm text-stone-500">Add row/column fields to build a pivot.</p>
           )}
         </>
       ) : (
@@ -214,7 +214,7 @@ function PivotZone({
   single?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-cyan-500/25 bg-cyan-500/5 p-3">
+    <div className="rounded-xl border border-dashed border-gold/30 bg-gold/5 p-3">
       <p className="label-chip mb-2">{label}</p>
       <Select
         value={single ? (selected[0] ?? "") : ""}
@@ -239,7 +239,7 @@ function PivotZone({
         {selected.map((key) => (
           <button
             key={key}
-            className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] text-slate-300 hover:border-rose-500/40"
+            className="rounded-full border border-stone-200 bg-white/10 px-2 py-0.5 text-[10px] text-stone-700 hover:border-rose-500/40"
             type="button"
             onClick={() => onChange(selected.filter((k) => k !== key))}
           >

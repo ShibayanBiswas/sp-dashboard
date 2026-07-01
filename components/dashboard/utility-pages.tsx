@@ -41,6 +41,7 @@ import { buildEnhancedPayoffScenarioTable } from "@/lib/workbook/payoff-pivots";
 import { downloadProductsExcel } from "@/lib/workbook/export-products";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
 import { cn, formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent, formatProductUnitValue } from "@/lib/utils";
+import { MasterUploadButton } from "@/components/ui/master-upload-button";
 import { RevealOutput } from "@/components/ui/reveal-output";
 import { usePortfolioClock } from "@/lib/hooks/use-portfolio-clock";
 import { useMasterProducts } from "@/lib/hooks/use-master-products";
@@ -116,34 +117,26 @@ export function ProductSearchPage() {
 }
 
 export function UploadDiagnosticsPage() {
-  const { dataset, uploadState, isLoading, uploadWorkbook, resetToDemo } = useDataset();
+  const { dataset, uploadState } = useDataset();
 
   return (
-    <AppPage dense title="Upload Master">
+    <AppPage dense>
       <div className="space-y-4">
-        <Panel glow="cyan">
-          <SectionTitle icon={UploadIcon}>Upload New Product Master</SectionTitle>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-muted">
-            <li>Upload the latest New Product Master file (.xlsx).</li>
-            <li>Confirm the Primary product universe parsed correctly.</li>
-            <li>Review validation alerts before using valuation or payoff.</li>
-          </ol>
-          <label className="mt-6 inline-flex cursor-pointer">
-            <Button variant="primary">{isLoading ? "Parsing..." : "Choose file"}</Button>
-            <input
-              accept=".xlsx,.xlsm"
-              className="hidden"
-              type="file"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) void uploadWorkbook(file);
-              }}
-            />
-          </label>
-          <Button className="mt-3 block" onClick={resetToDemo}>
-            Reset to demo data
-          </Button>
-          <Output className="mt-4">{uploadState}</Output>
+        <Panel glow="cyan" className="!p-8">
+          <div className="upload-dropzone mx-auto max-w-2xl text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 shadow-inner">
+              <UploadIcon className="h-8 w-8 text-gold-dark" />
+            </div>
+            <SectionTitle icon={UploadIcon}>New Product Master</SectionTitle>
+            <p className="mt-2 text-sm text-muted">
+              Upload <strong className="text-ink">New Product Master_.xlsx</strong> to refresh the Primary book —
+              valuations, payoff, and lifecycle lists update automatically.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <MasterUploadButton className="!px-8 !py-3" />
+            </div>
+            <Output className="mt-6 text-left text-sm">{uploadState}</Output>
+          </div>
         </Panel>
         <Panel glow="purple">
           <SectionTitle>Validation</SectionTitle>
@@ -175,7 +168,7 @@ export function UploadDiagnosticsPage() {
       </div>
       <Panel className="mt-4" glow="cyan">
         <SectionTitle>Product Count Verification</SectionTitle>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-stone-500">
           Verified against the Excel master — Primary (4,533 products · 4,471 payoff formulae).
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -188,9 +181,9 @@ export function UploadDiagnosticsPage() {
               style={{ "--kpi-accent": categoryNeon[entry.category] } as CSSProperties}
               transition={{ delay: index * 0.06 }}
             >
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-500">{entry.category}</p>
-              <p className="mt-1 text-2xl font-bold text-white">{formatNumber(entry.productCount)}</p>
-              <p className="text-xs text-slate-500">{formatCrores(entry.liveNotional)} notional</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-stone-500">{entry.category}</p>
+              <p className="mt-1 text-2xl font-bold text-ink">{formatNumber(entry.productCount)}</p>
+              <p className="text-xs text-stone-500">{formatCrores(entry.liveNotional)} notional</p>
             </motion.div>
           ))}
         </div>
@@ -226,12 +219,12 @@ export function UploadDiagnosticsPage() {
                     </td>
                     <td>{formatCurrency(entry.liveNotional)}</td>
                     <td>
-                      <Link className="text-cyan-400 underline" href={"/valuation" as Route}>
+                      <Link className="text-gold-dark underline" href={"/valuation" as Route}>
                         Open
                       </Link>
                     </td>
                     <td>
-                      <Link className="text-purple-400 underline" href={"/payoff" as Route}>
+                      <Link className="text-maroon underline" href={"/payoff" as Route}>
                         Open
                       </Link>
                     </td>
@@ -343,10 +336,10 @@ export function ProductDetailsPage() {
             <RevealOutput label="Click here to view product output">
               {!canValue ? (
                 <Panel className="!p-5" glow="purple">
-                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200">
+                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-900">
                     {lifecycleStatus ? LIFECYCLE_STATUS_LABELS[lifecycleStatus] : "Inactive"}
                   </p>
-                  <p className="mt-2 text-center text-sm text-slate-400">
+                  <p className="mt-2 text-center text-sm text-stone-600">
                     Live valuation not applicable — product overview and payoff remain below.
                   </p>
                 </Panel>

@@ -8,7 +8,7 @@ import { cn, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/util
 
 export function PayoffScenariosTable({ rows }: { rows: PayoffRowFlags[] }) {
   return (
-    <div className="payoff-scenarios-stage rounded-2xl border border-cyan-500/25 bg-gradient-to-b from-cyan-500/[0.06] via-transparent to-purple-500/[0.05] p-1 shadow-[0_0_48px_rgba(34,211,238,0.12)]">
+    <div className="payoff-scenarios-stage rounded-2xl border border-gold/30 bg-gradient-to-b from-gold/8 via-transparent to-maroon/5 p-1 shadow-[0_8px_32px_rgba(212,178,76,0.12)]">
       <div className="overflow-auto rounded-xl">
         <DataTable>
           <thead>
@@ -35,7 +35,7 @@ export function PayoffScenariosTable({ rows }: { rows: PayoffRowFlags[] }) {
               >
                 <td>{formatNumber(row.finalFixing)}</td>
                 <td>{formatPercent(row.performance, 1)}</td>
-                <td className="font-bold text-emerald-300">{formatFormulaReturn(row.maturityValue)}</td>
+                <td className="font-bold text-emerald-800">{formatFormulaReturn(row.maturityValue)}</td>
                 <td>{formatPercent(row.irr, 2)}</td>
               </motion.tr>
             ))}

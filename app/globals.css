@@ -3,11 +3,23 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --neon-cyan: #22d3ee;
-  --neon-purple: #a855f7;
-  --neon-amber: #fbbf24;
-  --neon-green: #4ade80;
+  color-scheme: light;
+  --ar-gold: #d4b24c;
+  --ar-gold-light: #e5cf94;
+  --ar-gold-dark: #b8860b;
+  --ar-maroon: #7a1e2c;
+  --ar-ink: #111111;
+  --ar-muted: #57534e;
+  --ar-subtle: #78716c;
+  --ar-bg: #f7f7f7;
+  --ar-surface: #ffffff;
+  --ar-panel: #fafafa;
+  --ar-border: rgba(17, 17, 17, 0.08);
+  --ar-shadow: 0 8px 32px -8px rgba(17, 17, 17, 0.08), 0 2px 8px -2px rgba(17, 17, 17, 0.04);
+  --neon-cyan: var(--ar-gold);
+  --neon-purple: var(--ar-maroon);
+  --neon-amber: #d9a33b;
+  --neon-green: #16a34a;
 }
 
 * {
@@ -18,8 +30,8 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #020617;
-  color: #e2ecff;
+  background: var(--ar-bg);
+  color: var(--ar-ink);
   font-family: var(--font-serif), "Times New Roman", Times, Georgia, serif;
 }
 
@@ -28,12 +40,27 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
+}
+
+@layer base {
+  .bg-mesh {
+    color: var(--ar-ink);
+  }
+
+  .bg-mesh a:not([class*="btn"]) {
+    @apply text-maroon underline-offset-2 hover:text-gold-dark;
+  }
+
+  .bg-mesh strong {
+    @apply font-bold text-ink;
+  }
 }
 
 @layer components {
   .bg-mesh {
     position: relative;
-    background: #020617;
+    background: var(--ar-bg);
     overflow-x: hidden;
   }
 
@@ -42,10 +69,9 @@ textarea {
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(34, 211, 238, 0.18), transparent 50%),
-      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(168, 85, 247, 0.16), transparent 45%),
-      radial-gradient(ellipse 50% 30% at 50% 100%, rgba(249, 115, 22, 0.08), transparent 50%),
-      linear-gradient(180deg, #020617 0%, #0a0f1e 50%, #020617 100%);
+      radial-gradient(ellipse 70% 45% at 12% -5%, rgba(212, 178, 76, 0.12), transparent 55%),
+      radial-gradient(ellipse 50% 35% at 95% 5%, rgba(122, 30, 44, 0.05), transparent 50%),
+      linear-gradient(180deg, #ffffff 0%, #f7f7f7 45%, #f2f2f2 100%);
     pointer-events: none;
     z-index: 0;
   }
@@ -54,21 +80,18 @@ textarea {
     content: "";
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
-    opacity: 0.4;
+    opacity: 0.5;
   }
 
   .glass {
     position: relative;
-    background: linear-gradient(145deg, rgba(18, 28, 48, 0.92) 0%, rgba(6, 12, 24, 0.88) 100%);
-    border: 1px solid rgba(148, 163, 184, 0.14);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.04) inset,
-      0 1px 0 rgba(255, 255, 255, 0.06) inset,
-      0 32px 64px -24px rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(24px) saturate(1.2);
+    background: var(--ar-surface);
+    border: 1px solid var(--ar-border);
+    box-shadow: var(--ar-shadow);
+    backdrop-filter: blur(12px);
   }
 
   .glass::before {
@@ -77,7 +100,7 @@ textarea {
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(168, 85, 247, 0.12), transparent 60%);
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.35), rgba(122, 30, 44, 0.08), transparent 65%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -90,68 +113,66 @@ textarea {
 
   .glass-glow-cyan {
     box-shadow:
-      0 0 0 1px rgba(34, 211, 238, 0.15) inset,
-      0 0 40px -10px rgba(34, 211, 238, 0.25),
-      0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      0 0 0 1px rgba(212, 178, 76, 0.2) inset,
+      0 12px 40px -12px rgba(212, 178, 76, 0.2),
+      var(--ar-shadow);
   }
 
   .glass-glow-purple {
     box-shadow:
-      0 0 0 1px rgba(168, 85, 247, 0.15) inset,
-      0 0 40px -10px rgba(168, 85, 247, 0.2),
-      0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      0 0 0 1px rgba(122, 30, 44, 0.12) inset,
+      0 12px 40px -12px rgba(122, 30, 44, 0.1),
+      var(--ar-shadow);
   }
 
   .input-glow {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(15, 23, 42, 0.9) 100%);
-    border: 1px solid rgba(251, 191, 36, 0.35);
-    box-shadow: 0 0 20px -5px rgba(251, 191, 36, 0.2);
-    color: #fef3c7;
+    background: #ffffff;
+    border: 1px solid rgba(212, 178, 76, 0.45);
+    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.15);
+    color: var(--ar-ink);
     transition: all 0.25s ease;
   }
 
   .input-glow:focus {
     outline: none;
-    border-color: rgba(251, 191, 36, 0.6);
-    box-shadow: 0 0 30px -5px rgba(251, 191, 36, 0.35);
+    border-color: var(--ar-gold);
+    box-shadow: 0 0 0 3px rgba(212, 178, 76, 0.2);
   }
 
   .output-glow-cyan {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(8, 15, 30, 0.9) 100%);
-    border: 1px solid rgba(34, 211, 238, 0.25);
-    box-shadow: 0 0 24px -8px rgba(34, 211, 238, 0.2);
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.1) 0%, #ffffff 100%);
+    border: 1px solid rgba(212, 178, 76, 0.3);
+    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.15);
+    color: var(--ar-ink);
   }
 
   .output-glow-purple {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(8, 15, 30, 0.9) 100%);
-    border: 1px solid rgba(168, 85, 247, 0.25);
-    box-shadow: 0 0 24px -8px rgba(168, 85, 247, 0.2);
+    background: linear-gradient(135deg, rgba(122, 30, 44, 0.06) 0%, #ffffff 100%);
+    border: 1px solid rgba(122, 30, 44, 0.2);
+    color: var(--ar-ink);
   }
 
   .output-glow-green {
-    background: linear-gradient(135deg, rgba(74, 222, 128, 0.08) 0%, rgba(8, 15, 30, 0.9) 100%);
-    border: 1px solid rgba(74, 222, 128, 0.25);
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.08) 0%, #ffffff 100%);
+    border: 1px solid rgba(22, 163, 74, 0.25);
+    color: var(--ar-ink);
   }
 
   .dropdown-panel {
-    background: rgba(8, 15, 30, 0.95);
-    border: 1px solid rgba(34, 211, 238, 0.2);
+    background: #ffffff;
+    border: 1px solid rgba(17, 17, 17, 0.1);
     border-radius: 1rem;
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 40px -10px rgba(34, 211, 238, 0.15);
-    backdrop-filter: blur(24px);
+    box-shadow: 0 20px 50px -12px rgba(17, 17, 17, 0.18);
+    color: var(--ar-ink);
   }
 
   .horizontal-rail {
     scrollbar-width: thin;
-    scrollbar-color: rgba(34, 211, 238, 0.35) transparent;
-  }
-
-  .horizontal-rail::-webkit-scrollbar {
-    height: 6px;
+    scrollbar-color: rgba(212, 178, 76, 0.45) transparent;
   }
 
   .horizontal-rail::-webkit-scrollbar-thumb {
-    background: rgba(34, 211, 238, 0.35);
+    background: rgba(212, 178, 76, 0.45);
     border-radius: 999px;
   }
 
@@ -160,21 +181,22 @@ textarea {
   }
 
   .label-chip {
-    @apply text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-300/80;
+    @apply text-[10px] font-bold uppercase tracking-[0.25em] text-gold-dark;
   }
 
   .chart-tooltip {
-    @apply rounded-2xl border border-cyan-500/35 bg-slate-950/95 px-4 py-3 font-ui shadow-2xl backdrop-blur-xl;
+    @apply rounded-2xl border border-gold/30 bg-white px-4 py-3 font-ui text-ink shadow-xl;
   }
 
   .chart-tooltip-animated {
     animation: tooltip-pop 0.2s ease-out;
-    box-shadow: 0 0 32px rgba(34, 211, 238, 0.2);
+    box-shadow: 0 0 32px rgba(212, 178, 76, 0.2);
   }
 
   .btn-nav-active {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(168, 85, 247, 0.15) 100%);
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.18) 0%, rgba(255, 255, 255, 0.95) 100%);
+    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.2);
+    color: var(--ar-ink);
   }
 
   .kpi-card {
@@ -186,7 +208,7 @@ textarea {
   }
 
   .data-table tbody tr:hover {
-    background: rgba(34, 211, 238, 0.06);
+    background: rgba(212, 178, 76, 0.06);
   }
 
   .kpi-card::before {
@@ -196,7 +218,7 @@ textarea {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--kpi-accent, #22d3ee), transparent);
+    background: linear-gradient(90deg, transparent, var(--ar-gold), transparent);
     opacity: 0.8;
     z-index: 1;
   }
@@ -205,34 +227,30 @@ textarea {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.04) 50%, transparent 60%);
+    background: linear-gradient(105deg, transparent 40%, rgba(212, 178, 76, 0.06) 50%, transparent 60%);
     background-size: 200% 100%;
     animation: shimmer 5s linear infinite;
     pointer-events: none;
   }
 
   .nav-pill-active {
-    @apply bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 shadow-lg shadow-cyan-500/10;
+    @apply bg-gold/15 text-maroon shadow-sm;
   }
 
   .data-table thead th {
-    @apply sticky top-0 z-10 border-b border-cyan-500/20 bg-slate-900/90 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300/70 backdrop-blur-md;
+    @apply sticky top-0 z-10 border-b border-gold/20 bg-stone-50 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-600 backdrop-blur-md;
   }
 
   .data-table tbody td {
-    @apply border-b border-white/[0.04] px-4 py-3 text-sm text-ink transition-colors;
-  }
-
-  .data-table tbody tr {
-    @apply transition-all duration-200;
+    @apply border-b border-stone-100 px-4 py-3 text-sm text-ink transition-colors;
   }
 
   .data-table tbody tr:hover td {
-    @apply bg-cyan-500/[0.06] text-white;
+    @apply bg-gold/[0.08] text-ink;
   }
 
   .data-table-row-alt td {
-    background: rgba(255, 255, 255, 0.018);
+    background: rgba(247, 247, 247, 0.8);
   }
 
   .status-badge {
@@ -240,116 +258,107 @@ textarea {
   }
 
   .status-badge-ongoing {
-    @apply border-emerald-400/35 bg-emerald-500/10 text-emerald-300;
+    @apply border-emerald-600/25 bg-emerald-50 text-emerald-800;
   }
 
   .status-badge-perpetual {
-    @apply border-cyan-400/35 bg-cyan-500/10 text-cyan-300;
+    @apply border-gold/35 bg-amber-50 text-gold-dark;
   }
 
   .status-badge-expiring-3m {
-    @apply border-amber-400/35 bg-amber-500/10 text-amber-200;
+    @apply border-amber-600/30 bg-amber-50 text-amber-900;
   }
 
   .status-badge-expiring-1m {
-    @apply border-orange-400/40 bg-orange-500/10 text-orange-200;
+    @apply border-orange-600/30 bg-orange-50 text-orange-900;
   }
 
   .status-badge-expired {
-    @apply border-slate-500/35 bg-slate-700/30 text-slate-400;
+    @apply border-stone-300 bg-stone-100 text-stone-600;
   }
 
   .status-badge-upcoming {
-    @apply border-purple-400/35 bg-purple-500/10 text-purple-200;
+    @apply border-violet-500/25 bg-violet-50 text-violet-900;
   }
 
   .status-badge-unknown {
-    @apply border-rose-400/35 bg-rose-500/10 text-rose-300;
+    @apply border-rose-500/25 bg-rose-50 text-rose-800;
   }
 
   .chart-panel-body {
-    @apply relative overflow-hidden rounded-2xl border border-white/5 bg-black/15 p-1;
+    @apply relative overflow-hidden rounded-2xl border border-stone-200 bg-white p-1;
   }
 
   .btn-primary {
-    @apply relative overflow-hidden rounded-xl border border-cyan-400/35 bg-transparent px-5 py-2.5 text-sm font-bold text-cyan-100 backdrop-blur-md transition;
-    box-shadow:
-      0 0 20px rgba(34, 211, 238, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    @apply relative overflow-hidden rounded-xl border-0 px-6 py-2.5 text-sm font-bold text-white transition;
+    background: linear-gradient(135deg, #d9a33b 0%, #d4b24c 45%, #b8860b 100%);
+    box-shadow: 0 4px 16px -4px rgba(212, 178, 76, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 
   .btn-primary:hover {
-    @apply border-cyan-400/55 text-white;
-    background: rgba(34, 211, 238, 0.1);
-    box-shadow:
-      0 0 32px rgba(34, 211, 238, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    @apply text-white;
+    background: linear-gradient(135deg, #e5cf94 0%, #d4b24c 50%, #d9a33b 100%);
+    box-shadow: 0 8px 24px -6px rgba(212, 178, 76, 0.65);
+    transform: translateY(-1px);
   }
 
   .btn-accent {
-    @apply relative overflow-hidden rounded-xl border border-purple-400/35 bg-transparent px-5 py-2.5 text-sm font-bold text-purple-100 backdrop-blur-md transition;
-    box-shadow:
-      0 0 20px rgba(168, 85, 247, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    @apply relative overflow-hidden rounded-xl border border-maroon/25 bg-white px-5 py-2.5 text-sm font-bold text-maroon transition;
+    box-shadow: var(--ar-shadow);
   }
 
   .btn-accent:hover {
-    @apply border-purple-400/55 text-white;
-    background: rgba(168, 85, 247, 0.1);
-    box-shadow:
-      0 0 32px rgba(168, 85, 247, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    @apply border-maroon/40 bg-maroon/5;
   }
 
   .btn-ghost {
-    @apply relative overflow-hidden rounded-xl border border-white/15 bg-transparent px-4 py-2.5 text-sm font-semibold text-slate-300 backdrop-blur-md;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    @apply relative overflow-hidden rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-semibold text-stone-600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 
   .btn-ghost:hover {
-    @apply border-cyan-400/40 text-white;
-    background: rgba(34, 211, 238, 0.08);
-    box-shadow: 0 0 24px rgba(34, 211, 238, 0.12);
+    @apply border-gold/50 text-ink;
+    background: rgba(212, 178, 76, 0.06);
   }
 
   .btn-pill {
-    @apply relative overflow-hidden rounded-full border border-white/10 bg-transparent px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400 backdrop-blur-sm;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    @apply relative overflow-hidden rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-stone-600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-pill:hover {
-    border-color: rgba(34, 211, 238, 0.4);
-    color: #e2e8f0;
-    box-shadow:
-      0 0 22px rgba(34, 211, 238, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(212, 178, 76, 0.55);
+    color: var(--ar-ink);
+    background: rgba(212, 178, 76, 0.08);
   }
 
   .btn-pill-active {
-    border-color: rgba(34, 211, 238, 0.6);
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.24), rgba(168, 85, 247, 0.14));
-    color: #a5f3fc;
-    box-shadow:
-      0 0 28px rgba(34, 211, 238, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    border-color: rgba(212, 178, 76, 0.65);
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.22), rgba(255, 255, 255, 0.95));
+    color: var(--ar-maroon);
+    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.3);
   }
 
   .btn-pill-purple-active {
-    border-color: rgba(168, 85, 247, 0.6);
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.24), rgba(236, 72, 153, 0.12));
-    color: #e9d5ff;
-    box-shadow:
-      0 0 28px rgba(168, 85, 247, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    border-color: rgba(122, 30, 44, 0.35);
+    background: linear-gradient(135deg, rgba(122, 30, 44, 0.1), rgba(255, 255, 255, 0.95));
+    color: var(--ar-maroon);
+    box-shadow: 0 2px 12px -4px rgba(122, 30, 44, 0.15);
   }
 
   .nav-sub-pill {
-    @apply relative overflow-hidden rounded-full border border-transparent px-3.5 py-1.5 text-xs font-semibold text-slate-500 transition-all;
+    @apply relative overflow-hidden rounded-full border border-transparent px-3.5 py-1.5 text-xs font-semibold text-stone-500 transition-all;
   }
 
   .nav-sub-pill:hover {
-    @apply border-white/10 bg-white/5 text-slate-300;
+    @apply border-stone-200 bg-stone-50 text-stone-800;
+  }
+
+  .nav-sub-pill-active {
+    @apply border-gold/40 text-maroon;
+    background: linear-gradient(135deg, rgba(212, 178, 76, 0.15), rgba(255, 255, 255, 0.9));
+    box-shadow: 0 2px 12px -4px rgba(212, 178, 76, 0.25);
   }
 
   .select-dark {
@@ -362,30 +371,34 @@ textarea {
   }
 
   .btn-reveal {
-    @apply font-ui flex items-center justify-center gap-3 rounded-2xl border border-dashed border-cyan-400/35 bg-transparent px-6 py-5 text-sm font-semibold tracking-wide text-cyan-100 backdrop-blur-md transition;
-    box-shadow: inset 0 0 40px rgba(34, 211, 238, 0.04);
+    @apply font-ui flex items-center justify-center gap-3 rounded-2xl border border-dashed border-gold/40 bg-white px-6 py-5 text-sm font-semibold tracking-wide text-stone-700 transition;
+    box-shadow: var(--ar-shadow);
   }
 
   .btn-reveal:hover {
-    @apply border-cyan-300/55 text-white;
-    background: rgba(34, 211, 238, 0.06);
-    box-shadow: 0 0 32px rgba(34, 211, 238, 0.15);
+    @apply border-gold text-ink;
+    background: rgba(212, 178, 76, 0.06);
+    box-shadow: 0 8px 24px -8px rgba(212, 178, 76, 0.25);
+  }
+
+  .upload-dropzone {
+    @apply rounded-2xl border-2 border-dashed border-gold/30 bg-gradient-to-b from-white to-stone-50/80 px-6 py-10;
   }
 
   .spec-rail-card {
-    @apply glass min-w-[168px] rounded-2xl border border-white/10 px-4 py-3;
+    @apply glass min-w-[168px] rounded-2xl border border-stone-200 px-4 py-3;
   }
 
   .spec-rail-label {
-    @apply text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500;
+    @apply text-[10px] font-bold uppercase tracking-[0.22em] text-stone-500;
   }
 
   .spec-rail-value {
-    @apply mt-1.5 text-sm font-bold text-white;
+    @apply mt-1.5 text-sm font-bold text-ink;
   }
 
   .market-live-badge {
-    @apply inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300;
+    @apply inline-flex items-center gap-2 rounded-full border border-emerald-600/25 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-800;
   }
 
   .pivot-row {
@@ -395,29 +408,22 @@ textarea {
   }
 
   .current-row {
-    background: linear-gradient(90deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.08));
+    background: linear-gradient(90deg, rgba(212, 178, 76, 0.18), rgba(255, 255, 255, 0.5));
     box-shadow:
-      inset 0 0 0 1px rgba(34, 211, 238, 0.35),
-      0 0 28px rgba(34, 211, 238, 0.12);
-  }
-
-  .payoff-scenarios-stage {
-    animation: payoff-glow-pulse 4s ease-in-out infinite;
+      inset 0 0 0 1px rgba(212, 178, 76, 0.35),
+      0 0 20px rgba(212, 178, 76, 0.1);
   }
 
   .payoff-scenarios-head th {
-    @apply bg-cyan-500/10 text-cyan-200;
+    @apply bg-gold/10 text-stone-700;
   }
 
   .payoff-scenario-row:hover td {
-    @apply bg-cyan-500/10 text-white;
-    text-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+    @apply bg-gold/10 text-ink;
   }
 
-  .nav-sub-pill-active {
-    @apply border-cyan-400/35 text-cyan-300;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(168, 85, 247, 0.1));
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+  .chart-shell {
+    @apply relative overflow-visible rounded-2xl border border-stone-200 bg-white p-1;
   }
 
   .btn-shine {
@@ -426,7 +432,7 @@ textarea {
     background: linear-gradient(
       105deg,
       transparent 35%,
-      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0.45) 50%,
       transparent 65%
     );
     background-size: 200% 100%;
@@ -447,8 +453,8 @@ textarea {
   }
 
   .quick-card {
-    @apply glass rounded-2xl p-5 transition duration-300 hover:scale-[1.02] hover:border-cyan-500/30;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    @apply glass rounded-2xl p-5 transition duration-300 hover:scale-[1.02] hover:border-gold/30;
+    border: 1px solid rgba(17, 17, 17, 0.08);
   }
 
   .orb {
@@ -460,20 +466,20 @@ textarea {
     animation: orb-float 12s ease-in-out infinite;
   }
 
-  .orb-cyan {
+  .orb-gold {
     width: 420px;
     height: 420px;
     top: -120px;
     left: -80px;
-    background: rgba(34, 211, 238, 0.12);
+    background: rgba(212, 178, 76, 0.12);
   }
 
-  .orb-purple {
+  .orb-maroon {
     width: 380px;
     height: 380px;
     top: 20%;
     right: -100px;
-    background: rgba(168, 85, 247, 0.1);
+    background: rgba(122, 30, 44, 0.1);
     animation-delay: -4s;
   }
 
@@ -482,68 +488,37 @@ textarea {
     height: 300px;
     bottom: 10%;
     left: 30%;
-    background: rgba(251, 191, 36, 0.06);
+    background: rgba(217, 163, 59, 0.08);
     animation-delay: -7s;
   }
 
   .brand-header {
-    @apply border-b border-white/10 bg-slate-950/85 backdrop-blur-3xl font-ui;
+    @apply border-b border-stone-200/80 font-ui;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(34, 211, 238, 0.08) inset;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 24px -8px rgba(17, 17, 17, 0.08);
   }
 
   .brand-header-glow {
     position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(34, 211, 238, 0.08) 25%,
-      rgba(168, 85, 247, 0.1) 50%,
-      rgba(34, 211, 238, 0.08) 75%,
-      transparent 100%
-    );
+    inset: auto 0 0 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ar-gold), var(--ar-maroon), var(--ar-gold), transparent);
     background-size: 200% 100%;
-    animation: shimmer 4s linear infinite;
+    animation: shimmer 6s linear infinite;
     pointer-events: none;
   }
 
-  .brand-logo {
-    @apply relative flex h-12 w-12 items-center justify-center rounded-2xl;
-    background: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 50%, #ec4899 100%);
-    box-shadow: 0 0 30px rgba(34, 211, 238, 0.45), 0 0 60px rgba(168, 85, 247, 0.25);
-  }
-
-  .brand-logo::after {
-    content: "";
-    position: absolute;
-    inset: -4px;
-    border-radius: 1.25rem;
-    background: linear-gradient(135deg, #22d3ee, #a855f7);
-    opacity: 0.4;
-    filter: blur(10px);
-    z-index: 0;
-    animation: brand-glow 4s ease-in-out infinite;
-  }
-
-  .brand-eyebrow {
-    @apply font-serif text-[11px] font-bold uppercase tracking-[0.55em];
-    background: linear-gradient(90deg, #67e8f9, #e9d5ff, #67e8f9);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: shimmer 3s linear infinite;
+  .brand-logo-link {
+    @apply block transition-transform hover:scale-[1.02];
   }
 
   .brand-title {
-    @apply bg-gradient-to-r from-white via-cyan-100 to-purple-200 bg-clip-text text-xl font-bold text-transparent md:text-2xl;
-    text-shadow: 0 0 40px rgba(34, 211, 238, 0.15);
-  }
-
-  .brand-subtitle {
-    @apply mt-0.5 max-w-3xl font-serif text-xs italic text-slate-400 md:text-sm;
+    @apply text-xl font-bold text-ink md:text-2xl;
+    font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+    letter-spacing: -0.02em;
   }
 
   .product-narrative-card {
@@ -559,10 +534,6 @@ textarea {
     font-feature-settings: "kern" 1;
   }
 
-  .chart-shell {
-    @apply relative overflow-visible rounded-2xl border border-white/10 bg-black/20;
-  }
-
   .chart-shell-inner {
     @apply relative h-full w-full overflow-hidden rounded-2xl;
   }
@@ -571,17 +542,17 @@ textarea {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 0%, rgba(34, 211, 238, 0.08), transparent 55%);
+    background: radial-gradient(ellipse at 50% 0%, rgba(212, 178, 76, 0.08), transparent 55%);
     pointer-events: none;
     animation: chart-glow 6s ease-in-out infinite;
   }
 
   .chart-shell-grid {
     background-image:
-      linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-      linear-gradient(rgba(168, 85, 247, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(168, 85, 247, 0.04) 1px, transparent 1px);
+      linear-gradient(rgba(212, 178, 76, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212, 178, 76, 0.12) 1px, transparent 1px),
+      linear-gradient(rgba(120, 113, 108, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120, 113, 108, 0.06) 1px, transparent 1px);
     background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
     mask-image: radial-gradient(ellipse at center, black 25%, transparent 88%);
     animation: grid-drift 20s linear infinite;
@@ -592,7 +563,7 @@ textarea {
     left: 0;
     right: 0;
     height: 35%;
-    background: linear-gradient(180deg, transparent, rgba(34, 211, 238, 0.06), transparent);
+    background: linear-gradient(180deg, transparent, rgba(212, 178, 76, 0.06), transparent);
     pointer-events: none;
     animation: chart-scanline 5s ease-in-out infinite;
     z-index: 1;
@@ -609,26 +580,25 @@ textarea {
   .chart-shell-corner-tl {
     top: 0;
     left: 0;
-    border-top: 2px solid rgba(34, 211, 238, 0.35);
-    border-left: 2px solid rgba(34, 211, 238, 0.35);
+    border-top: 2px solid rgba(212, 178, 76, 0.45);
+    border-left: 2px solid rgba(212, 178, 76, 0.45);
     border-top-left-radius: 1rem;
   }
 
   .chart-shell-corner-br {
     right: 0;
     bottom: 0;
-    border-right: 2px solid rgba(168, 85, 247, 0.35);
-    border-bottom: 2px solid rgba(168, 85, 247, 0.35);
+    border-right: 2px solid rgba(122, 30, 44, 0.35);
+    border-bottom: 2px solid rgba(122, 30, 44, 0.35);
     border-bottom-right-radius: 1rem;
   }
 
   .speedometer-card {
-    @apply rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-4;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    @apply rounded-2xl border border-stone-200 bg-white p-4 shadow-sm;
   }
 
   .speedometer-label {
-    @apply text-center text-[11px] font-bold tracking-[0.35em] text-slate-400;
+    @apply text-center text-[11px] font-bold tracking-[0.35em] text-stone-600;
   }
 
   .chart-stage {

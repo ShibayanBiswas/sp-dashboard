@@ -33,8 +33,7 @@ Spot checks verify 600% → 6.0% per 1% move and formula `(35%-Z)*6` at Z=35/36/
 ## Quick smoke test
 
 ```bash
-npm run build
-npm run dev
+bash start-dashboard.sh   # or: npm run dev (Next only)
 # open http://localhost:3000
 ```
 
@@ -71,7 +70,7 @@ console.log({ pv: v.productValue, abs: (v.absReturn*100).toFixed(2), irr: (v.pro
 
 - `findPayoffPivotZs(formula)` scans slope changes.
 - `buildEnhancedPayoffScenarioTable()` merges Excel offsets + pivots + **current market-move row**.
-- Table rows: `.pivot-row` (amber glow), `.current-row` (cyan ring).
+- Table rows: `.pivot-row` (amber glow), `.current-row` (gold ring).
 
 ## Lifecycle debug
 

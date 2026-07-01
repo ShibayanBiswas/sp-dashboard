@@ -9,7 +9,7 @@
 | `/payoff` | `components/dashboard/unified-payoff.tsx` | Payoff scenarios + curve |
 | `/portfolio/details` | `components/dashboard/utility-pages.tsx` | Product details |
 | `/portfolio/analytics` | `components/dashboard/portfolio-analytics.tsx` | Analytics lab — KPIs + product list |
-| `/intelligence` | Logic atlas | Formula documentation |
+| `/intelligence` | `components/reference/logic-atlas-console.tsx` | Logic Atlas — pipeline maps, live book KPIs, computation primitives |
 | `/upload` | Upload + validation | Master file ingest |
 | `/api/market/levels` | `app/api/market/levels/route.ts` | Yahoo Nifty/Sensex |
 | `/api/parse` | `app/api/parse/route.ts` | Workbook upload parse |
@@ -60,9 +60,11 @@ Market sync: `lib/hooks/use-market-sync.ts`
 
 | Pattern | File |
 |---------|------|
-| Transparent buttons | `app/globals.css` `.btn-primary`, `.btn-ghost`, `.btn-pill` |
-| Dark dropdowns | `.select-dark` in `globals.css` |
-| Payoff table glow | `.payoff-scenarios-stage`, `.pivot-row`, `.current-row` |
+| ARWL theme tokens | `app/globals.css`, `tailwind.config.ts`, `lib/chart-theme.ts` |
+| Header logo | `components/layout/brand-logo.tsx`, `public/brand/arwl-logo.svg` |
+| Buttons | `.btn-primary` (gold), `.btn-ghost`, `.btn-pill` in `globals.css` |
+| Dark dropdowns | `.select-dark` in `globals.css` (forms stay light) |
+| Payoff table glow | `.payoff-scenarios-stage`, `.pivot-row`, `.current-row` (gold highlight) |
 
 ---
 

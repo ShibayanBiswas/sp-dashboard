@@ -30,7 +30,7 @@ export function RevealOutput({
             type="button"
             onClick={() => setOpen(true)}
           >
-            <Sparkles className="h-4 w-4 text-cyan-300/80 transition group-hover:text-cyan-200" />
+            <Sparkles className="h-4 w-4 text-gold-dark/80 transition group-hover:text-gold-dark" />
             <span>{label}</span>
             <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
           </motion.button>

@@ -9,17 +9,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#020617",
-        surface: "#0f172a",
-        panel: "#1e293b",
-        accent: "#22d3ee",
-        electric: "#a855f7",
-        signal: "#60a5fa",
-        success: "#4ade80",
-        warning: "#fbbf24",
-        danger: "#fb7185",
-        ink: "#f1f5f9",
-        muted: "#94a3b8",
+        background: "#f7f7f7",
+        surface: "#ffffff",
+        panel: "#fafafa",
+        accent: "#d4b24c",
+        electric: "#7a1e2c",
+        signal: "#d9a33b",
+        success: "#16a34a",
+        warning: "#d9a33b",
+        danger: "#c2410c",
+        ink: "#111111",
+        muted: "#57534e",
+        gold: {
+          DEFAULT: "#d4b24c",
+          light: "#e5cf94",
+          dark: "#b8860b",
+        },
+        maroon: {
+          DEFAULT: "#7a1e2c",
+          dark: "#5c1520",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
@@ -47,8 +56,8 @@ const config: Config = {
         },
       },
       boxShadow: {
-        neon: "0 0 40px -10px rgba(34, 211, 238, 0.5)",
-        "neon-purple": "0 0 40px -10px rgba(168, 85, 247, 0.5)",
+        neon: "0 0 40px -10px rgba(212, 178, 76, 0.45)",
+        "neon-maroon": "0 0 40px -10px rgba(122, 30, 44, 0.35)",
       },
     },
   },

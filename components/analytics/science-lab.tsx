@@ -23,7 +23,7 @@ import {
   chartMargins,
   horizontalBarMargins,
 } from "@/components/charts/chart-kit";
-import { ChartPanel, Panel, SectionInfo, SectionTitle } from "@/components/layout/app-ui";
+import { ChartPanel, Panel, SectionInfo } from "@/components/layout/app-ui";
 import { HorizontalBand } from "@/components/layout/horizontal-rail";
 import { SECTION_INFO } from "@/lib/section-info";
 import {
@@ -64,7 +64,7 @@ export function ScienceLab({
   if (pool.length === 0) {
     return (
       <Panel className="!p-5" glow="purple">
-        <p className="text-center text-sm text-slate-400">No analytics for {categoryLabel.toLowerCase()}.</p>
+        <p className="text-center text-sm text-stone-600">No analytics for {categoryLabel.toLowerCase()}.</p>
       </Panel>
     );
   }
@@ -72,11 +72,11 @@ export function ScienceLab({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-cyan-400">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-gold-dark">
           Analytics Laboratory · {categoryLabel}
         </p>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-maroon/40 to-transparent" />
       </div>
 
       <HorizontalBand>
@@ -126,9 +126,9 @@ export function ScienceLab({
               <BarChart data={couponDist} margin={barChartMargins}>
                 <defs>
                   <linearGradient id="couponGrad" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#c084fc" />
-                    <stop offset="55%" stopColor="#a855f7" />
-                    <stop offset="100%" stopColor="#22d3ee" stopOpacity={0.35} />
+                    <stop offset="0%" stopColor="#e5cf94" />
+                    <stop offset="55%" stopColor="#d4b24c" />
+                    <stop offset="100%" stopColor="#7a1e2c" stopOpacity={0.55} />
                   </linearGradient>
                 </defs>
                 <PremiumGrid />
@@ -193,8 +193,8 @@ export function ScienceLab({
               >
                 <defs>
                   <linearGradient id="underlyingGrad" x1="0" x2="1" y1="0" y2="0">
-                    <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="#22d3ee" />
+                    <stop offset="0%" stopColor="#d4b24c" stopOpacity={0.55} />
+                    <stop offset="100%" stopColor="#7a1e2c" />
                   </linearGradient>
                 </defs>
                 <PremiumGrid vertical={false} />

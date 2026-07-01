@@ -30,10 +30,10 @@ export function SiteNav() {
 
   return (
     <>
-      <div className="border-t border-white/5">
+      <div className="border-t border-stone-200/80">
         <MarketStrip />
         <div className="mx-auto flex max-w-full items-center justify-between gap-4 px-4 py-2 lg:px-6">
-          <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-black/40 p-1">
+          <div className="flex items-center gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-sm">
             {mainSections.map((item) => {
               const active = section.id === item.id;
               const Icon = item.icon;
@@ -42,13 +42,13 @@ export function SiteNav() {
                   key={item.id}
                   className={cn(
                     "relative flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all",
-                    active ? "btn-nav-active text-white" : "text-slate-500 hover:text-slate-300 hover:bg-white/5",
+                    active ? "btn-nav-active text-ink" : "text-stone-500 hover:bg-stone-50 hover:text-stone-800",
                   )}
                   href={item.href as Route}
                 >
                   {active ? (
                     <motion.span
-                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/25 to-purple-500/25 shadow-lg shadow-cyan-500/10"
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-gold/25 to-maroon/20 shadow-lg shadow-gold/10"
                       layoutId="main-nav-active"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
@@ -68,7 +68,7 @@ export function SiteNav() {
             >
               <Search className="h-3.5 w-3.5" />
               <span className="hidden md:inline">Search</span>
-              <kbd className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-slate-400">
+              <kbd className="rounded border border-stone-200 bg-stone-50 px-1.5 py-0.5 font-mono text-[10px] text-stone-500">
                 ⌘K
               </kbd>
             </button>
@@ -84,7 +84,7 @@ export function SiteNav() {
             <motion.div
               key={section.id}
               animate={{ opacity: 1, y: 0 }}
-              className="border-t border-white/5 bg-slate-950/50"
+              className="border-t border-stone-200/80 bg-stone-50/80"
               exit={{ opacity: 0, y: -4 }}
               initial={{ opacity: 0, y: -4 }}
             >

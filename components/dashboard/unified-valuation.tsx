@@ -94,7 +94,7 @@ export function UnifiedValuationDashboard() {
               ))}
             </div>
           </div>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-stone-500">
             {formatNumber(pool.length)} products in {LIFECYCLE_FILTER_LABELS[lifecycle].toLowerCase()} book
           </p>
         </Panel>
@@ -129,7 +129,7 @@ function ValuationInterface({
         <Panel className="!p-4" glow="purple">
           <SectionInfo {...SECTION_INFO["val-inputs"]} />
           <SectionTitle>Inputs</SectionTitle>
-          <p className="mt-1 text-sm italic text-amber-200/90">Enter any one identity field — white cells are inputs</p>
+          <p className="mt-1 text-sm italic text-amber-900/90">Enter any one identity field — white cells are inputs</p>
           <div className="mt-4">
             <ExcelInputPanel
               category={product?.category ?? "Primary"}
@@ -145,7 +145,7 @@ function ValuationInterface({
         <>
           <HorizontalBand className="mt-4">
             <Panel className="!p-3" glow="cyan">
-              <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200/90">
+              <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-900/90">
                 {formatValuationAsOf(selection.valuationDate)}
               </p>
             </Panel>
@@ -155,10 +155,10 @@ function ValuationInterface({
             <RevealOutput label="Click here to view valuation output">
               {!isValuationApplicable(product) ? (
                 <Panel className="!p-5" glow="purple">
-                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-200">
+                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-900">
                     Live valuation not applicable
                   </p>
-                  <p className="mt-2 text-center text-sm text-slate-400">
+                  <p className="mt-2 text-center text-sm text-stone-600">
                     This product is expired or not yet live. Switch to Ongoing or Expiring buckets for mark-to-market values.
                   </p>
                 </Panel>
@@ -279,7 +279,7 @@ function ProductListTab({ products, selectedId }: { products: ProductRecord[]; s
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <p className="mt-2 text-sm text-slate-500">{formatNumber(filtered.length)} products</p>
+        <p className="mt-2 text-sm text-stone-500">{formatNumber(filtered.length)} products</p>
         <div className="mt-3 max-h-[min(64vh,640px)] overflow-auto">
           <DataTable>
             <thead>
@@ -298,10 +298,10 @@ function ProductListTab({ products, selectedId }: { products: ProductRecord[]; s
               {filtered.map((p, index) => (
                 <tr
                   key={p.rowId}
-                  className={p.rowId === selectedId ? "bg-cyan-500/10" : "cursor-pointer hover:bg-white/5"}
+                  className={p.rowId === selectedId ? "bg-gold/10" : "cursor-pointer hover:bg-stone-100"}
                   onClick={() => selection.selectProduct(p)}
                 >
-                  <td className="text-slate-500">{index + 1}</td>
+                  <td className="text-stone-500">{index + 1}</td>
                   <td className="max-w-[240px] truncate font-medium">{p.name}</td>
                   <td>{p.series ?? "—"}</td>
                   <td className="font-mono text-xs">{p.isin ?? "—"}</td>

@@ -5,8 +5,10 @@
 | Layer | Tech |
 |-------|------|
 | UI | Next.js 16 App Router, React, Tailwind, Framer Motion |
-| Charts | Recharts |
+| Branding | Anand Rathi Wealth light desk theme — gold `#d4b24c`, maroon `#7a1e2c`, ink `#111111` |
+| Charts | Recharts (`lib/chart-theme.ts` — ARWL palette) |
 | Data | `xlsx` parse + export, JSON seed (`lib/data/master-seed.json`) |
+| Analytics API | FastAPI + uvicorn (`backend/python`, port **8000**) — pivot fallback |
 | Dates | `date-fns`, desk format `D-Mon-YY` |
 | Market | Yahoo Finance via `/api/market/levels` |
 
@@ -38,7 +40,9 @@ Analytics Lab               Product Details
 | `lib/workbook/payoff-pivots.ts` | Kink detection + enhanced scenario table |
 | `lib/workbook/export-products.ts` | Multi-sheet lifecycle Excel download |
 | `components/ui/reveal-output.tsx` | “Click here” gated output panels |
-| `components/ui/identity-selects.tsx` | Dark ISIN / product-code dropdowns |
+| `components/ui/master-upload-button.tsx` | Single master workbook upload control |
+| `components/layout/brand-logo.tsx` | ARWL logo in header (all pages) |
+| `components/ui/identity-selects.tsx` | ISIN / product-code dropdowns (`.select-dark` panels) |
 
 ## Routes
 
@@ -76,4 +80,6 @@ Analytics Lab               Product Details
 
 - **RevealOutput** — inputs visible; KPIs/charts/tables behind “Click here to view output”.
 - **Horizontal spec rails** — one card per field, scroll horizontally.
-- **select-dark** — transparent dark dropdowns for ISIN, product code, debentures.
+- **Light desk theme** — white/stone surfaces, gold accents, high-contrast ink text (`app/globals.css`, `tailwind.config.ts`).
+- **select-dark** — intentional dark dropdown panels for ISIN, product code, debentures (contrast on light forms).
+- **Master upload** — single gold upload button on Home and `/upload` via `MasterUploadButton`.

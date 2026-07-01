@@ -43,7 +43,7 @@ export function DeskHubPage() {
       <HorizontalBand className="mt-4">
         <Panel className="!p-4" glow="purple">
           <SectionTitle>Primary Portfolio Command</SectionTitle>
-          <p className="mt-1 text-sm text-slate-500">Horizontal flow across the Primary valuation pipeline</p>
+          <p className="mt-1 text-sm text-stone-500">Horizontal flow across the Primary valuation pipeline</p>
           <div className="mt-4">
             <LogicFlowDiagram horizontal module={primaryModule} />
           </div>
@@ -61,13 +61,13 @@ export function DeskHubPage() {
                 .reduce((s, p) => s + (p.tradeAmount ?? 0), 0);
               return (
                 <RailCard key={link.category} minWidth="min-w-[240px]">
-                  <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                     <div className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: categoryNeon[link.category] }} />
                       <p className="font-bold">{link.category}</p>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">{formatNumber(count)} products</p>
-                    <p className="text-sm text-slate-500">{formatCrores(notional)}</p>
+                    <p className="mt-2 text-sm text-stone-500">{formatNumber(count)} products</p>
+                    <p className="text-sm text-stone-500">{formatCrores(notional)}</p>
                   </div>
                 </RailCard>
               );

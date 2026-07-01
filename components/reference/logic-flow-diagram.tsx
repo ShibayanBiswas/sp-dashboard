@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowRight, Database, Cpu, Search, LineChart, Wallet, Zap } from "lucide-react";
+import { ArrowDown, ArrowRight, CheckCircle2, Database, Cpu, Search, LineChart, Wallet, Zap } from "lucide-react";
 
 import type { LogicFlow, LogicModule, LogicNode, LogicNodeKind } from "@/lib/logic-atlas";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,11 @@ const kindIcons: Record<LogicNodeKind, typeof Database> = {
 };
 
 const accentMap = {
-  cyan: { border: "border-cyan-500/40", bg: "bg-cyan-500/10", text: "text-cyan-300", glow: "shadow-cyan-500/20" },
-  purple: { border: "border-purple-500/40", bg: "bg-purple-500/10", text: "text-purple-300", glow: "shadow-purple-500/20" },
-  green: { border: "border-emerald-500/40", bg: "bg-emerald-500/10", text: "text-emerald-300", glow: "shadow-emerald-500/20" },
-  amber: { border: "border-amber-500/40", bg: "bg-amber-500/10", text: "text-amber-300", glow: "shadow-amber-500/20" },
-  rose: { border: "border-rose-500/40", bg: "bg-rose-500/10", text: "text-rose-300", glow: "shadow-rose-500/20" },
+  cyan: { border: "border-gold/40", bg: "bg-gold/10", text: "text-gold-dark", glow: "shadow-gold/20" },
+  purple: { border: "border-maroon/30", bg: "bg-maroon/5", text: "text-maroon", glow: "shadow-maroon/15" },
+  green: { border: "border-emerald-500/40", bg: "bg-emerald-500/10", text: "text-emerald-800", glow: "shadow-emerald-500/20" },
+  amber: { border: "border-amber-500/40", bg: "bg-amber-500/10", text: "text-amber-900", glow: "shadow-amber-500/20" },
+  rose: { border: "border-rose-500/40", bg: "bg-rose-500/10", text: "text-rose-800", glow: "shadow-rose-500/20" },
 };
 
 function FlowNode({
@@ -45,7 +45,7 @@ function FlowNode({
         "logic-node group w-full rounded-2xl border p-4 text-left transition-all duration-300",
         colors.border,
         colors.bg,
-        active && `ring-2 ring-offset-2 ring-offset-slate-950 ${colors.border}`,
+        active && `ring-2 ring-offset-2 ring-offset-white ${colors.border}`,
         onClick && "cursor-pointer hover:scale-[1.02] hover:shadow-lg",
         onClick && colors.glow,
       )}
@@ -59,9 +59,9 @@ function FlowNode({
           <Icon className={cn("h-4 w-4", colors.text)} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">{node.kind}</p>
-          <p className="mt-1 font-semibold text-white">{node.label}</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">{node.description}</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-500">{node.kind}</p>
+          <p className="mt-1 font-semibold text-ink">{node.label}</p>
+          <p className="mt-1 text-xs leading-5 text-stone-600">{node.description}</p>
         </div>
       </div>
     </motion.button>
@@ -72,8 +72,8 @@ function FlowArrow({ label, vertical }: { label?: string; vertical?: boolean }) 
   const Icon = vertical ? ArrowDown : ArrowRight;
   return (
     <div className="flex flex-col items-center justify-center gap-1 py-1">
-      <Icon className="h-4 w-4 text-cyan-500/60" />
-      {label ? <span className="text-[9px] font-bold uppercase tracking-widest text-cyan-400/70">{label}</span> : null}
+      <Icon className="h-4 w-4 text-gold-dark/70" />
+      {label ? <span className="text-[9px] font-bold uppercase tracking-widest text-gold-dark/70">{label}</span> : null}
     </div>
   );
 }
@@ -139,20 +139,20 @@ export function LogicFlowDiagram({
 
 function orderNodes(nodes: LogicNode[], flows: LogicFlow[]): LogicNode[] {
   const idToNode = new Map(nodes.map((n) => [n.id, n]));
-  const targets = new Set(flows.map((f) => f.to));
-  const roots = nodes.filter((n) => !targets.has(n.id));
-  const start = roots[0] ?? nodes[0];
-  if (!start) return nodes;
-
+  const roots = nodes.filter((n) => !flows.some((f) => f.to === n.id));
   const ordered: LogicNode[] = [];
   const visited = new Set<string>();
-  let current: LogicNode | undefined = start;
+  const queue = roots.map((r) => r.id);
 
-  while (current && !visited.has(current.id)) {
-    ordered.push(current);
-    visited.add(current.id);
-    const nextFlow = flows.find((f) => f.from === current!.id);
-    current = nextFlow ? idToNode.get(nextFlow.to) : undefined;
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    if (visited.has(id)) continue;
+    visited.add(id);
+    const node = idToNode.get(id);
+    if (node) ordered.push(node);
+    for (const flow of flows) {
+      if (flow.from === id && !visited.has(flow.to)) queue.push(flow.to);
+    }
   }
 
   for (const node of nodes) {
@@ -165,10 +165,12 @@ function orderNodes(nodes: LogicNode[], flows: LogicFlow[]): LogicNode[] {
 export function LogicModuleCard({
   module,
   selected,
+  pipelineComplete,
   onSelect,
 }: {
   module: LogicModule;
   selected?: boolean;
+  pipelineComplete?: boolean;
   onSelect: () => void;
 }) {
   const colors = accentMap[module.accent];
@@ -177,26 +179,32 @@ export function LogicModuleCard({
     <motion.button
       className={cn(
         "glass w-full rounded-3xl p-6 text-left transition-all duration-300",
-        selected ? `${colors.border} border-2 shadow-lg ${colors.glow}` : "border border-white/10 hover:border-white/20",
+        selected ? `${colors.border} border-2 shadow-lg ${colors.glow}` : "border border-stone-200 hover:border-gold/30",
       )}
       type="button"
       whileHover={{ scale: 1.01 }}
       onClick={onSelect}
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0 flex-1">
           <p className={cn("text-[10px] font-bold uppercase tracking-[0.35em]", colors.text)}>{module.subtitle}</p>
-          <h3 className="mt-2 text-xl font-bold text-white">{module.title}</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-400">{module.purpose.slice(0, 140)}…</p>
+          <h3 className="mt-2 text-xl font-bold text-ink">{module.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-stone-600">{module.purpose.slice(0, 140)}…</p>
         </div>
-        <div className={cn("rounded-2xl p-3", colors.bg)}>
+        <div className={cn("shrink-0 rounded-2xl p-3", colors.bg)}>
           <Wallet className={cn("h-5 w-5", colors.text)} />
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {pipelineComplete ? (
+          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800">
+            <CheckCircle2 className="h-3 w-3" />
+            Connected
+          </span>
+        ) : null}
         {module.metrics.map((m) => (
-          <span key={m.label} className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-slate-300">
-            <span className="text-slate-500">{m.label}:</span> {m.value}
+          <span key={m.label} className="rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs text-stone-700">
+            <span className="text-stone-500">{m.label}:</span> {m.value}
           </span>
         ))}
       </div>

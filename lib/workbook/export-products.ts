@@ -92,6 +92,7 @@ export function downloadProductsExcel(
   filename: string,
   options?: { asOf?: Date; sheetName?: string },
 ) {
+  if (products.length === 0) return;
   const asOf = options?.asOf ?? new Date();
   const rows = products.map((p) => productToExportRow(p, asOf));
   const wb = XLSX.utils.book_new();
@@ -104,6 +105,7 @@ export function downloadLifecycleWorkbook(
   filename = "SP-Portfolio-Lifecycle.xlsx",
   asOf = new Date(),
 ) {
+  if (products.length === 0) return;
   const wb = XLSX.utils.book_new();
   const buckets: Array<{ name: string; filter: LifecycleFilter | "summary" }> = [
     { name: "Summary", filter: "summary" },

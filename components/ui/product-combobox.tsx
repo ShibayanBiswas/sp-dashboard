@@ -97,11 +97,11 @@ export function ProductCombobox({
     <div className="relative">
       <button
         ref={triggerRef}
-        className="input-glow btn-animated flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition hover:border-cyan-400/40 hover:shadow-[0_0_24px_rgba(34,211,238,0.15)]"
+        className="input-glow btn-animated flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition hover:border-gold hover:shadow-[0_0_24px_rgba(212,178,76,0.2)]"
         type="button"
         onClick={() => setOpen(!open)}
       >
-        <Search className="h-4 w-4 shrink-0 text-amber-300" />
+        <Search className="h-4 w-4 shrink-0 text-amber-900" />
         <div className="min-w-0 flex-1">
           {selected ? (
             <>
@@ -130,9 +130,9 @@ export function ProductCombobox({
                   style={{ left: rect.left, top: rect.top, width: rect.width }}
                   transition={{ duration: 0.18 }}
                 >
-                  <div className="border-b border-white/10 p-3">
-                    <div className="flex items-center gap-2 rounded-xl bg-black/30 px-3 py-2">
-                      <Search className="h-4 w-4 text-cyan-400" />
+                  <div className="border-b border-stone-200 p-3">
+                    <div className="flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2">
+                      <Search className="h-4 w-4 text-gold-dark" />
                       <input
                         autoFocus
                         className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
@@ -152,7 +152,7 @@ export function ProductCombobox({
                     {filtered.map((product) => (
                       <li key={product.rowId}>
                         <button
-                          className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-cyan-500/10 hover:pl-5"
+                          className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-gold/10 hover:pl-5"
                           type="button"
                           onClick={() => {
                             onSelect(product);
@@ -162,7 +162,7 @@ export function ProductCombobox({
                         >
                           <span
                             className="mt-1 h-2 w-2 shrink-0 rounded-full"
-                            style={{ backgroundColor: categoryNeon[product.category] ?? "#22d3ee" }}
+                            style={{ backgroundColor: categoryNeon[product.category] ?? "#d4b24c" }}
                           />
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-ink">{product.name}</p>

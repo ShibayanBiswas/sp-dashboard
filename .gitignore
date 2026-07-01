@@ -3,7 +3,9 @@ node_modules
 dist
 out
 .tools
-*.log
+backend/python/.venv
+backend/python/__pycache__
+.python-api.pid*.log
 .env
 .env.local
 tsconfig.tsbuildinfo

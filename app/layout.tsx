@@ -20,8 +20,10 @@ const uiSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SP Dashboard",
-  description: "Structured Products Dashboard — Primary valuation, payoff, and portfolio analytics.",
+  title: "SP Dashboard | Anand Rathi Wealth",
+  description:
+    "Anand Rathi Wealth structured products desk — Primary valuation, payoff, and portfolio analytics.",
+  icons: { icon: "/brand/arwl-logo.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

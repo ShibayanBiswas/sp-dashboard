@@ -107,13 +107,13 @@ export function getMaturityLadder(products: ProductRecord[], asOf = new Date()) 
 }
 
 const LIFECYCLE_COLORS: Record<LifecycleStatus, string> = {
-  ongoing: "#22d3ee",
-  expired: "#64748b",
-  perpetual: "#facc15",
-  upcoming: "#a855f7",
-  "expiring-1m": "#fb7185",
-  "expiring-3m": "#f97316",
-  unknown: "#475569",
+  ongoing: "#d4b24c",
+  expired: "#78716c",
+  perpetual: "#b8860b",
+  upcoming: "#7a1e2c",
+  "expiring-1m": "#be123c",
+  "expiring-3m": "#c2410c",
+  unknown: "#57534e",
 };
 
 export function getLifecycleChartData(products: ProductRecord[], asOf = new Date()) {

@@ -63,7 +63,8 @@ Expected Primary count: **4533** products, **4471** formulas (`lib/workbook/expe
 | Error | Fix |
 |-------|-----|
 | Google Fonts fetch | Retry `npm run build` online |
-| Port 3000 in use | Kill process or `npx next dev -p 3001` |
+| Port 3000 / 8000 in use | `bash start-dashboard.sh` (stops stale ports) or `bash start-dashboard.sh --stop` |
+| Python venv missing | First run of `start-dashboard.sh` creates `backend/python/.venv` |
 | Type errors | `npm run typecheck` |
 
 ---

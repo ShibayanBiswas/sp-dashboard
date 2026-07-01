@@ -47,7 +47,7 @@ function PayoffTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div className="chart-tooltip chart-tooltip-animated whitespace-nowrap">
-      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-dark">
         Index move {formatFormulaReturn(Number(label), 1)}
       </p>
       {payload.map((entry) => (
@@ -149,12 +149,12 @@ export function PayoffUnderlyingChart({
                 <stop offset="100%" stopColor={chartTheme.payoff} stopOpacity={0.02} />
               </linearGradient>
               <linearGradient id="underlyingStroke" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stopColor="#c084fc" stopOpacity={0.6} />
-                <stop offset="100%" stopColor="#e879f9" />
+                <stop offset="0%" stopColor="#7a1e2c" stopOpacity={0.7} />
+                <stop offset="100%" stopColor="#b8860b" />
               </linearGradient>
             </defs>
             <PremiumGrid yAxisId="payoff" />
-            <ReferenceLine stroke="rgba(168,85,247,0.35)" strokeDasharray="4 4" y={0} yAxisId="payoff" />
+            <ReferenceLine stroke="rgba(122,30,44,0.35)" strokeDasharray="4 4" y={0} yAxisId="payoff" />
             <XAxis
               axisLine={{ stroke: chartTheme.axisLine }}
               dataKey="z"
@@ -209,10 +209,10 @@ export function PayoffUnderlyingChart({
             />
             <Tooltip
               content={<PayoffTooltip />}
-              cursor={{ stroke: "rgba(34,211,238,0.55)", strokeWidth: 1 }}
+              cursor={{ stroke: "rgba(212,178,76,0.55)", strokeWidth: 1 }}
               isAnimationActive={false}
             />
-            <ReferenceLine stroke="rgba(34,211,238,0.55)" strokeDasharray="4 4" x={zInput} yAxisId="payoff" />
+            <ReferenceLine stroke="rgba(212,178,76,0.55)" strokeDasharray="4 4" x={zInput} yAxisId="payoff" />
             <Area
               activeDot={{ fill: chartTheme.payoff, r: 6, stroke: "#fff", strokeWidth: 2 }}
               animationDuration={1000}
@@ -242,19 +242,19 @@ export function PayoffUnderlyingChart({
       {!compact ? (
         <motion.div
           animate={{ opacity: 1 }}
-          className="flex flex-wrap gap-4 text-xs text-slate-400"
+          className="flex flex-wrap gap-4 text-xs text-stone-600"
           initial={{ opacity: 0 }}
         >
           <span className="inline-flex items-center gap-2">
-            <span className="h-2 w-6 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+            <span className="h-2 w-6 rounded-full bg-gold shadow-[0_0_8px_rgba(212,178,76,0.6)]" />
             Product return (left axis)
           </span>
           <span className="inline-flex items-center gap-2">
-            <span className="h-2 w-6 rounded-full bg-fuchsia-400 shadow-[0_0_8px_rgba(232,121,249,0.8)]" />
+            <span className="h-2 w-6 rounded-full bg-maroon shadow-[0_0_8px_rgba(122,30,44,0.5)]" />
             Index level (right axis)
           </span>
-          <span className="font-serif italic text-slate-300">
-            Initial fixing: <strong className="not-italic text-white">{formatNumber(entryLevel)}</strong>
+          <span className="font-serif italic text-stone-700">
+            Initial fixing: <strong className="not-italic text-ink">{formatNumber(entryLevel)}</strong>
           </span>
         </motion.div>
       ) : null}

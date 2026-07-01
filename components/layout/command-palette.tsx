@@ -42,22 +42,22 @@ export function CommandPalette({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 p-4 pt-[12vh] backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-stone-900/40 p-4 pt-[12vh] backdrop-blur-sm">
       <motion.div
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="dropdown-panel w-full max-w-xl overflow-hidden"
         initial={{ opacity: 0, scale: 0.96, y: -12 }}
       >
-        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-          <Command className="h-4 w-4 text-cyan-400" />
+        <div className="flex items-center gap-3 border-b border-stone-200 px-4 py-3">
+          <Command className="h-4 w-4 text-gold-dark" />
           <input
             autoFocus
-            className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+            className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-stone-400"
             placeholder="Jump to page or search products..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button className="text-slate-500 hover:text-white" type="button" onClick={() => onOpenChange(false)}>
+          <button className="text-stone-500 hover:text-ink" type="button" onClick={() => onOpenChange(false)}>
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -65,11 +65,11 @@ export function CommandPalette({
         <div className="max-h-[50vh] overflow-y-auto p-2">
           {routeResults.length > 0 ? (
             <div className="mb-3">
-              <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Navigate</p>
+              <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-stone-500">Navigate</p>
               {routeResults.map((route) => (
                 <button
                   key={route.href}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-slate-300 hover:bg-cyan-500/10 hover:text-white"
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm text-stone-700 hover:bg-gold/10 hover:text-ink"
                   type="button"
                   onClick={() => {
                     router.push(route.href as Route);
@@ -78,7 +78,7 @@ export function CommandPalette({
                   }}
                 >
                   <span>
-                    <span className="text-slate-500">{route.group} · </span>
+                    <span className="text-stone-500">{route.group} · </span>
                     {route.label}
                   </span>
                   <ArrowRight className="h-3.5 w-3.5 opacity-40" />
@@ -89,11 +89,11 @@ export function CommandPalette({
 
           {productResults.length > 0 ? (
             <div>
-              <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Products</p>
+              <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-stone-500">Products</p>
               {productResults.map((p) => (
                 <button
                   key={p.rowId}
-                  className="flex w-full flex-col rounded-xl px-3 py-2.5 text-left hover:bg-purple-500/10"
+                  className="flex w-full flex-col rounded-xl px-3 py-2.5 text-left hover:bg-maroon/5"
                   type="button"
                   onClick={() => {
                     selection.selectProduct(p);
@@ -102,8 +102,8 @@ export function CommandPalette({
                     setQuery("");
                   }}
                 >
-                  <span className="text-sm font-medium text-white">{p.name}</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-sm font-medium text-ink">{p.name}</span>
+                  <span className="text-xs text-stone-500">
                     {p.category} · {p.isin ?? "—"}
                   </span>
                 </button>
@@ -112,7 +112,7 @@ export function CommandPalette({
           ) : null}
 
           {!routeResults.length && !productResults.length ? (
-            <p className="px-3 py-6 text-center text-sm text-slate-500">No matches.</p>
+            <p className="px-3 py-6 text-center text-sm text-stone-500">No matches.</p>
           ) : null}
         </div>
       </motion.div>

@@ -67,49 +67,50 @@ export const logicModules: LogicModule[] = [
     ],
     insights: [
       "Every valuation and payoff path resolves back to this registry.",
+      "Valid Primary rows exclude unknown lifecycle status and non-finite notionals before any UI surface renders.",
       "Hidden calibration layers (observation lookbacks, extinguished rollovers) stay linked but invisible to end users.",
-      "Ongoing vs expired classification derives from maturity and last observation anchors.",
+      "Ongoing vs expired classification derives from maturity and last observation anchors on the live desk clock.",
     ],
     outputs: ["Product search index", "Formula catalog", "Category summaries", "Validation alerts"],
   },
   {
     id: "primary-dashboard",
-    title: "Primary Portfolio Command",
-    subtitle: "Search, enrich, and aggregate primary structured books",
+    title: "Desk Command Center",
+    subtitle: "Home pulse, lifecycle tabs, and module routing",
     accent: "cyan",
     purpose:
-      "Orchestrates primary SP discovery — resolve a product by ISIN, code, or name, hydrate full economics, and roll up combined equity portfolio returns.",
-    stageCount: 10,
+      "Orchestrates the live Primary book — headline KPIs, lifecycle-filtered product lists, maturity ladder, lifecycle intelligence table, and shortcuts into valuation, payoff, and analytics.",
+    stageCount: 8,
     metrics: [
-      { label: "Surfaces", value: "10" },
-      { label: "Resolver paths", value: "3" },
+      { label: "Surfaces", value: "8" },
+      { label: "Lifecycle tabs", value: "4" },
       { label: "Focus", value: "Primary lane" },
     ],
     nodes: [
-      { id: "home", label: "Command Home", kind: "input", description: "Desk landing with portfolio pulse and navigation." },
-      { id: "search", label: "Product Resolver", kind: "input", description: "Tri-modal lookup: ISIN → code → name cascade." },
-      { id: "registry", label: "Master Cross-Reference", kind: "lookup", description: "Pulls issuer, underlying, entry/target levels, ISIN, series." },
-      { id: "input", label: "Deal Parameterizer", kind: "input", description: "Trade date, notional, observation schedule inputs." },
-      { id: "enrich", label: "Non-PP Enrichment", kind: "engine", description: "Hydrates payoff formula, protection flag, listing status." },
-      { id: "portfolio", label: "Combined Portfolio Engine", kind: "engine", description: "Aggregates multiple primary lines into a single book view." },
-      { id: "equity", label: "Equity Returns Link", kind: "process", description: "Maps underlying performance to portfolio return bands." },
-      { id: "output", label: "Portfolio Output", kind: "output", description: "Live notional, maturity ladder, issuer concentration." },
+      { id: "home", label: "Command Home", kind: "input", description: "Headline KPIs, lifecycle tabs, maturity ladder, and desk module shortcuts." },
+      { id: "clock", label: "Portfolio Clock", kind: "process", description: "Live as-of date refreshes lifecycle buckets every minute without reload." },
+      { id: "filter", label: "Lifecycle Filter", kind: "process", description: "Ongoing, Expiring in 3M, Expiring in 1M, and Expired — shared across Home widgets." },
+      { id: "list", label: "Product Register", kind: "lookup", description: "Searchable full-book table with export — no row cap." },
+      { id: "intel", label: "Lifecycle Intelligence", kind: "engine", description: "Full-book status breakdown with highlights for the active tab." },
+      { id: "ladder", label: "Maturity Ladder", kind: "output", description: "Notional by maturity window for the filtered lifecycle slice." },
+      { id: "resolver", label: "Product Resolver", kind: "input", description: "Tri-modal lookup: ISIN → code → name cascade across desk modules." },
+      { id: "routes", label: "Module Router", kind: "output", description: "Valuation, Payoff, Product Details, Analytics Lab, and Logic Atlas." },
     ],
     flows: [
-      { from: "home", to: "search" },
-      { from: "search", to: "registry", label: "resolve" },
-      { from: "registry", to: "enrich" },
-      { from: "input", to: "enrich" },
-      { from: "enrich", to: "portfolio" },
-      { from: "portfolio", to: "equity" },
-      { from: "equity", to: "output" },
+      { from: "home", to: "clock", label: "as-of" },
+      { from: "clock", to: "filter" },
+      { from: "filter", to: "list", label: "pool" },
+      { from: "filter", to: "intel", label: "status" },
+      { from: "filter", to: "ladder", label: "window" },
+      { from: "home", to: "resolver" },
+      { from: "resolver", to: "routes", label: "navigate" },
     ],
     insights: [
-      "Product search mirrors the tri-field resolver pattern used across all desk modules.",
-      "Non-principal-protected structures get full formula and explanation surfacing.",
-      "Combined portfolio view weights by trade amount and aligns expiry buckets.",
+      "ScienceLab charts live on Analytics Lab only — Home keeps lifecycle intelligence and the maturity ladder.",
+      "Lifecycle Intelligence shows the full book while highlighting rows that belong to the active tab.",
+      "Upload Master on Home re-parses the registry and refreshes every downstream surface.",
     ],
-    outputs: ["Resolved product card", "Combined notional", "Equity return bands", "Expiry-aligned structures"],
+    outputs: ["Headline KPIs", "Lifecycle product list", "Lifecycle intelligence table", "Maturity ladder", "Desk shortcuts"],
   },
   {
     id: "primary-valuation",
@@ -153,7 +154,7 @@ export const logicModules: LogicModule[] = [
     accent: "green",
     purpose:
       "Models primary deal economics — current level, debenture count, remaining tenor — and sweeps underlying performance Z from deep loss to upside cap to map the full payoff profile.",
-    stageCount: 5,
+    stageCount: 6,
     metrics: [
       { label: "Scenario rows", value: "18+" },
       { label: "Deal inputs", value: "5" },
@@ -181,10 +182,67 @@ export const logicModules: LogicModule[] = [
     ],
     outputs: ["Scenario table", "Payoff curve", "Underlying plot", "IRR bands"],
   },
+  {
+    id: "portfolio-analytics",
+    title: "Analytics Laboratory",
+    subtitle: "Lifecycle-scoped charts and KPI bands",
+    accent: "rose",
+    purpose:
+      "Extends the desk command center with ScienceLab — coupon, protection, underlying, and tenor distributions filtered by the same lifecycle tab as the product register.",
+    stageCount: 6,
+    metrics: [
+      { label: "Chart panels", value: "5" },
+      { label: "Lifecycle tabs", value: "4" },
+      { label: "Weighting", value: "AUM" },
+    ],
+    nodes: [
+      { id: "tab", label: "Lifecycle Tab", kind: "input", description: "Ongoing, Expiring in 3M, Expiring in 1M, or Expired — drives every chart." },
+      { id: "pool", label: "Valid Master Pool", kind: "lookup", description: "Primary rows with finite notional and known lifecycle status." },
+      { id: "kpis", label: "KPI Band", kind: "output", description: "Live notional, ongoing count, and near-term expiry tiles." },
+      { id: "universe", label: "Lifecycle Universe", kind: "engine", description: "Pie chart of status mix within the active tab, sized by notional." },
+      { id: "slices", label: "Distribution Engine", kind: "engine", description: "Coupon bands, protection mix, underlying exposure, tenor profile." },
+      { id: "export", label: "Chart Export", kind: "output", description: "Product list export mirrors the filtered pool for audit." },
+    ],
+    flows: [
+      { from: "tab", to: "pool", label: "filter" },
+      { from: "pool", to: "kpis" },
+      { from: "pool", to: "universe" },
+      { from: "pool", to: "slices", label: "aggregate" },
+      { from: "slices", to: "export", label: "audit" },
+    ],
+    insights: [
+      "Coupon buckets use product-driven intervals — empty tenor bands are hidden when no notional sits in them.",
+      "Underlying exposure ranks by invested amount; the book is dominated by Nifty and Sensex linkages today.",
+      "Analytics Lab shares the lifecycle product list with Home but adds ScienceLab charts not shown on Home.",
+    ],
+    outputs: ["Lifecycle universe pie", "Coupon distribution", "Protection mix", "Underlying bars", "Tenor profile"],
+  },
 ];
 
 export function getLogicModule(id: string) {
   return logicModules.find((m) => m.id === id);
+}
+
+/** Nodes not reachable from any flow root — should be empty for a healthy pipeline. */
+export function getDisconnectedNodes(module: LogicModule): LogicNode[] {
+  const roots = module.nodes.filter((n) => !module.flows.some((f) => f.to === n.id));
+  const reachable = new Set<string>();
+  const queue = roots.map((r) => r.id);
+
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    if (reachable.has(id)) continue;
+    reachable.add(id);
+    for (const flow of module.flows) {
+      if (flow.from === id) queue.push(flow.to);
+    }
+  }
+
+  return module.nodes.filter((n) => !reachable.has(n.id));
+}
+
+export function isPipelineComplete(module: LogicModule): boolean {
+  return getDisconnectedNodes(module).length === 0;
 }
 
 export type CategoryIntelligence = {
@@ -203,8 +261,8 @@ export function getCategoryIntelligenceMap(): CategoryIntelligence[] {
       dataLane: "Primary registry",
       valuationPath: "Primary Valuation Engine",
       payoffPath: "Primary Payoff Laboratory",
-      supportLayers: ["Observation lookback", "Last-fixing calendar"],
-      keySignals: ["Entry level", "Target level", "Trade amount", "Coupon", "Maturity"],
+      supportLayers: ["Observation lookback", "Last-fixing calendar", "Analytics Laboratory"],
+      keySignals: ["Entry level", "Target level", "Trade amount", "Coupon", "Maturity", "Lifecycle status"],
     },
   ];
 }
