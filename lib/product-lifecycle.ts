@@ -1,7 +1,7 @@
 import { differenceInCalendarDays } from "date-fns";
 
 import type { ProductRecord } from "@/lib/types";
-import { rawField } from "@/lib/product-utils";
+import { getProductTradeDate, rawField } from "@/lib/product-utils";
 import { parseExcelishDate } from "@/lib/workbook/dates";
 
 /** Calendar-day horizons — labelled as months in the UI. */
@@ -96,6 +96,20 @@ export function filterValidMasterProducts(products: ProductRecord[], asOf = new 
 export function isValuationApplicable(product: ProductRecord, asOf = new Date()): boolean {
   const status = getProductLifecycleStatus(product, asOf);
   return status !== "expired" && status !== "upcoming";
+}
+
+/** MTM allowed when valuation date is on/after trade and on/before maturity (historical book). */
+export function isValuationApplicableAt(product: ProductRecord, valuationDateRaw: string): boolean {
+  const valuationDate = parseExcelishDate(valuationDateRaw);
+  if (!valuationDate) return isValuationApplicable(product);
+
+  const trade = getProductTradeDate(product);
+  if (trade && valuationDate.getTime() < trade.getTime()) return false;
+
+  const maturity = parseExcelishDate(product.maturityRaw ?? product.lastObservationDateRaw);
+  if (maturity && valuationDate.getTime() > maturity.getTime()) return false;
+
+  return true;
 }
 
 export function filterProductsByLifecycle(

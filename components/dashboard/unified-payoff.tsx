@@ -7,10 +7,10 @@ import { PayoffCurvePanel } from "@/components/dashboard/payoff-curve";
 import { ProductNarrative } from "@/components/dashboard/product-narrative";
 import { RevealOutput } from "@/components/ui/reveal-output";
 import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/horizontal-rail";
+import { VirtualizedTableSection } from "@/components/ui/virtual-table-body";
 import {
   AppPage,
   Button,
-  DataTable,
   FieldRow,
   FieldStack,
   KpiBand,
@@ -31,13 +31,15 @@ import {
   LIFECYCLE_FILTER_LABELS,
   type LifecycleFilter,
 } from "@/lib/product-lifecycle";
+import { ProductOutputGuard } from "@/components/ui/product-output-guard";
+import { handleOutputReveal } from "@/lib/product-data-guards";
 import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, isSensexLinked, rawField, resolveLiveIndexLevel, resolveValuationLevel } from "@/lib/product-utils";
 import { describePayoffBand } from "@/lib/product-narrative-format";
 import { PayoffScenariosTable } from "@/components/ui/payoff-scenarios-table";
 import type { ProductRecord } from "@/lib/types";
 import { buildEnhancedPayoffScenarioTable, type PayoffRowFlags } from "@/lib/workbook/payoff-pivots";
 import { getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
-import { downloadProductsExcel } from "@/lib/workbook/export-products";
+import { downloadPayoffScreenExcel } from "@/lib/workbook/export-screen";
 import { cn, formatCrores, formatNumber, formatPercent } from "@/lib/utils";
 
 const TABS = [
@@ -165,6 +167,18 @@ function NonPpSpDetails({
   targetDisplay: string;
 }) {
   const selection = useProductSelection();
+  const outputResetKey = useMemo(
+    () =>
+      [
+        product?.rowId,
+        selection.debentures,
+        selection.pricePerDebenture,
+        selection.purchaseDate,
+        selection.niftyLevel,
+        selection.sensexLevel,
+      ].join("|"),
+    [product?.rowId, selection.debentures, selection.pricePerDebenture, selection.purchaseDate, selection.niftyLevel, selection.sensexLevel],
+  );
   const liveLevel = product
     ? resolveLiveIndexLevel(product, {
         niftyLevel: Number(selection.niftyLevel) || undefined,
@@ -188,7 +202,44 @@ function NonPpSpDetails({
       {product ? (
         <>
           <HorizontalBand className="mt-4">
-            <RevealOutput label="Click here to view payoff output">
+            <RevealOutput
+              footer={
+                product ? (
+                  <Button
+                    variant="primary"
+                    onClick={() =>
+                      void downloadPayoffScreenExcel({
+                        product,
+                        scenarios,
+                        marketMove,
+                        liveLevel,
+                        inputs: {
+                          debentures: selection.debentures,
+                          pricePerDebenture: selection.pricePerDebenture,
+                          purchaseDate: selection.purchaseDate,
+                        },
+                        kpis: [
+                          [`Live ${indexLabel} Level`, formatNumber(liveLevel)],
+                          ["Initial Fixing", formatNumber(getIndexEntryLevel(product))],
+                          ["Target Level", targetDisplay],
+                          ["Live Index Move", formatPercent(marketMove, 1)],
+                          ["Product XIRR at live index move", formatPercent(livePayoffIrr, 2)],
+                        ],
+                      })
+                    }
+                  >
+                    Download screen to Excel
+                  </Button>
+                ) : null
+              }
+              label="Click here to view payoff output"
+              resetKey={outputResetKey}
+              onReveal={() => handleOutputReveal(product)}
+            >
+              <ProductOutputGuard mode="payoff" product={product}>
+                {({ showValues }) =>
+                  showValues ? (
+                    <>
               <KpiBand
                 accents={["cyan", "purple", "green"]}
                 items={[
@@ -196,7 +247,7 @@ function NonPpSpDetails({
                   { label: "Initial Fixing", value: formatNumber(getIndexEntryLevel(product)) },
                   { label: "Target Level", value: targetDisplay },
                   { label: "Live Index Move", value: formatPercent(marketMove, 1) },
-                  { label: "XIRR @ live move", value: formatPercent(livePayoffIrr, 2) },
+                  { label: "Product XIRR at live index move", value: formatPercent(livePayoffIrr, 2) },
                 ]}
               />
               {payoffBandNote ? (
@@ -225,25 +276,20 @@ function NonPpSpDetails({
 
               <HorizontalBand className="mt-4">
                 <Panel className="!p-4" glow="cyan">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <SectionTitle>Product Payoff</SectionTitle>
-                    <Button
-                      variant="ghost"
-                      onClick={() =>
-                        downloadProductsExcel([product], `SP-Payoff-${product.isin ?? product.name}.xlsx`, {
-                          sheetName: "Payoff",
-                        })
-                      }
-                    >
-                      Download
-                    </Button>
-                  </div>
+                  <SectionTitle>Product Payoff</SectionTitle>
                   <SectionInfo {...SECTION_INFO["pay-output"]} />
+                  <p className="mt-2 text-xs text-amber-900/90">
+                    Amber rows mark formula kinks — points where the payoff plot slope changes sharply.
+                  </p>
                   <div className="mt-3 max-h-[min(56vh,560px)] overflow-auto">
                     <PayoffScenariosTable rows={scenarios} />
                   </div>
                 </Panel>
               </HorizontalBand>
+                    </>
+                  ) : null
+                }
+              </ProductOutputGuard>
             </RevealOutput>
           </HorizontalBand>
         </>
@@ -282,8 +328,8 @@ function ProductSpecifications({ product }: { product: ProductRecord }) {
       <SectionTitle>Product Specifications</SectionTitle>
       <HorizontalRail className="mt-4">
         {specs.map((spec) => (
-          <RailCard key={spec.label} minWidth="min-w-[168px]">
-            <div className="spec-rail-card border-0 bg-transparent p-0 shadow-none">
+          <RailCard key={spec.label} minWidth="min-w-[260px] max-w-[380px]">
+            <div className="spec-rail-card min-h-[104px]">
               <p className="spec-rail-label">{spec.label}</p>
               <p className={cn("spec-rail-value", spec.label === "ISIN" && "font-mono text-xs")}>{spec.value}</p>
             </div>
@@ -328,42 +374,43 @@ function ProductSearchTab({ products, selectedId }: { products: ProductRecord[];
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <div className="mt-4 max-h-[min(66vh,680px)] overflow-auto">
-          <DataTable>
-            <thead>
-              <tr>
-                <th>Name on Signup Form</th>
-                <th>Series</th>
-                <th>ISIN No.</th>
-                <th>Underlying</th>
-                <th>Initial Fixing</th>
-                <th>Maturity</th>
+        <VirtualizedTableSection
+          colSpan={6}
+          rowCount={filtered.length}
+          scrollClassName="mt-4 max-h-[min(66vh,680px)] overflow-auto rounded-2xl border border-stone-200"
+          thead={
+            <tr>
+              <th>Name on Signup Form</th>
+              <th>Series</th>
+              <th>ISIN No.</th>
+              <th>Underlying</th>
+              <th>Initial Fixing</th>
+              <th>Maturity</th>
+            </tr>
+          }
+        >
+          {(index) => {
+            const p = filtered[index]!;
+            const isActive = p.rowId === selectedId || p.name === selectedName;
+            return (
+              <tr
+                key={p.rowId}
+                className={cn(
+                  "cursor-pointer transition",
+                  isActive ? "bg-gold/15 ring-1 ring-inset ring-gold/35" : "hover:bg-stone-100",
+                )}
+                onClick={() => selection.selectProduct(p)}
+              >
+                <td className="max-w-[280px] truncate font-medium">{p.name}</td>
+                <td>{p.series ?? "—"}</td>
+                <td className="font-mono text-xs">{p.isin ?? "—"}</td>
+                <td>{p.underlying ?? "—"}</td>
+                <td>{formatNumber(getIndexEntryLevel(p))}</td>
+                <td>{p.maturityRaw ?? "—"}</td>
               </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => {
-                const isActive = p.rowId === selectedId || p.name === selectedName;
-                return (
-                  <tr
-                    key={p.rowId}
-                    className={cn(
-                      "cursor-pointer transition",
-                      isActive ? "bg-gold/15 ring-1 ring-inset ring-gold/35" : "hover:bg-stone-100",
-                    )}
-                    onClick={() => selection.selectProduct(p)}
-                  >
-                    <td className="max-w-[280px] truncate font-medium">{p.name}</td>
-                    <td>{p.series ?? "—"}</td>
-                    <td className="font-mono text-xs">{p.isin ?? "—"}</td>
-                    <td>{p.underlying ?? "—"}</td>
-                    <td>{formatNumber(getIndexEntryLevel(p))}</td>
-                    <td>{p.maturityRaw ?? "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </DataTable>
-        </div>
+            );
+          }}
+        </VirtualizedTableSection>
       </Panel>
     </HorizontalBand>
   );

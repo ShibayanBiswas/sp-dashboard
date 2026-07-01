@@ -6,6 +6,7 @@ import { DESK_DEFAULTS } from "@/lib/desk-defaults";
 import { useMarketSync } from "@/lib/hooks/use-market-sync";
 import type { MarketLevels } from "@/lib/market-data";
 import { resolveProduct, getDebenturePrice, getIndexEntryLevel, inferDebentureCount, rawField, resolveLiveIndexLevel } from "@/lib/product-utils";
+import { assessProductData } from "@/lib/product-data-guards";
 import { useDataset } from "@/lib/context/dataset-provider";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
 
@@ -148,6 +149,13 @@ export function ProductSelectionProvider({ children }: { children: ReactNode }) 
         setState((current) => ({ ...current, [key]: value }));
       },
       selectProduct(product) {
+        const assessment = assessProductData(product);
+        if (assessment.missingFormula || assessment.missingDescription) {
+          const lines: string[] = [];
+          if (assessment.missingFormula) lines.push("Payoff formula is missing in the master file for this product.");
+          if (assessment.missingDescription) lines.push("Product description is missing in the master file for this product.");
+          window.alert(lines.join("\n\n"));
+        }
         setState((current) => {
           const indexEntry = getIndexEntryLevel(product);
           const price = getDebenturePrice(product);

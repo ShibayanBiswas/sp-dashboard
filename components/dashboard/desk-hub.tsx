@@ -60,8 +60,8 @@ export function DeskHubPage() {
                 .filter((p) => p.category === link.category)
                 .reduce((s, p) => s + (p.tradeAmount ?? 0), 0);
               return (
-                <RailCard key={link.category} minWidth="min-w-[240px]">
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                <RailCard key={link.category} minWidth="min-w-[280px] max-w-[360px]">
+                  <div className="min-h-[120px] rounded-xl border border-stone-200 bg-stone-50 p-5">
                     <div className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: categoryNeon[link.category] }} />
                       <p className="font-bold">{link.category}</p>

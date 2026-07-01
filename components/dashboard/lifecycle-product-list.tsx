@@ -5,10 +5,10 @@ import { Download, Search } from "lucide-react";
 
 import {
   Button,
-  DataTable,
   Panel,
   SectionTitle,
 } from "@/components/layout/app-ui";
+import { VirtualizedTableSection } from "@/components/ui/virtual-table-body";
 import {
   filterProductsByLifecycle,
   LIFECYCLE_FILTER_LABELS,
@@ -126,63 +126,63 @@ export function LifecycleProductList({
         </div>
       ) : null}
 
-      <div className={`mt-4 overflow-auto rounded-2xl border border-stone-200 ${compact ? "max-h-[min(48vh,480px)]" : "max-h-[min(72vh,720px)]"}`}>
-        <DataTable>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Status</th>
-              <th>Days</th>
-              <th>Name</th>
-              <th>ISIN</th>
-              <th>Issuer</th>
-              <th>Underlying</th>
-              <th className="text-right">Notional</th>
-              <th>Maturity</th>
+      <VirtualizedTableSection
+        colSpan={9}
+        rowCount={filtered.length}
+        scrollClassName={`mt-4 overflow-auto rounded-2xl border border-stone-200 ${compact ? "max-h-[min(48vh,480px)]" : "max-h-[min(72vh,720px)]"}`}
+        emptyState={
+          <tr>
+            <td className="py-12 text-center text-stone-500" colSpan={9}>
+              No products match this lifecycle view{query.trim() ? " or search" : ""}.
+            </td>
+          </tr>
+        }
+        thead={
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Days</th>
+            <th>Name</th>
+            <th>ISIN</th>
+            <th>Issuer</th>
+            <th>Underlying</th>
+            <th className="text-right">Notional</th>
+            <th>Maturity</th>
+          </tr>
+        }
+      >
+        {(index) => {
+          const p = filtered[index]!;
+          const status = getProductLifecycleStatus(p, asOf);
+          const days = getDaysToMaturity(p, asOf);
+          const selected = p.rowId === selectedId;
+          return (
+            <tr
+              key={p.rowId}
+              className={cn(
+                index % 2 === 1 && "data-table-row-alt",
+                onSelect && "cursor-pointer",
+                selected && "current-row",
+              )}
+              onClick={onSelect ? () => onSelect(p) : undefined}
+            >
+              <td className="font-mono text-xs text-stone-500">{index + 1}</td>
+              <td>
+                <span className={STATUS_BADGE[status]}>{LIFECYCLE_STATUS_LABELS[status]}</span>
+              </td>
+              <td className={cn("font-mono text-xs", days != null && days <= 30 && "text-amber-900")}>
+                {days != null ? formatNumber(days, 0) : "—"}
+              </td>
+              <td className="max-w-[240px] truncate font-medium text-ink">{p.name}</td>
+              <td className="font-mono text-xs text-stone-600">{p.isin ?? "—"}</td>
+              <td className="text-stone-700">{p.issuer ?? "—"}</td>
+              <td className="text-stone-700">{p.underlying ?? "—"}</td>
+              <td className="text-right font-semibold tabular-nums text-maroon">{formatCrores(p.tradeAmount ?? 0)}</td>
+              <td className="whitespace-nowrap text-xs text-stone-600">{p.maturityRaw ?? "—"}</td>
             </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr>
-                <td className="py-12 text-center text-stone-500" colSpan={9}>
-                  No products match this lifecycle view{query.trim() ? " or search" : ""}.
-                </td>
-              </tr>
-            ) : (
-              filtered.map((p, index) => {
-                const status = getProductLifecycleStatus(p, asOf);
-                const days = getDaysToMaturity(p, asOf);
-                const selected = p.rowId === selectedId;
-                return (
-                  <tr
-                    key={p.rowId}
-                    className={cn(
-                      index % 2 === 1 && "data-table-row-alt",
-                      onSelect && "cursor-pointer",
-                      selected && "current-row",
-                    )}
-                    onClick={onSelect ? () => onSelect(p) : undefined}
-                  >
-                    <td className="font-mono text-xs text-stone-500">{index + 1}</td>
-                    <td>
-                      <span className={STATUS_BADGE[status]}>{LIFECYCLE_STATUS_LABELS[status]}</span>
-                    </td>
-                    <td className={cn("font-mono text-xs", days != null && days <= 30 && "text-amber-900")}>
-                      {days != null ? formatNumber(days, 0) : "—"}
-                    </td>
-                    <td className="max-w-[240px] truncate font-medium text-ink">{p.name}</td>
-                    <td className="font-mono text-xs text-stone-600">{p.isin ?? "—"}</td>
-                    <td className="text-stone-700">{p.issuer ?? "—"}</td>
-                    <td className="text-stone-700">{p.underlying ?? "—"}</td>
-                    <td className="text-right font-semibold tabular-nums text-maroon">{formatCrores(p.tradeAmount ?? 0)}</td>
-                    <td className="whitespace-nowrap text-xs text-stone-600">{p.maturityRaw ?? "—"}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </DataTable>
-      </div>
+          );
+        }}
+      </VirtualizedTableSection>
     </Panel>
   );
 }

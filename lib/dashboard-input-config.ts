@@ -1,3 +1,5 @@
+import type { InfoBlurb } from "@/lib/info-blurb";
+
 export type InputSurface = "valuation-primary" | "payoff-primary";
 
 export const VALUATION_DISCLAIMER =
@@ -47,75 +49,46 @@ export function getValuationInputFields() {
 
 export const DEBENTURE_PRESETS = ["1", "10", "25", "50", "100", "250", "500", "1000"];
 
-export const INPUT_FIELD_HINTS: Record<string, { title: string; paragraphs: string[] }> = {
+/** Field-level hints — one paragraph, five lines max when expanded. */
+export const INPUT_FIELD_HINTS: Record<string, InfoBlurb> = {
   isin: {
     title: "ISIN",
-    paragraphs: [
-      "International Securities Identification Number — unique 12-character code for the debenture.",
-      "Enter any one identity field (ISIN, product code, or name). The app resolves the rest automatically.",
-    ],
+    body: "International Securities Identification Number — unique 12-character debenture code.\nEnter any one identity field (ISIN, product code, or name).\nThe app resolves the remaining fields automatically from the master file.\nMatches the ISIN column on the desk valuation Working sheet.\nUse when the client statement shows ISIN but not the marketing name.",
   },
   productCode: {
     title: "Product Code",
-    paragraphs: [
-      "Desk series / product code from the signup form (e.g. 637 for Nifty Accelerator).",
-      "Matches the Primary master sheet column Series.",
-    ],
+    body: "Desk series / product code from the signup form (e.g. ARG17SUBNCD02).\nMatches the Primary master sheet Series column.\nEnter any one identity field — ISIN, code, or name.\nSelecting a code loads formula, entry level, and default debenture count.\nUseful when the signup form series is known but ISIN is not handy.",
   },
   productName: {
     title: "Product Name",
-    paragraphs: [
-      "Full name as on the signup form. Dropdown is filtered to the active lifecycle bucket.",
-      "Selecting a product loads its formula, entry level, and default debenture count from the master file.",
-    ],
+    body: "Full name as on the signup form; dropdown respects the active lifecycle filter.\nSelecting a product loads formula, entry level, and default debenture count.\nEnter any one identity field — name, ISIN, or product code.\nNames can look similar — confirm ISIN in the specifications panel after pick.\nMatches the Name on Signup Form column in the desk workbooks.",
   },
   valuationDate: {
     title: "Valuation Date",
-    paragraphs: [
-      "Mark-to-market date — defaults to today from Yahoo-synced desk clock.",
-      "Drives elapsed tenor, discounting branch, and IRR in the Working sheet logic.",
-    ],
+    body: "Mark-to-market date for this run — defaults to today from the desk clock.\nMust be on or after trade date and on or before maturity for historical marks.\nDrives elapsed tenor, discounting branch, and IRR in Working sheet logic.\nChange it to reproduce a prior desk valuation (e.g. month-end).\nNifty and Sensex levels should match this same calendar date.",
   },
   niftyLevel: {
     title: "Valuation Date Nifty Level",
-    paragraphs: [
-      "Closing Nifty 50 level on the valuation date. Auto-filled from Yahoo Finance (^NSEI).",
-      "Used when the product underlying is Nifty (or Nifty-linked indices).",
-    ],
+    body: "Closing Nifty 50 level on the valuation date.\nAuto-filled from Yahoo Finance (^NSEI) when available.\nUsed when the product underlying is Nifty or Nifty-linked.\nDoes not overwrite the Sensex field — each index stays separate.\nMirrors Working sheet D1 for Nifty-linked rows.",
   },
   sensexLevel: {
     title: "Valuation Date Sensex Level",
-    paragraphs: [
-      "Closing Sensex level on the valuation date. Auto-filled from Yahoo Finance (^BSESN).",
-      "Used when the product underlying is Sensex.",
-    ],
+    body: "Closing Sensex level on the valuation date.\nAuto-filled from Yahoo Finance (^BSESN) when available.\nUsed when the product underlying is Sensex.\nDoes not overwrite the Nifty field — each index stays separate.\nMirrors Working sheet C1 for Sensex-linked rows.",
   },
   debentures: {
     title: "No. of Debentures",
-    paragraphs: [
-      "Client holding size. Defaults from trade notional ÷ price per debenture in the master file.",
-      "Product Value is per debenture; Total Amount = Product Value × debentures.",
-    ],
+    body: "Client holding size — natural number, max notional ÷ price per debenture.\nDefaults from trade notional ÷ price per debenture in the master file.\nProduct Value is per debenture at ₹1L face; Total Amount = Product Value × count.\nInvalid counts show an alert and are not applied.\nMatches debenture count scaling on the desk valuation interface.",
   },
   currentLevel: {
     title: "Current Level",
-    paragraphs: [
-      "Live closing level of the linked index from Yahoo Finance — read-only on Payoff.",
-      "Drives the highlighted current scenario row in the payoff table.",
-    ],
+    body: "Live closing level of the linked index from Yahoo Finance.\nRead-only on Payoff — updated from market sync, not manual entry.\nDrives the highlighted current scenario row in the payoff table.\nNifty products use Nifty; Sensex products use Sensex.\nRepresents the index at trade date for most standard payoff runs.",
   },
   purchaseDate: {
     title: "Purchase Date",
-    paragraphs: [
-      "Client trade / allotment date. Defaults from the master Trade Date field.",
-      "Used for payoff tenor and client deal context.",
-    ],
+    body: "Client trade / allotment date for the payoff run.\nDefaults from the master Trade Date or Allotment Date field.\nUsed for payoff tenor and XIRR in each scenario row.\nShould match the date on the client contract or demat statement.\nChanging it shifts elapsed time and maturity discount paths.",
   },
   pricePerDebenture: {
     title: "Price / Debenture",
-    paragraphs: [
-      "Deal price per debenture as executed. Defaults from the master price field.",
-      "Combined with debenture count to size maturity amounts in each scenario row.",
-    ],
+    body: "Deal price per debenture as executed — defaults from the master price field.\nCombined with debenture count to size client investment and maturity amounts.\nEach scenario row scales returns to this investment base.\nTypically ₹1,00,000 face unless the master lists a different deal price.\nMatches Price / Debenture on the desk payoff dashboard.",
   },
 };

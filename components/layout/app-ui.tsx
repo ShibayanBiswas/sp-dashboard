@@ -19,6 +19,7 @@ import {
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { DeskFooter } from "@/components/layout/desk-footer";
 import { SiteNav } from "@/components/layout/site-nav";
+import type { InfoBlurb } from "@/lib/info-blurb";
 import { cn } from "@/lib/utils";
 
 export function AppPage({
@@ -109,7 +110,7 @@ export function FieldStack({ children }: { children: ReactNode }) {
 }
 
 /** Collapsible, animated "what is this?" description panel for any section. */
-export function SectionInfo({ title = "What is this?", paragraphs }: { title?: string; paragraphs: string[] }) {
+export function SectionInfo({ title = "What is this?", body }: { title?: string; body: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -137,18 +138,15 @@ export function SectionInfo({ title = "What is this?", paragraphs }: { title?: s
             initial={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="space-y-3 border-t border-gold/20 px-4 py-3.5">
-              {paragraphs.map((para, index) => (
-                <motion.p
-                  key={index}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm leading-relaxed text-stone-700"
-                  initial={{ opacity: 0, y: 6 }}
-                  transition={{ delay: 0.08 + index * 0.08, duration: 0.3 }}
-                >
-                  {para}
-                </motion.p>
-              ))}
+            <div className="border-t border-gold/20 px-4 py-3.5">
+              <motion.p
+                animate={{ opacity: 1, y: 0 }}
+                className="line-clamp-5 whitespace-pre-line text-sm leading-relaxed text-stone-700"
+                initial={{ opacity: 0, y: 6 }}
+                transition={{ delay: 0.08, duration: 0.3 }}
+              >
+                {body}
+              </motion.p>
             </div>
           </motion.div>
         ) : null}
@@ -203,7 +201,7 @@ export function FieldRow({
   wide,
 }: {
   label: ReactNode;
-  hint?: { title: string; paragraphs: string[] };
+  hint?: InfoBlurb;
   children: ReactNode;
   wide?: boolean;
 }) {
@@ -218,7 +216,7 @@ export function FieldRow({
   );
 }
 
-function FieldHint({ title, paragraphs }: { title: string; paragraphs: string[] }) {
+function FieldHint({ title = "Field", body }: InfoBlurb) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -239,13 +237,7 @@ function FieldHint({ title, paragraphs }: { title: string; paragraphs: string[] 
             initial={{ opacity: 0, y: -4 }}
           >
             <p className="text-xs font-bold uppercase tracking-wider text-gold-dark">{title}</p>
-            <div className="mt-2 space-y-2">
-              {paragraphs.map((p, i) => (
-                <p key={i} className="text-xs leading-5 text-stone-700">
-                  {p}
-                </p>
-              ))}
-            </div>
+            <p className="mt-2 line-clamp-5 whitespace-pre-line text-xs leading-5 text-stone-700">{body}</p>
           </motion.div>
         ) : null}
       </AnimatePresence>

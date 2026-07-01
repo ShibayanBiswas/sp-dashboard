@@ -12,6 +12,8 @@ All desk reference docs live in **`docs/`**. Start here.
 | 06 | [Payoff & formula engine](06-payoff-formulas.md) | Z performance, IF formulas, scenario table, pivots |
 | 07 | [Routes & components](07-routes-and-components.md) | Page → file map, UI patterns, input fields |
 | 08 | [Debug playbook](08-debug-playbook.md) | Step-by-step troubleshooting by symptom |
+| 09 | [Master column logic & edge cases](09-master-column-logic.md) | Primary sheet columns, NaN handling, market fetch fallbacks |
+| — | [Seamless QA report](seamless-qa-report.md) | Consolidated audit: valuation parity, edge cases, manual checklist |
 
 ## Quick commands
 
@@ -20,13 +22,16 @@ bash start-dashboard.sh   # Linux/macOS — Python API + Next.js (kills stale :3
 npm run dev               # Next.js only http://localhost:3000
 npm run verify            # bake seed + counts + full product QA
 npm run verify:full       # all products: formulas + narrative + payoff
-npm run verify:kpis       # lifecycle KPI audit (Ongoing / Expired / …)
+npm run verify:valuation  # Working sheet parity (31-May-26)
+npm run verify:edge-cases # Master missing-field / NaN scan
 npm run bake              # New Product Master_.xlsx → master-seed.json
 ```
 
 **Full stack:** `start-dashboard.sh` starts the Python analytics API on `http://127.0.0.1:8000` and Next.js on `http://localhost:3000`. Stop with `bash start-dashboard.sh --stop`.
 
-**Python venv:** `backend/python/.venv` (created on first run; gitignored).
+**MongoDB (optional):** Set `MONGODB_URI` in `.env.local` (see `.env.example`). On master upload, products + formulas sync to MongoDB. Index history syncs from Yahoo on each `/api/market/levels` call and via `POST /api/market/sync-history`.
+
+**Screen exports:** Valuation, Payoff, and Product Details use **Download screen to Excel** inside the revealed output panel — styled workbook matching on-screen content only.
 
 ## Master Excel (local, gitignored)
 

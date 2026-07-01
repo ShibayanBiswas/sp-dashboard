@@ -72,7 +72,7 @@ export function ProductNarrative({
                   initial={{ opacity: 0, x: -6 }}
                   transition={{ delay: i * 0.04 }}
                 >
-                  <span className="font-bold text-amber-100">{num}</span>{" "}
+                  <span className="font-bold text-maroon">{num}</span>{" "}
                   <span dangerouslySetInnerHTML={{ __html: emphasizeNarrative(rest) }} />
                 </motion.p>
               );

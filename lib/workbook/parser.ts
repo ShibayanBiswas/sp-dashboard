@@ -230,7 +230,12 @@ function mapRowToProduct(category: ProductCategory, headers: string[], row: unkn
     if (STRIP_RAW_HEADERS.has(header.trim())) {
       return acc;
     }
-    acc[header] = (row[headerIndex] ?? null) as string | number | boolean | null;
+    const cell = row[headerIndex];
+    if (typeof cell === "number" && Number.isNaN(cell)) {
+      acc[header] = null;
+    } else {
+      acc[header] = (cell ?? null) as string | number | boolean | null;
+    }
     return acc;
   }, {});
 

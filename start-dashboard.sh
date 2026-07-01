@@ -52,6 +52,37 @@ stop_stale() {
   done
 }
 
+start_mongo() {
+  if [[ -z "${MONGODB_URI:-}" ]] && [[ -f "$ROOT/.env.local" ]]; then
+    set -a
+    # shellcheck disable=SC1091
+    source <(grep -E '^MONGODB_' "$ROOT/.env.local" | sed 's/\r$//')
+    set +a
+  fi
+  if [[ -z "${MONGODB_URI:-}" ]]; then
+    return
+  fi
+  if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    if ! docker compose -f "$ROOT/docker-compose.yml" ps --status running 2>/dev/null | grep -q sp-dashboard-mongo; then
+      echo "Starting MongoDB (docker compose)..."
+      docker compose -f "$ROOT/docker-compose.yml" up -d
+      for _ in $(seq 1 24); do
+        if docker compose -f "$ROOT/docker-compose.yml" exec -T mongo mongosh --quiet --eval "db.adminCommand('ping').ok" 2>/dev/null | grep -q 1; then
+          echo "MongoDB ready on :27017"
+          break
+        fi
+        sleep 1
+      done
+    else
+      echo "MongoDB already running (sp-dashboard-mongo)"
+    fi
+  elif command -v nc >/dev/null 2>&1 && nc -z 127.0.0.1 27017 2>/dev/null; then
+    echo "MongoDB already listening on :27017"
+  else
+    echo "MongoDB configured but not reachable — run: docker compose up -d"
+  fi
+}
+
 if [[ "${1:-}" == "--stop" ]]; then
   stop_stale
   [[ -f .python-api.pid ]] && kill "$(cat .python-api.pid)" 2>/dev/null || true
@@ -60,6 +91,7 @@ if [[ "${1:-}" == "--stop" ]]; then
 fi
 
 stop_stale
+start_mongo
 start_python
 
 export PYTHON_API_URL

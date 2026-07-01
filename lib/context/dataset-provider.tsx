@@ -101,6 +101,11 @@ export function DatasetProvider({ children }: { children: ReactNode }) {
           const parsed = restrictToActiveCategories(parsedRaw);
           setDataset(parsed);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedRaw));
+          void fetch("/api/master/sync", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(parsedRaw),
+          });
           setUploadState(`Loaded ${file.name} successfully. ${parsed.products.length} Primary products indexed.`);
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown parsing error";

@@ -99,7 +99,7 @@ export function LogicFlowDiagram({
           {ordered.map((node, index) => {
             const flow = module.flows.find((f) => f.from === ordered[index - 1]?.id && f.to === node.id);
             return (
-              <div key={node.id} className="flex min-w-[240px] max-w-[280px] snap-start items-center gap-2">
+              <div key={node.id} className="flex min-w-[280px] max-w-[360px] snap-start items-center gap-2">
                 {index > 0 ? <FlowArrow label={flow?.label} /> : null}
                 <FlowNode
                   accent={module.accent}
@@ -178,7 +178,7 @@ export function LogicModuleCard({
   return (
     <motion.button
       className={cn(
-        "glass w-full rounded-3xl p-6 text-left transition-all duration-300",
+        "glass w-full min-h-[220px] rounded-3xl p-6 text-left transition-all duration-300",
         selected ? `${colors.border} border-2 shadow-lg ${colors.glow}` : "border border-stone-200 hover:border-gold/30",
       )}
       type="button"
@@ -189,7 +189,7 @@ export function LogicModuleCard({
         <div className="min-w-0 flex-1">
           <p className={cn("text-[10px] font-bold uppercase tracking-[0.35em]", colors.text)}>{module.subtitle}</p>
           <h3 className="mt-2 text-xl font-bold text-ink">{module.title}</h3>
-          <p className="mt-2 text-sm leading-6 text-stone-600">{module.purpose.slice(0, 140)}…</p>
+          <p className="mt-2 text-sm leading-6 text-stone-600">{module.purpose}</p>
         </div>
         <div className={cn("shrink-0 rounded-2xl p-3", colors.bg)}>
           <Wallet className={cn("h-5 w-5", colors.text)} />

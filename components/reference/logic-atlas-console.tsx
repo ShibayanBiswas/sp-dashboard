@@ -110,7 +110,7 @@ export function LogicAtlasConsole() {
           </div>
           <HorizontalRail className="mt-4">
             {logicModules.map((module) => (
-              <RailCard key={module.id} minWidth="min-w-[300px] md:min-w-[340px]">
+              <RailCard key={module.id} minWidth="min-w-[320px] md:min-w-[380px]">
                 <LogicModuleCard
                   module={module}
                   pipelineComplete={isPipelineComplete(module)}
@@ -214,7 +214,7 @@ export function LogicAtlasConsole() {
           <p className="mt-1 text-sm text-stone-500">Category lane routing into valuation, payoff, and analytics surfaces</p>
           <HorizontalRail className="mt-4">
             {categoryMap.map((row) => (
-              <RailCard key={row.category} minWidth="min-w-[280px]">
+              <RailCard key={row.category} minWidth="min-w-[300px] md:min-w-[360px]">
                 <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: categoryNeon[row.category] }} />

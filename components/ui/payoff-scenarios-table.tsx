@@ -1,12 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { memo } from "react";
 
 import { DataTable, SectionTitle } from "@/components/layout/app-ui";
 import type { PayoffRowFlags } from "@/lib/workbook/payoff-pivots";
 import { cn, formatFormulaReturn, formatNumber, formatPercent } from "@/lib/utils";
 
-export function PayoffScenariosTable({ rows }: { rows: PayoffRowFlags[] }) {
+export const PayoffScenariosTable = memo(function PayoffScenariosTable({ rows }: { rows: PayoffRowFlags[] }) {
   return (
     <div className="payoff-scenarios-stage rounded-2xl border border-gold/30 bg-gradient-to-b from-gold/8 via-transparent to-maroon/5 p-1 shadow-[0_8px_32px_rgba(212,178,76,0.12)]">
       <div className="overflow-auto rounded-xl">
@@ -20,28 +20,20 @@ export function PayoffScenariosTable({ rows }: { rows: PayoffRowFlags[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
-              <motion.tr
-                key={`${row.performance}-${row.isPivot ? "p" : ""}${row.isCurrent ? "c" : ""}`}
-                animate={{ opacity: 1, x: 0 }}
-                className={cn(
-                  "payoff-scenario-row transition-all duration-300",
-                  row.isPivot && "pivot-row font-semibold",
-                  row.isCurrent && "current-row",
-                )}
-                initial={{ opacity: 0, x: -8 }}
-                transition={{ delay: Math.min(index * 0.015, 0.45) }}
-                whileHover={{ scale: 1.005 }}
+            {rows.map((row) => (
+              <tr
+                key={`${row.performance}-${row.isPivot ? "p" : "b"}`}
+                className={cn("payoff-scenario-row transition-colors", row.isPivot && "pivot-row font-semibold")}
               >
                 <td>{formatNumber(row.finalFixing)}</td>
                 <td>{formatPercent(row.performance, 1)}</td>
                 <td className="font-bold text-emerald-800">{formatFormulaReturn(row.maturityValue)}</td>
                 <td>{formatPercent(row.irr, 2)}</td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </DataTable>
       </div>
     </div>
   );
-}
+});

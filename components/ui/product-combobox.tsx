@@ -46,13 +46,15 @@ export function ProductCombobox({
   const selected = products.find((p) => p.name === value);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return products;
-    const needle = query.toLowerCase();
-    return products.filter((p) =>
-      [p.name, p.isin, p.issuer, p.series, p.underlying, p.category]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(needle)),
-    );
+    const needle = query.trim().toLowerCase();
+    const pool = !needle
+      ? products
+      : products.filter((p) =>
+          [p.name, p.isin, p.issuer, p.series, p.underlying, p.category]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(needle)),
+        );
+    return pool.slice(0, needle ? 80 : 60);
   }, [products, query]);
 
   // Anchor the portal menu to the trigger; track scroll/resize so it stays put.

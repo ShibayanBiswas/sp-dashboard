@@ -1,0 +1,337 @@
+{
+  "source": "Working!AJ:AK + Yahoo ^NSEI backfill",
+  "entries": [
+    {
+      "dateSerial": 42915,
+      "level": 9504.1
+    },
+    {
+      "dateSerial": 43097,
+      "level": 10477.9
+    },
+    {
+      "dateSerial": 43461,
+      "level": 10780
+    },
+    {
+      "dateSerial": 43643,
+      "level": 11844
+    },
+    {
+      "dateSerial": 43825,
+      "level": 12126
+    },
+    {
+      "dateSerial": 44007,
+      "level": 10288.9
+    },
+    {
+      "dateSerial": 44042,
+      "level": 11102.15
+    },
+    {
+      "dateSerial": 44070,
+      "level": 11559.25
+    },
+    {
+      "dateSerial": 44098,
+      "level": 10805.55
+    },
+    {
+      "dateSerial": 44133,
+      "level": 11670.8
+    },
+    {
+      "dateSerial": 44161,
+      "level": 12897
+    },
+    {
+      "dateSerial": 44196,
+      "level": 13981.95
+    },
+    {
+      "dateSerial": 44224,
+      "level": 13817.55
+    },
+    {
+      "dateSerial": 44252,
+      "level": 15097.35
+    },
+    {
+      "dateSerial": 44280,
+      "level": 14324.9
+    },
+    {
+      "dateSerial": 44315,
+      "level": 14894.9
+    },
+    {
+      "dateSerial": 44343,
+      "level": 15337.85
+    },
+    {
+      "dateSerial": 44371,
+      "level": 15790.45
+    },
+    {
+      "dateSerial": 44406,
+      "level": 15778.45
+    },
+    {
+      "dateSerial": 44434,
+      "level": 16363.9
+    },
+    {
+      "dateSerial": 44469,
+      "level": 17618
+    },
+    {
+      "dateSerial": 44497,
+      "level": 17857.25
+    },
+    {
+      "dateSerial": 44498,
+      "level": 17762
+    },
+    {
+      "dateSerial": 44525,
+      "level": 17536.25
+    },
+    {
+      "dateSerial": 44530,
+      "level": 16983
+    },
+    {
+      "dateSerial": 44560,
+      "level": 17204
+    },
+    {
+      "dateSerial": 44562,
+      "level": 17354.05
+    },
+    {
+      "dateSerial": 44564,
+      "level": 17625.7
+    },
+    {
+      "dateSerial": 44588,
+      "level": 17110
+    },
+    {
+      "dateSerial": 44616,
+      "level": 16248
+    },
+    {
+      "dateSerial": 44644,
+      "level": 17222.75
+    },
+    {
+      "dateSerial": 44651,
+      "level": 17464.75
+    },
+    {
+      "dateSerial": 44679,
+      "level": 17245
+    },
+    {
+      "dateSerial": 44707,
+      "level": 16170
+    },
+    {
+      "dateSerial": 44742,
+      "level": 15780.25
+    },
+    {
+      "dateSerial": 44770,
+      "level": 16929.6
+    },
+    {
+      "dateSerial": 44798,
+      "level": 17522.45
+    },
+    {
+      "dateSerial": 44833,
+      "level": 16818.1
+    },
+    {
+      "dateSerial": 44861,
+      "level": 17736.95
+    },
+    {
+      "dateSerial": 44889,
+      "level": 18484.1
+    },
+    {
+      "dateSerial": 44924,
+      "level": 18191
+    },
+    {
+      "dateSerial": 44951,
+      "level": 17891.95
+    },
+    {
+      "dateSerial": 44980,
+      "level": 17511.25
+    },
+    {
+      "dateSerial": 45015,
+      "level": 17080.7
+    },
+    {
+      "dateSerial": 45043,
+      "level": 17915.05
+    },
+    {
+      "dateSerial": 45071,
+      "level": 18321.15
+    },
+    {
+      "dateSerial": 45106,
+      "level": 18972.1
+    },
+    {
+      "dateSerial": 45134,
+      "level": 19659.9
+    },
+    {
+      "dateSerial": 45169,
+      "level": 19253.8
+    },
+    {
+      "dateSerial": 45197,
+      "level": 19523.55
+    },
+    {
+      "dateSerial": 45225,
+      "level": 18857.25
+    },
+    {
+      "dateSerial": 45260,
+      "level": 20133.15
+    },
+    {
+      "dateSerial": 45288,
+      "level": 21778.7
+    },
+    {
+      "dateSerial": 45316,
+      "level": 21352.6
+    },
+    {
+      "dateSerial": 45351,
+      "level": 21982.8
+    },
+    {
+      "dateSerial": 45379,
+      "level": 22326.9
+    },
+    {
+      "dateSerial": 45407,
+      "level": 22570.35
+    },
+    {
+      "dateSerial": 45442,
+      "level": 22520.6
+    },
+    {
+      "dateSerial": 45470,
+      "level": 24044.5
+    },
+    {
+      "dateSerial": 45498,
+      "level": 24406.1
+    },
+    {
+      "dateSerial": 45533,
+      "level": 25151.95
+    },
+    {
+      "dateSerial": 45561,
+      "level": 26216.05
+    },
+    {
+      "dateSerial": 45596,
+      "level": 24205.35
+    },
+    {
+      "dateSerial": 45624,
+      "level": 23914.15
+    },
+    {
+      "dateSerial": 45652,
+      "level": 23750.2
+    },
+    {
+      "dateSerial": 45687,
+      "level": 23249.5
+    },
+    {
+      "dateSerial": 45715,
+      "level": 22545.05
+    },
+    {
+      "dateSerial": 45743,
+      "level": 23591.95
+    },
+    {
+      "dateSerial": 45744,
+      "level": 23519.35
+    },
+    {
+      "dateSerial": 45771,
+      "level": 24246.7
+    },
+    {
+      "dateSerial": 45806,
+      "level": 24833.6
+    },
+    {
+      "dateSerial": 45834,
+      "level": 25549
+    },
+    {
+      "dateSerial": 45869,
+      "level": 24768.35
+    },
+    {
+      "dateSerial": 45897,
+      "level": 24500.9
+    },
+    {
+      "dateSerial": 45930,
+      "level": 24611.1
+    },
+    {
+      "dateSerial": 45958,
+      "level": 25936.2
+    },
+    {
+      "dateSerial": 45986,
+      "level": 25884.8
+    },
+    {
+      "dateSerial": 46021,
+      "level": 25938.85
+    },
+    {
+      "dateSerial": 46049,
+      "level": 25175.4
+    },
+    {
+      "dateSerial": 46077,
+      "level": 25424.65
+    },
+    {
+      "dateSerial": 46111,
+      "level": 22331.4
+    },
+    {
+      "dateSerial": 46140,
+      "level": 23995.7
+    },
+    {
+      "dateSerial": 46168,
+      "level": 23913.7
+    }
+  ]
+}

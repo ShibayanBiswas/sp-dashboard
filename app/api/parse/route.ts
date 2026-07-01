@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { parseWorkbookBuffer } from "@/lib/workbook/parser";
+import { syncMasterDatasetToMongo } from "@/lib/db/sync-master";
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
 
     const buffer = await file.arrayBuffer();
     const dataset = parseWorkbookBuffer(buffer, file.name);
+    void syncMasterDatasetToMongo(dataset);
     return NextResponse.json(dataset);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Workbook parsing failed.";

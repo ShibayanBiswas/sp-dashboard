@@ -4,9 +4,11 @@ import type { ReactNode } from "react";
 
 import { IsinSelect, ProductCodeSelect } from "@/components/ui/identity-selects";
 import { ProductSelectField } from "@/components/ui/product-select-field";
-import { Button, FieldRow, FieldStack, Input, Select, SubTitle } from "@/components/layout/app-ui";
+import { DebentureSelect } from "@/components/ui/debenture-select";
+import { ValuationDatePicker } from "@/components/ui/valuation-date-picker";
+import { Button, FieldRow, FieldStack, Input, SubTitle } from "@/components/layout/app-ui";
+import { useIndexAtDate } from "@/lib/hooks/use-index-at-date";
 import {
-  DEBENTURE_PRESETS,
   getPayoffSteps,
   getValuationInputFields,
   IDENTITY_HINT,
@@ -15,7 +17,8 @@ import {
   VALUATION_DISCLAIMER,
 } from "@/lib/dashboard-input-config";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
-import { getDebenturePrice, getIndexEntryLevel, isSensexLinked, rawField, resolveLiveIndexLevel } from "@/lib/product-utils";
+import { getDebenturePrice, getProductTradeDate, isSensexLinked, rawField, resolveLiveIndexLevel } from "@/lib/product-utils";
+import { formatDeskDate } from "@/lib/market-data";
 import type { ProductCategory, ProductRecord } from "@/lib/types";
 import { cn, formatNumber } from "@/lib/utils";
 
@@ -31,13 +34,14 @@ export function ExcelInputPanel({
   compact?: boolean;
 }) {
   const selection = useProductSelection();
+  const { fetchIndexAtDate } = useIndexAtDate();
   const steps = !compact && mode === "payoff" ? getPayoffSteps() : null;
   const fields = mode === "valuation" ? getValuationInputFields() : null;
 
   return (
     <div className="space-y-3">
       {!compact ? (
-        <p className="rounded-lg border border-amber-500/20 bg-transparent px-3 py-2 text-xs text-amber-100/90">
+        <p className="rounded-lg border border-gold/25 bg-gold/5 px-3 py-2 text-xs text-stone-700">
           {INPUT_HINT}
         </p>
       ) : null}
@@ -113,18 +117,41 @@ export function ExcelInputPanel({
               if (field.key === "debentures") {
                 return (
                   <FieldRow key={field.key} hint={INPUT_FIELD_HINTS.debentures} label={field.label}>
-                    <DebentureSelect value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
+                    <DebentureSelect
+                      product={selection.resolvedProduct}
+                      value={selection.debentures}
+                      onChange={(v) => selection.setField("debentures", v)}
+                    />
                   </FieldRow>
                 );
               }
               const stateKey = field.key as keyof typeof selection;
               if (!(stateKey in selection)) return null;
               const value = String(selection[stateKey] ?? "");
+              if (field.key === "valuationDate") {
+                return (
+                  <FieldRow key={field.key} hint={INPUT_FIELD_HINTS[field.key]} label={field.label}>
+                    <ValuationDatePicker
+                      product={selection.resolvedProduct}
+                      value={value}
+                      onChange={async (next) => {
+                        const product = selection.resolvedProduct;
+                        selection.setField("valuationDate", next);
+                        const tradeDesk = product ? formatDeskDate(getProductTradeDate(product) ?? new Date(0)) : undefined;
+                        const levels = await fetchIndexAtDate(next, tradeDesk !== "Unknown" ? tradeDesk : undefined);
+                        if (levels?.source === "mongodb" && levels.niftyLevel != null) {
+                          selection.setField("niftyLevel", String(levels.niftyLevel));
+                          selection.setField("sensexLevel", String(levels.sensexLevel ?? ""));
+                        }
+                      }}
+                    />
+                  </FieldRow>
+                );
+              }
               return (
                 <FieldRow key={field.key} hint={INPUT_FIELD_HINTS[field.key]} label={field.label}>
                   <Input
-                    className={cn(field.highlight && "input-glow", field.key === "valuationDate" && "font-semibold text-amber-100")}
-                    readOnly={field.key === "valuationDate" && selection.marketStatus === "ready"}
+                    className={cn(field.highlight && "input-glow", field.key === "valuationDate" && "font-semibold text-ink")}
                     type={field.type === "number" ? "number" : "text"}
                     value={value}
                     onChange={(e) => selection.setField(stateKey as "isin", e.target.value)}
@@ -204,7 +231,7 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
         />
       </FieldRow>
       <FieldRow hint={INPUT_FIELD_HINTS.debentures} label="No. of Debentures">
-        <DebentureSelect value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
+        <DebentureSelect product={product} value={selection.debentures} onChange={(v) => selection.setField("debentures", v)} />
       </FieldRow>
       <FieldRow hint={INPUT_FIELD_HINTS.pricePerDebenture} label="Price / Debenture">
         <Input
@@ -219,29 +246,6 @@ function PayoffInputBlock({ category, products }: { category: ProductCategory; p
         </p>
       ) : null}
     </FieldStack>
-  );
-}
-
-function DebentureSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const isPreset = DEBENTURE_PRESETS.includes(value);
-  return (
-    <div className="flex gap-2">
-      <Select
-        className="select-dark flex-1"
-        value={isPreset ? value : "__custom__"}
-        onChange={(e) => {
-          if (e.target.value !== "__custom__") onChange(e.target.value);
-        }}
-      >
-        {DEBENTURE_PRESETS.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-        <option value="__custom__">Custom…</option>
-      </Select>
-      {!isPreset ? <Input className="w-28" value={value} onChange={(e) => onChange(e.target.value)} /> : null}
-    </div>
   );
 }
 

@@ -1,72 +1,72 @@
 # Valuation — Excel Working Sheet Parity
 
-Reference: `Primary Structured Products Valuation - 31st May 26.xlsm` → sheet **Working**.
+Reference: `Primary Structured Products Valuation - 31st May 26.xlsm` → sheet **Working**  
+Valuation date **B1** = 31-May-26 (serial 46173) · Nifty **D1** · Sensex **C1**
 
-## Column mapping (web ↔ Excel)
+## Column chain (Working sheet)
 
-| Excel | Meaning | Web field |
-|-------|---------|-----------|
-| **K** | Index entry (initial fixing) | `getIndexEntryLevel(product)` |
-| **M** | Valuation-date index level | Nifty or Sensex input by underlying |
-| **O** | Index performance | `M/K − 1` → `valuation.z` |
-| **S** | Formula return | `evaluatePayoffFormula(formula, O)` → `formulaReturn` |
-| **U** | Client investment (face) | `getClientInvestment()` — typically ₹1,00,000 |
-| **V** | Final valuation (pre-cap) | `computeFinalValuation()` |
-| **X** | Product value | `max(V, U)` → `productValue` |
-| **G** | Valuation date | Live desk date (Yahoo sync) or user override |
-| **F** | Allotment / trade date | Resolved from master |
+| Col | Header | Formula / source |
+|-----|--------|------------------|
+| **B1** | Valuation date | Desk date (46173 = 31-May-26) |
+| **C/D** | Index levels | Sensex / Nifty spot |
+| **F** | Allotment | Trade / opening date |
+| **G** | Valuation date | `=B$1` |
+| **H** | Maturity | Maturity date |
+| **I** | Obs date | 2nd-last observation on/before B1 |
+| **K** | Entry level | Initial fixing |
+| **L** | (helper) | `=K*-1` (XIRR outflow) |
+| **M** | Current level | `IF(A="Nifty",$D$1,$C$1)` |
+| **N** | Exp. underlying @ obs | Forward: `K*(1+XIRR(L:M,F:G))^((I-F)/365)` if `M≥K`, else `"NA"`; else `VLOOKUP(I,AJ:AK,2)` |
+| **O** | Underlying perf | `IF(N="NA",M/K-1,N/K-1)` → fed to payoff as **Z** |
+| **P** | Formulae | Payoff formula text (Z) |
+| **S** | Absolute product return | **ProductReturns** named range → `Working (2)!R` |
+| **T** | IRR | `(1+S)^(365/(H-F))-1` |
+| **U** | Clients inv. | Debenture deal price (₹1L / ₹1.25L) |
+| **V** | Final valuation | See below |
+| **X** | Product value | `IF(V>U,V,U)` |
+| **Y** | Product IRR | `(X/U)^(365/(G-F))-1` |
+| **Z** | Abs. return | `X/U-1` |
+| **AJ:AK** | Index history | Nifty closes for historical **N** |
 
-## V branch (FINAL VALUATION)
+## V — final valuation (column V)
+
+Excel (row *n*):
 
 ```
-IF last_obs_date >= val_date:
-  rowIRR = (1 + S) ^ (365 / tenor_allot_to_maturity) − 1
-  V = U × (1 + rowIRR) ^ (days_allot_to_val / 365)
-ELSE:
-  adjusted = (1 + S) / 1.11 ^ (days_val_to_maturity / 365) − 1
-  V = U × (1 + adjusted)
+=IF(I_n-$B$1>=0,
+    U_n*((1+T_n)^(($B$1-F_n)/365)),
+    U_n*(1+((1+S_n)/((1+11%)^((H_n-$B$1)/365))-1)))
 ```
 
-Desk discount rate: **11%** (`DESK_DISCOUNT_RATE` in `valuation-engine.ts`).
+Where **T** = `(1+S)^(365/(H-F))-1`.
 
-## Outputs
+Web implementation: `computeWorkingFinalValuation()` in `lib/workbook/valuation-serial.ts`.
 
-| KPI | Formula |
-|-----|---------|
-| Current Value (X) | `round(max(V, U))` |
-| Abs. Return | `X/U − 1` |
-| Product IRR | `(X/U) ^ (365 / elapsed_days) − 1` |
-| Total Amount | `X × debentures` |
+- **True branch** (`I ≥ B1`): forward obs on/after desk date — compound with **T** from allotment to **B1**.
+- **False branch** (`I < B1`): discount `(1+S)` from maturity to **B1** at **11%** using **(H−B1)** serial days (signed — can be negative when maturity is before desk date).
 
-## Index selection (M)
+## Web mapping
 
-Same as Excel `IF(underlying="Nifty", niftyLevel, sensexLevel)` via `resolveValuationLevel()`.
+| Excel | Web |
+|-------|-----|
+| N, O | `valuation-performance.ts` |
+| S | `evaluatePayoffFormula(P, O)` or desk `formulaReturn` |
+| V, X, Y, Z | `valuation-engine.ts` + `valuation-serial.ts` |
+| AJ:AK | `lib/data/valuation-index-history.json` |
 
-## Live inputs
+## Audit
 
-- **Valuation Date**: `formatDeskDate(new Date())` from market sync.
-- **Nifty / Sensex**: Yahoo Finance last price (`^NSEI`, `^BSESN`).
-- Fallback if Yahoo fails: last known desk defaults with **today’s date**.
+```bash
+npm run verify:valuation
+```
 
-## Expired products
+Report: `docs/valuation-audit-31-may-26.md`
 
-`isValuationApplicable()` returns false when lifecycle is **expired** or **upcoming**. UI shows message; engine not called.
+- **Mode A** — master file dates/levels vs Working (expect drift vs May-26 snapshot).
+- **Mode B** — matched Working row inputs F/H/I/K/M/U + **P/S** (formula proof).
 
-## Verification (Gearing Accelerator INE093JA7Q38)
+Duplicate ISINs (rollover phases): matched by product name + maturity ≥ B1 (`working-row-match.ts`).
 
-@ 31-May-26, Nifty 23,547.75, face ₹1L:
+## Note on 29-May vs 31-May
 
-- `productValue` ≈ **₹198,292**
-- `absReturn` ≈ **98.3%**
-- `productIrr` ≈ **14.5%**
-
-Run: `npx tsx -e "..."`  (see README verify script).
-
-## Common bugs fixed
-
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Value = price × (1+return) | Used debenture price not face | `getClientInvestment()` uses face |
-| IRR explosion | Purchase date as val date | IRR uses allotment → val elapsed |
-| Wrong index | Single level field | Separate Nifty / Sensex |
-| Decimals on X | Float noise | `Math.round` on rupees |
+The repo workbook is frozen at **31-May-26** (B1). There is no separate 29-May snapshot; all parity runs use **B1 = 31-May-26**.

@@ -28,17 +28,20 @@ import { HorizontalBand, HorizontalRail, RailCard } from "@/components/layout/ho
 import {
   filterProductsByLifecycle,
   getProductLifecycleStatus,
-  isValuationApplicable,
+  isValuationApplicableAt,
   LIFECYCLE_STATUS_LABELS,
   type LifecycleFilter,
 } from "@/lib/product-lifecycle";
 import { categoryNeon } from "@/lib/chart-theme";
 import { useProductSelection } from "@/lib/context/product-selection-provider";
 import { useDataset } from "@/lib/context/dataset-provider";
-import { getDebenturePrice, getIndexEntryLevel, getTargetLevel, rawField, resolveLiveIndexLevel, resolveValuationLevel } from "@/lib/product-utils";
+import { ProductOutputGuard } from "@/components/ui/product-output-guard";
+import { formatOptionalCrores, formatOptionalNumber, handleOutputReveal } from "@/lib/product-data-guards";
+import { getDebenturePrice, getIndexEntryLevel, getIndexEntryLevelRaw, getTargetLevel, rawField, resolveLiveIndexLevel, resolveValuationLevel } from "@/lib/product-utils";
 import { buildPayoffScenarioTable, getPayoffTenorDays } from "@/lib/workbook/payoff-scenarios";
+import { PayoffScenariosTable } from "@/components/ui/payoff-scenarios-table";
 import { buildEnhancedPayoffScenarioTable } from "@/lib/workbook/payoff-pivots";
-import { downloadProductsExcel } from "@/lib/workbook/export-products";
+import { downloadProductDetailsScreenExcel } from "@/lib/workbook/export-screen";
 import { computeValuation } from "@/lib/workbook/valuation-engine";
 import { cn, formatCrores, formatCurrency, formatFormulaReturn, formatNumber, formatPercent, formatProductUnitValue } from "@/lib/utils";
 import { MasterUploadButton } from "@/components/ui/master-upload-button";
@@ -254,20 +257,21 @@ export function ProductDetailsPage() {
       ? selection.resolvedProduct
       : pool[0];
 
-  const canValue = product ? isValuationApplicable(product, asOf) : false;
+  const canValue = product ? isValuationApplicableAt(product, selection.valuationDate) : false;
   const lifecycleStatus = product ? getProductLifecycleStatus(product, asOf) : undefined;
 
-  const valuation = product && canValue
-    ? computeValuation(product, {
-        valuationDate: selection.valuationDate,
-        currentLevel: resolveLiveIndexLevel(product, {
-          niftyLevel: Number(selection.niftyLevel) || undefined,
-          sensexLevel: Number(selection.sensexLevel) || undefined,
-        }),
-        debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
-        purchasePrice: Number(selection.pricePerDebenture) || getDebenturePrice(product),
-      })
-    : null;
+  const valuation = useMemo(() => {
+    if (!product || !canValue) return null;
+    return computeValuation(product, {
+      valuationDate: selection.valuationDate,
+      currentLevel: resolveLiveIndexLevel(product, {
+        niftyLevel: Number(selection.niftyLevel) || undefined,
+        sensexLevel: Number(selection.sensexLevel) || undefined,
+      }),
+      debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
+      purchasePrice: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+    });
+  }, [product, canValue, selection.valuationDate, selection.niftyLevel, selection.sensexLevel, selection.debentures, selection.pricePerDebenture]);
 
   const marketMove = useMemo(() => {
     if (!product) return 0;
@@ -279,26 +283,41 @@ export function ProductDetailsPage() {
     return entry > 0 ? level / entry - 1 : 0;
   }, [product, selection.niftyLevel, selection.sensexLevel]);
 
-  const scenarios = product?.formulaText
-    ? buildEnhancedPayoffScenarioTable(
-        product,
-        {
-          debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
-          pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
-          remainingTenorDays: getPayoffTenorDays(product),
-        },
-        marketMove,
-      )
-    : [];
+  const scenarios = useMemo(() => {
+    if (!product?.formulaText) return [];
+    return buildEnhancedPayoffScenarioTable(
+      product,
+      {
+        debentures: Math.max(1, Math.round(Number(selection.debentures) || 100)),
+        pricePerDebenture: Number(selection.pricePerDebenture) || getDebenturePrice(product),
+        remainingTenorDays: getPayoffTenorDays(product),
+      },
+      marketMove,
+    );
+  }, [product, selection.debentures, selection.pricePerDebenture, marketMove]);
+
+  const outputResetKey = useMemo(
+    () =>
+      [
+        product?.rowId,
+        selection.valuationDate,
+        selection.niftyLevel,
+        selection.sensexLevel,
+        selection.debentures,
+        selection.isin,
+        selection.productCode,
+      ].join("|"),
+    [product?.rowId, selection.valuationDate, selection.niftyLevel, selection.sensexLevel, selection.debentures, selection.isin, selection.productCode],
+  );
 
   const specCards = product
     ? [
         { label: "Category", value: product.category },
         { label: "Issuer", value: product.issuer ?? "—" },
         { label: "ISIN", value: product.isin ?? "—" },
-        { label: "Entry Level", value: String(rawField(product, "Entry Level", "Initial Level") ?? getIndexEntryLevel(product)) },
+        { label: "Entry Level", value: formatOptionalNumber(getIndexEntryLevelRaw(product), formatNumber) },
         { label: "Maturity", value: product.maturityRaw ?? "—" },
-        { label: "Notional", value: formatCrores(product.tradeAmount ?? 0) },
+        { label: "Notional", value: formatOptionalCrores(product.tradeAmount) },
       ]
     : [];
 
@@ -333,26 +352,56 @@ export function ProductDetailsPage() {
           </HorizontalBand>
 
           <HorizontalBand>
-            <RevealOutput label="Click here to view product output">
-              {!canValue ? (
-                <Panel className="!p-5" glow="purple">
-                  <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-900">
-                    {lifecycleStatus ? LIFECYCLE_STATUS_LABELS[lifecycleStatus] : "Inactive"}
-                  </p>
-                  <p className="mt-2 text-center text-sm text-stone-600">
-                    Live valuation not applicable — product overview and payoff remain below.
-                  </p>
-                </Panel>
-              ) : (
-                <KpiBand
-                  accents={["cyan", "purple", "green"]}
-                  items={[
-                    { label: "Current Value", value: formatProductUnitValue(valuation?.productValue ?? 0) },
-                    { label: "Abs. Return", value: formatPercent(valuation?.absReturn ?? 0) },
-                    { label: "IRR", value: formatPercent(valuation?.productIrr ?? 0) },
-                  ]}
-                />
-              )}
+            <RevealOutput
+              footer={
+                <Button
+                  variant="primary"
+                  onClick={() =>
+                    void downloadProductDetailsScreenExcel({
+                      product,
+                      valuation,
+                      scenarios,
+                      marketMove,
+                      canValue,
+                      inputs: {
+                        valuationDate: selection.valuationDate,
+                        debentures: selection.debentures,
+                        niftyLevel: selection.niftyLevel,
+                        sensexLevel: selection.sensexLevel,
+                      },
+                    })
+                  }
+                >
+                  Download screen to Excel
+                </Button>
+              }
+              label="Click here to view product output"
+              resetKey={outputResetKey}
+              onReveal={() => handleOutputReveal(product)}
+            >
+              <ProductOutputGuard mode="payoff" product={product}>
+                {({ showValues }) =>
+                  showValues ? (
+                    <>
+                      {!canValue ? (
+                        <Panel className="!p-5" glow="purple">
+                          <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-amber-900">
+                            {lifecycleStatus ? LIFECYCLE_STATUS_LABELS[lifecycleStatus] : "Inactive"}
+                          </p>
+                          <p className="mt-2 text-center text-sm text-stone-600">
+                            Valuation date is outside trade–maturity. Payoff and specifications still compute from the master formula.
+                          </p>
+                        </Panel>
+                      ) : (
+                        <KpiBand
+                          accents={["cyan", "purple", "green"]}
+                          items={[
+                            { label: "Current Value", value: formatProductUnitValue(valuation?.productValue ?? 0) },
+                            { label: "Abs. Return vs Deal Price", value: formatPercent(valuation?.absReturn ?? 0, 1) },
+                            { label: "IRR (annualized)", value: formatPercent(valuation?.productIrr ?? 0, 2) },
+                          ]}
+                        />
+                      )}
 
               <HorizontalBand className="mt-4">
                 <ProductNarrative product={product} />
@@ -372,8 +421,8 @@ export function ProductDetailsPage() {
               <HorizontalBand className="mt-4">
                 <HorizontalRail>
                   {specCards.map((spec) => (
-                    <RailCard key={spec.label} minWidth="min-w-[160px]">
-                      <div className="spec-rail-card">
+                    <RailCard key={spec.label} minWidth="min-w-[260px] max-w-[380px]">
+                      <div className="spec-rail-card min-h-[104px]">
                         <p className="spec-rail-label">{spec.label}</p>
                         <p className={cn("spec-rail-value", spec.label === "ISIN" && "font-mono text-xs")}>{spec.value}</p>
                       </div>
@@ -384,39 +433,19 @@ export function ProductDetailsPage() {
 
               <HorizontalBand className="mt-4">
                 <Panel glow="cyan" className="!p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <SectionTitle>Payoff Scenarios</SectionTitle>
-                    <Button variant="ghost" onClick={() => downloadProductsExcel([product], `SP-Details-${product.isin ?? "product"}.xlsx`)}>
-                      Download
-                    </Button>
-                  </div>
+                  <SectionTitle>Payoff Scenarios</SectionTitle>
+                  <p className="mt-2 text-xs text-amber-900/90">
+                    Amber rows mark formula kinks — points where the payoff plot slope changes sharply.
+                  </p>
                   <div className="mt-3 max-h-80 overflow-auto">
-                    <DataTable>
-                      <thead>
-                        <tr>
-                          <th>Final Fixing</th>
-                          <th>Z</th>
-                          <th>Return</th>
-                          <th>IRR</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {scenarios.map((row) => (
-                          <tr
-                            key={`${row.performance}-${row.isPivot ? "p" : "b"}${row.isCurrent ? "c" : ""}`}
-                            className={cn(row.isPivot && "pivot-row", row.isCurrent && "current-row")}
-                          >
-                            <td>{formatNumber(row.finalFixing)}</td>
-                            <td>{formatPercent(row.performance, 1)}</td>
-                            <td>{formatFormulaReturn(row.maturityValue)}</td>
-                            <td>{formatPercent(row.irr, 2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </DataTable>
+                    <PayoffScenariosTable rows={scenarios} />
                   </div>
                 </Panel>
               </HorizontalBand>
+                    </>
+                  ) : null
+                }
+              </ProductOutputGuard>
             </RevealOutput>
           </HorizontalBand>
         </div>

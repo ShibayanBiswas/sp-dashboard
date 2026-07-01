@@ -1,6 +1,7 @@
 import { getDebenturePrice, getIndexEntryLevel } from "@/lib/product-utils";
 import type { ProductRecord } from "@/lib/types";
 import { evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
+import { findPayoffPlotKinks } from "@/lib/workbook/payoff-kinks";
 import { irrFromReturn } from "@/lib/workbook/irr";
 import {
   buildPayoffScenarioTable,
@@ -16,40 +17,7 @@ export type PayoffRowFlags = PayoffScenarioRow & {
 
 /** Detect Z levels where payoff slope changes sharply (formula kinks / IF boundaries). */
 export function findPayoffPivotZs(formula: string, zMin = -0.55, zMax = 1.3): number[] {
-  if (!formula?.trim()) return [];
-
-  const explicit = extractFormulaThresholds(formula);
-  const step = 0.002;
-  const pivots: number[] = [...explicit];
-  let prevSlope = 0;
-  let z = zMin;
-  let prevPayoff = evaluatePayoffFormula(formula, z);
-
-  for (z = zMin + step; z <= zMax; z += step) {
-    const payoff = evaluatePayoffFormula(formula, z);
-    const slope = (payoff - prevPayoff) / step;
-    if (z > zMin + step * 2 && Math.abs(slope - prevSlope) > 8) {
-      const rounded = Math.round(z * 1000) / 1000;
-      if (!pivots.some((p) => Math.abs(p - rounded) < 0.008)) {
-        pivots.push(rounded);
-      }
-    }
-    prevSlope = slope;
-    prevPayoff = payoff;
-  }
-
-  return pivots.sort((a, b) => b - a);
-}
-
-/** IF-boundary tokens like 32%, -15% → Z performance decimals. */
-function extractFormulaThresholds(formula: string): number[] {
-  const found: number[] = [];
-  for (const match of formula.matchAll(/([+-]?\d+(?:\.\d+)?)%/g)) {
-    const pct = Number(match[1]);
-    if (!Number.isFinite(pct) || Math.abs(pct) > 150) continue;
-    found.push(Math.round((pct / 100) * 1000) / 1000);
-  }
-  return [...new Set(found)];
+  return findPayoffPlotKinks(formula, zMin, zMax);
 }
 
 function rowForPerformance(
@@ -57,9 +25,6 @@ function rowForPerformance(
   performance: number,
   inputs: PayoffInputs,
 ): PayoffScenarioRow {
-  const table = buildPayoffScenarioTable(product, inputs);
-  const hit = table.find((r) => Math.abs(r.performance - performance) < 0.0005);
-  if (hit) return hit;
   const initialFixing = getIndexEntryLevel(product);
   const debentures = inputs.debentures ?? 100;
   const pricePerDebenture = inputs.pricePerDebenture ?? getDebenturePrice(product);
@@ -86,9 +51,9 @@ export function buildEnhancedPayoffScenarioTable(
 ): PayoffRowFlags[] {
   const base = buildPayoffScenarioTable(product, inputs);
   const formula = product.formulaText ?? "";
-  const pivotZs = findPayoffPivotZs(formula);
+  const plotKinks = findPayoffPlotKinks(formula);
   const extraPerformances = new Set<number>([
-    ...pivotZs,
+    ...plotKinks,
     ...(marketMove != null && Number.isFinite(marketMove) ? [marketMove] : []),
   ]);
 
@@ -104,7 +69,7 @@ export function buildEnhancedPayoffScenarioTable(
   for (const perf of extraPerformances) {
     const key = Math.round(perf * 10000) / 10000;
     if (!merged.has(key)) {
-      merged.set(key, { ...rowForPerformance(product, perf, inputs), isPivot: pivotZs.some((p) => Math.abs(p - perf) < 0.008) });
+      merged.set(key, { ...rowForPerformance(product, perf, inputs), isPivot: true });
     }
   }
 
@@ -126,15 +91,16 @@ export function buildEnhancedPayoffScenarioTable(
       rows.push({
         ...rowForPerformance(product, marketMove, inputs),
         isCurrent: true,
+        isPivot: false,
       });
       rows.sort((a, b) => b.performance - a.performance);
     }
   }
 
+  const anchorKeys = new Set(PAYOFF_SCENARIO_OFFSETS.map((p) => Math.round(p * 10000)));
   for (const row of rows) {
-    if (pivotZs.some((p) => Math.abs(p - row.performance) < 0.008)) {
-      row.isPivot = true;
-    }
+    const key = Math.round(row.performance * 10000);
+    row.isPivot = plotKinks.some((k) => Math.abs(k - row.performance) < 0.004) && !anchorKeys.has(key);
   }
 
   return rows;

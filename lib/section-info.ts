@@ -1,213 +1,97 @@
-/**
- * Plain-language descriptions for every dashboard section.
- * Written for clients and relationship managers — four short paragraphs each.
- */
-export const SECTION_INFO: Record<string, { title?: string; paragraphs: string[] }> = {
-  // ---------------------------------------------------------------- Home
+import type { InfoBlurb } from "@/lib/info-blurb";
+
+/** Plain-language section descriptions — one paragraph, five lines each. */
+export const SECTION_INFO: Record<string, InfoBlurb> = {
   "home-kpis": {
     title: "Understanding these headline numbers",
-    paragraphs: [
-      "These four tiles give you a quick snapshot of the portfolio. Live Notional is the total amount currently invested across all products, shown in crores of rupees. Active tells you how many products are still running and have not yet reached their maturity date.",
-      "Expired counts products that have already matured and paid out. Expiring in 3M and Expiring in 1M highlight deals maturing soon — worth watching for reinvestment or client conversations.",
-      "All amounts are shown in rupees with the ₹ symbol, using the same comma style you see on bank and demat statements.",
-      "When you upload an updated product file from the home page, these numbers refresh automatically.",
-    ],
+    body: "These four tiles summarise the portfolio at a glance: live notional, active count, expired count, and near-term expiries.\nLive Notional is total invested money across all products, shown in crores of rupees.\nActive counts products still running; Expired counts those already matured.\nExpiring in 3M and 1M highlight deals maturing soon for reinvestment planning.\nFigures refresh automatically when you upload an updated master file from Home.",
   },
   "home-filter": {
     title: "How the portfolio filter works",
-    paragraphs: [
-      "Every product has a life story: it starts, it runs for a period, and then it matures. Filter by Ongoing, Expiring in 3M, Expiring in 1M, or Expired.",
-      "Whatever you choose here updates the whole page — the summary tiles, the maturity chart, and the shortcuts below all follow the same filter.",
-      "The default view is the live book, which is what most people want for a day-to-day check.",
-      "Changing this filter only affects what you see on the home page. It does not change a product you may have picked elsewhere in the app.",
-    ],
+    body: "Every product moves from launch through maturity — filter by Ongoing, Expiring in 3M, Expiring in 1M, or Expired.\nThe filter updates the whole home page: summary tiles, maturity chart, and shortcuts below.\nDefault view is the live book for day-to-day checks.\nChanging this filter only affects Home; it does not change selections elsewhere.\nPick the bucket that matches the client conversation you are preparing.",
   },
   "home-maturity": {
     title: "Reading the maturity ladder",
-    paragraphs: [
-      "This chart groups products by how soon they mature — within three months, three to six months, six to twelve months, beyond a year, or where the date is not on file. The height of each bar is the total money in that group.",
-      "Use it to plan ahead: tall bars in the near term mean a lot of money is coming back to clients soon and may need to be reinvested. Tall bars further out mean the book stays invested longer.",
-      "Move your cursor over any bar to see the exact amount in rupees crores for that time window.",
-      "Products without a maturity date on file still appear under Unknown so their money is never left out of the picture.",
-    ],
+    body: "This chart groups products by how soon they mature and sizes each bar by invested money in crores.\nNear-term bars mean cash returns soon and may need reinvestment planning.\nFurther-out bars mean the book stays invested longer.\nHover any bar for the exact crore amount in that window.\nProducts without a maturity date appear under Unknown so nothing is dropped.",
   },
   "home-modules": {
     title: "What the desk modules do",
-    paragraphs: [
-      "These buttons take you straight to the main areas of the app. Valuation shows what a product is worth today. Payoff shows what it could pay at maturity under different market levels.",
-      "Portfolio is a searchable list of every product. Intel · Logic Atlas explains how calculations work behind the scenes for anyone who wants the detail.",
-      "Each area uses the same data and rules as the desk’s standard spreadsheets, but in a faster, interactive layout.",
-      "Pick the module that matches your question — today’s value, future payoff, full list, or technical logic.",
-    ],
+    body: "These shortcuts open the main desk areas: Valuation, Payoff, Portfolio, and Intel · Logic Atlas.\nValuation shows today’s mark; Payoff shows maturity outcomes across market levels.\nPortfolio is the searchable product register; Logic Atlas documents calculation paths.\nEach area uses the same rules as the desk spreadsheets in a faster layout.\nOpen the module that matches your question — value, payoff, list, or technical detail.",
   },
 
-  // ---------------------------------------------------------------- Valuation
   "val-filter": {
     title: "What this valuation page covers",
-    paragraphs: [
-      "Valuation answers one question: if the client exited this product today, what would it be worth? This page is the interactive version of the desk’s valuation workbook.",
-      "Use the filter at the top to focus on live products, expired ones, or the full list. The tabs below split the valuation form from the product register.",
-      "Only Primary structured products appear here — the same universe as the master product file.",
-      "Uploading a new master file from Home refreshes the product list here automatically.",
-    ],
+    body: "Valuation answers: if the client exited today, what is the product worth?\nThis page mirrors the desk valuation workbook for Primary structured products.\nUse the top filter for live, expired, or full lists; tabs split the form from the register.\nOnly Primary products from the master file appear here.\nUploading a new master from Home refreshes the list automatically.",
   },
   "val-inputs": {
     title: "How to fill in the inputs",
-    paragraphs: [
-      "Identify the product once — by ISIN, product code, or name from the dropdown. Highlighted fields are the ones you enter; the rest are calculated for you.",
-      "Enter the valuation date, the Nifty and Sensex levels on that date, and how many debentures the client holds. The app applies the product’s own payoff rules to arrive at today’s value.",
-      "Nifty and Sensex are kept separate so a Nifty-linked product uses the Nifty level, and a Sensex-linked product uses Sensex — they do not overwrite each other.",
-      "Debenture count reflects the client’s holding size. Product Value and Total Amount scale with that count, just as on the desk spreadsheet.",
-    ],
+    body: "Identify the product once by ISIN, product code, or name — highlighted fields are yours to enter.\nSet valuation date, Nifty and Sensex levels on that date, and debenture count.\nNifty-linked products use the Nifty level; Sensex-linked products use Sensex — they stay separate.\nDebenture count scales Product Value and Total Amount like the desk Working sheet.\nThe app applies each product’s payoff formula to produce today’s mark.",
   },
   "val-output": {
     title: "Reading the output sheet",
-    paragraphs: [
-      "This panel summarises the product and the valuation result. Product Value and Total Amount are in crores. Abs. Return is the total gain or loss so far as a percentage. Product IRR expresses that return as an annual rate.",
-      "Z Performance shows how far the linked index has moved from the product’s entry level — the starting point for the payoff calculation. Entry and target levels are shown alongside for context.",
-      "Amounts use the ₹ symbol and Indian comma grouping so they are ready to share in client communications.",
-      "The index level on the valuation date is shown next to the result so you can see which market input drove the number.",
-    ],
+    body: "Product Value and Total Amount scale with debenture count; Abs. Return vs Deal Price is X/U − 1 on deal price.\nProduct IRR is annualised from allotment (trade date) to the valuation date — never before trade.\nZ Performance uses the Working!O path (2nd-last obs fixing vs entry), not raw M/K.\nAmounts use ₹ and Indian comma grouping for client-ready sharing.\nThe valuation-date index level is shown beside the result for audit.",
   },
   "val-products": {
     title: "About the product list",
-    paragraphs: [
-      "This is the full register of products — name, series, ISIN, issuer, underlying index, invested amount, and maturity. Use the search box to find a name or code quickly.",
-      "Click any row to select that product. Your choice carries through to the valuation form so you do not need to search again.",
-      "Invested amounts are shown in rupees crores with commas for easy reading.",
-      "You can search by name, ISIN, series, issuer, or underlying — the same keys the desk uses in the spreadsheet lookup cells.",
-    ],
+    body: "Full register: name, series, ISIN, issuer, underlying, invested amount, and maturity.\nSearch by name, ISIN, series, issuer, or underlying — same keys as the desk lookup cells.\nClick a row to select that product for the valuation form.\nInvested amounts display in rupees crores with comma grouping.\nYour selection carries through so you do not search twice.",
   },
   "val-workings": {
     title: "What the workings table shows",
-    paragraphs: [
-      "This is the detailed step-by-step view. For each product it shows entry level, current level, Z performance, absolute return, annualised IRR, and the final rupee valuation.",
-      "It matches the hidden working grid in the valuation workbook so analysts can see exactly how each headline figure was built.",
-      "The detailed grid is kept in the system for audit even when it is not shown on the main screen.",
-      "Figures update whenever you change the valuation date or market levels.",
-    ],
+    body: "Step-by-step view: entry level, current level, Z, absolute return, IRR, and final rupee value.\nMatches the hidden Working grid in the valuation workbook for analyst audit.\nFigures update whenever valuation date or market levels change.\nUse it to reconcile headline output to intermediate calculation steps.\nThe detailed grid stays available even when not shown on the main screen.",
   },
 
-  // ---------------------------------------------------------------- Payoff
   "pay-filter": {
     title: "What this payoff page covers",
-    paragraphs: [
-      "Payoff answers a forward-looking question: what will this product pay at maturity if the market finishes at a given level? This page mirrors the desk’s primary payoff dashboard.",
-      "The filter at the top chooses which products you are working with. The tabs separate the main deal screen from product search.",
-      "By default you work with live products unless you widen the filter to include expired ones.",
-      "If you select a product on the home page, that choice can carry through when you open Payoff next.",
-    ],
+    body: "Payoff answers: what will this product pay at maturity under different market levels?\nThis page mirrors the desk primary payoff dashboard.\nThe top filter chooses live, expired, or wider universes; tabs split deal screen from search.\nDefault is live products unless you widen the filter.\nA product picked on Home can carry through when you open Payoff next.",
   },
   "pay-inputs": {
     title: "How to enter the deal",
-    paragraphs: [
-      "Choose the product, then fill in the highlighted fields: current index level, purchase date, number of debentures, and price per debenture — the same inputs as on the desk payoff sheet.",
-      "For most products the current level is the closing index on the trade date. Once entered, the app builds a full range of possible outcomes at maturity.",
-      "Price per debenture and count together define how much the client invested. Each scenario row shows what that investment could return under different market levels.",
-      "Change the current level if you want to stress a different starting point — the chart and table update immediately.",
-    ],
+    body: "Choose the product, then fill highlighted fields: current index, purchase date, debentures, and price per debenture.\nFor most deals the current level is the closing index on the trade date.\nPrice and count define client investment; each scenario row shows possible returns.\nChange the current level to stress a different starting point — chart and table update immediately.\nInputs match the desk payoff sheet layout and defaults from the master file.",
   },
   "pay-output": {
     title: "Reading the payoff output",
-    paragraphs: [
-      "The table and chart show returns across many possible market levels at maturity — from a sharp fall to a strong rise. Each row lists the final index level, performance versus entry, maturity value, return on investment, and IRR.",
-      "The chart tells the same story visually: how payoff rises, flattens at a cap, or is protected on the downside — often the clearest way to explain a structured product to a client.",
-      "The table columns match the desk payoff grid: Final Fixing, Performance, Maturity value, Returns, and XIRR.",
-      "Use the table for exact numbers and the chart for the overall shape of the payoff.",
-    ],
+    body: "Table and chart show returns across many possible maturity index levels — fall through rise.\nEach row lists final fixing, performance vs entry, maturity value, return, and IRR.\nThe chart shows caps, floors, and kinks — often the clearest client explanation.\nColumns match the desk payoff grid: Final Fixing, Performance, Maturity value, Returns, XIRR.\nUse the table for exact numbers and the chart for payoff shape.",
   },
   "pay-search": {
     title: "About product search",
-    paragraphs: [
-      "This tab helps you find one product quickly. Type a name, ISIN, series, or underlying and matching results appear in the dropdown and table.",
-      "Selecting a product loads it into the main payoff screen so you can move straight from search to analysis.",
-      "Results follow the same live or expired filter you set at the top of the page.",
-      "After selecting, check the ISIN in the specifications panel when two product names look similar.",
-    ],
+    body: "Find one product quickly by name, ISIN, series, or underlying.\nSelecting a result loads it into the main payoff screen for immediate analysis.\nResults respect the live or expired filter set at the top of the page.\nCheck the ISIN in the specifications panel when two names look similar.\nSearch is the fastest path from lookup to payoff table.",
   },
 
-  // ---------------------------------------------------------------- Analytics
   "an-lifecycle": {
     title: "Lifecycle universe",
-    paragraphs: [
-      "This chart splits the book by status — ongoing, maturing soon, expired, and so on — and sizes each slice by the money in it, in crores. It is the big-picture view of where the portfolio stands.",
-      "A large ongoing slice means most money is still invested. A large expired slice means much of the historical book has already paid out.",
-      "The legend shows both the number of products and the rupee amount in each slice.",
-      "Maturing within three months and one month are shown separately so near-term expiries are easy to spot.",
-    ],
+    body: "Chart splits the book by status — ongoing, maturing soon, expired — sized by money in crores.\nLarge ongoing slice means most capital is still invested.\nLarge expired slice means much of the historical book has already paid out.\nLegend shows both product count and rupee amount per slice.\nNear-term expiry bands are separate so reinvestment timing is visible.",
   },
   "an-coupon": {
     title: "Coupon distribution",
-    paragraphs: [
-      "Many structured products offer a headline return rate — the coupon. This chart groups products by coupon band and shows how much money sits in each band, in crores.",
-      "It reveals whether the book is tilted toward lower, steadier returns or higher, more ambitious payoffs.",
-      "Products with no stated coupon are grouped separately so they do not distort the picture.",
-      "Bar heights reflect invested amount, not just the count of products — so a few large tickets show up at their true economic weight.",
-    ],
+    body: "Groups products by headline coupon band and shows invested money in each band, in crores.\nReveals whether the book tilts to lower steady returns or higher ambitious payoffs.\nProducts without a stated coupon sit in a separate bucket.\nBar height reflects invested amount, not just product count.\nUse alongside protection mix for a fuller risk picture.",
   },
   "an-protection": {
     title: "Principal protection mix",
-    paragraphs: [
-      "Some products guarantee the client’s original capital back; others put capital at risk in exchange for higher potential returns. This chart shows how invested money divides between the two, in crores.",
-      "It is a quick read on the overall risk character of the book — more protected money means a more conservative portfolio.",
-      "Labels follow the exact wording from the product file so principal protected and non-protected deals are not mixed up.",
-      "Any unclassified slice means the protection field was blank in the source data.",
-    ],
+    body: "Shows how invested money divides between principal-protected and capital-at-risk deals, in crores.\nQuick read on portfolio risk character — more protected money means a conservative book.\nLabels follow exact wording from the product file to avoid misclassification.\nUnclassified slice means the protection field was blank in source data.\nPair with coupon and tenor charts for balanced interpretation.",
   },
   "an-underlying": {
     title: "Underlying exposure",
-    paragraphs: [
-      "Every structured product is linked to an underlying — usually an index like Nifty or Sensex, or a single stock. This chart ranks underlyings by how much money is linked to each, in crores.",
-      "It highlights concentration: if most of the book depends on one index, portfolio outcomes will move closely with that market.",
-      "The layout keeps long index names readable on screen.",
-      "The top ten underlyings by invested amount are shown so the chart stays clear and useful.",
-    ],
+    body: "Ranks underlyings — Nifty, Sensex, single names — by linked invested money in crores.\nHighlights concentration: one dominant index ties portfolio outcomes to that market.\nTop ten underlyings by amount keep the chart readable.\nLong index names stay legible on screen.\nUse to spot single-index dependency before client reviews.",
   },
   "an-tenor": {
     title: "Tenor profile",
-    paragraphs: [
-      "Tenor is how long a product runs before maturity. This chart groups the book by length — under a year, one to two years, and so on — and shows the money in each group, in crores.",
-      "A book weighted to short tenors returns cash to clients sooner. A book weighted to long tenors keeps money invested longer and is less sensitive to short-term market moves.",
-      "Products without tenor information still count toward the Unknown group rather than disappearing from the chart.",
-      "Read this alongside the maturity ladder on the home page for a full picture of timing and reinvestment.",
-    ],
+    body: "Groups the book by tenor — under a year, one to two years, and so on — by money in crores.\nShort-tenor weight returns cash sooner; long-tenor weight keeps money invested longer.\nUnknown tenor still counts rather than disappearing from the chart.\nRead alongside the home maturity ladder for timing and reinvestment context.\nTenor mix affects sensitivity to short-term market moves.",
   },
   "an-radar": {
     title: "Category risk radar",
-    paragraphs: [
-      "These gauges summarise the book along several dimensions at once — size, average coupon, how much is listed, and issuer quality. They give a balanced scorecard rather than a single headline number.",
-      "Read them together: high coupon with lower protection suggests a more ambitious profile; the opposite suggests a more conservative one.",
-      "The risk score weighs issuer credibility, capital protection, tenor, and market linkage — structured products are designed with partial protection, so scores reflect that context.",
-      "Figures beneath each gauge — credible issuer share, listed share, and average tenor — help explain the needle position in plain terms.",
-    ],
+    body: "Gauges summarise size, average coupon, listed share, and issuer quality in one scorecard.\nHigh coupon with lower protection suggests a more ambitious profile; the reverse is conservative.\nRisk score weighs issuer credibility, protection, tenor, and market linkage.\nFigures beneath each gauge explain the needle in plain terms.\nRead gauges together — no single needle tells the whole story.",
   },
 
-  // ---------------------------------------------------------------- Intel / Logic Atlas
   "intel-overview": {
     title: "What Logic Atlas shows",
-    paragraphs: [
-      "Logic Atlas is the technical map of how this dashboard works — from master file ingest through valuation, payoff, and portfolio analytics. It is written for analysts and engineers who want the pipeline view without opening spreadsheets.",
-      "Each module card represents a major desk surface. Select one to walk its pipeline nodes left to right. Click any node to read what it does in plain language.",
-      "Live KPI tiles at the top reflect the current valid Primary book loaded in the app — the same filtered registry used on Home and Analytics Lab.",
-      "Nothing here changes product data. It documents and validates the logic paths the rest of the app relies on.",
-    ],
+    body: "Technical map from master ingest through valuation, payoff, and analytics — for analysts and engineers.\nEach module card is a major desk surface; select one to walk pipeline nodes left to right.\nLive KPI tiles reflect the current valid Primary book loaded in the app.\nClick any node for a plain-language explanation of that stage.\nNothing here changes product data — it documents and validates logic paths.",
   },
   "intel-pipeline": {
     title: "Reading a pipeline flow",
-    paragraphs: [
-      "Arrows show how data moves between stages — parse, enrich, filter, aggregate, and output. A green pipeline badge means every node is connected; a warning means a stage is orphaned and should be reviewed.",
-      "Some modules branch in parallel — for example the master registry feeds payoff definitions and observation calendars at the same time before joining the desk data bus.",
-      "The Analytics Laboratory module is scoped to Analytics Lab in the UI. Home uses the Desk Command Center module instead, which includes lifecycle intelligence but not ScienceLab charts.",
-      "Use the module selector rail to compare valuation, payoff, analytics, and data foundation side by side.",
-    ],
+    body: "Arrows show data moving between parse, enrich, filter, aggregate, and output stages.\nGreen badge means every node is connected; warning means an orphaned stage needs review.\nSome modules branch in parallel before rejoining the desk data bus.\nAnalytics Laboratory maps to Analytics Lab; Home uses Desk Command Center instead.\nUse the module rail to compare valuation, payoff, analytics, and data foundation side by side.",
   },
   "intel-primitives": {
     title: "Computation primitives",
-    paragraphs: [
-      "Primitives are the abstract building blocks repeated across thousands of product rows — lookups, conditionals, IRR solvers, Z substitution, and roll-ups. Counts are indicative of registry complexity, not live runtime calls.",
-      "No raw Excel formula text appears here. The app resolves formulas internally when you run valuation or payoff.",
-      "Conditional branching routes logic by protection flag, listing status, and tenor state — the same rules that drive lifecycle classification.",
-      "Aggregation roll-ups power every chart on Analytics Lab and every KPI tile on Home.",
-    ],
+    body: "Building blocks repeated across product rows: lookups, conditionals, IRR solvers, Z substitution, roll-ups.\nCounts indicate registry complexity, not live runtime call volume.\nNo raw Excel formula text appears — the app resolves formulas when you run valuation or payoff.\nConditional branching routes by protection, listing, and tenor — same as lifecycle rules.\nAggregation roll-ups power Analytics Lab charts and Home KPI tiles.",
   },
 };

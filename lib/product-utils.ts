@@ -1,4 +1,5 @@
 import type { ProductCategory, ProductRecord } from "@/lib/types";
+import { parseExcelishDate } from "@/lib/workbook/dates";
 import { formatCouponDisplay, formatFormulaReturn } from "@/lib/utils";
 
 export function rawField(product: ProductRecord | undefined, ...keys: string[]) {
@@ -22,11 +23,20 @@ export function parseNumericField(value?: string | number | null) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+export function getProductTradeDate(product: ProductRecord): Date | undefined {
+  const raw = rawField(product, "Trade Date/Opening date", "Trade Date", "Allotment Date");
+  return raw ? parseExcelishDate(raw) : undefined;
+}
+
 export function getIndexEntryLevel(product: ProductRecord) {
+  return getIndexEntryLevelRaw(product) ?? 10000;
+}
+
+/** Entry level from master only — undefined when blank / NaN (no default). */
+export function getIndexEntryLevelRaw(product: ProductRecord): number | undefined {
   return (
     parseNumericField(rawField(product, "Actual Entry Level", "Entry Level", "Initial Level", "Initial Fixing Level")) ??
-    parseNumericField(rawField(product, "Target Nifty", "Target Level")) ??
-    10000
+    parseNumericField(rawField(product, "Target Nifty", "Target Level"))
   );
 }
 
@@ -223,4 +233,14 @@ export function inferDebentureCount(product: ProductRecord): number {
   }
 
   return 100;
+}
+
+/** Upper bound for debenture input — notional ÷ price; generous cap when notional unknown. */
+export function getMaxDebentures(product: ProductRecord): number {
+  const price = getDebenturePrice(product);
+  const tradeAmount = product.tradeAmount;
+  if (tradeAmount != null && Number.isFinite(tradeAmount) && tradeAmount > 0 && price > 0) {
+    return Math.max(1, Math.floor(tradeAmount / price));
+  }
+  return 1_000_000;
 }

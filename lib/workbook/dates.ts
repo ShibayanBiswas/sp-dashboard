@@ -57,6 +57,20 @@ export function parseExcelishDate(value?: string | number | null) {
   return isValid(native) ? native : undefined;
 }
 
+export function toLocalDateKey(date: Date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Excel serial date (1900 date system) for Working-sheet VLOOKUP keys. */
+export function toExcelSerial(date: Date) {
+  const base = Date.UTC(1899, 11, 30);
+  const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.round((utc - base) / 86400000);
+}
+
 export function formatExcelishDate(value?: string | number | null) {
   const parsed = parseExcelishDate(value);
   if (!parsed) {

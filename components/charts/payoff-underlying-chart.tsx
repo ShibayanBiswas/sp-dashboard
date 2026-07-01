@@ -6,6 +6,7 @@ import {
   Area,
   ComposedChart,
   Line,
+  ReferenceDot,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -17,6 +18,7 @@ import { ChartPanel, InputGlow, OutputGlow } from "@/components/layout/app-ui";
 import { PremiumGrid } from "@/components/charts/chart-kit";
 import { chartTheme } from "@/lib/chart-theme";
 import { buildPayoffCurve, evaluatePayoffFormula } from "@/lib/workbook/formula-engine";
+import { findPayoffPlotKinks } from "@/lib/workbook/payoff-kinks";
 import { formatFormulaReturn, formatNumber } from "@/lib/utils";
 
 type TooltipRow = {
@@ -95,6 +97,8 @@ export function PayoffUnderlyingChart({
       })),
     [curve, entryLevel],
   );
+
+  const kinkPoints = useMemo(() => findPayoffPlotKinks(formula), [formula]);
 
   const payoffAtZ = evaluatePayoffFormula(formula, zInput);
   const underlyingAtZ = entryLevel * (1 + zInput);
@@ -213,6 +217,18 @@ export function PayoffUnderlyingChart({
               isAnimationActive={false}
             />
             <ReferenceLine stroke="rgba(212,178,76,0.55)" strokeDasharray="4 4" x={zInput} yAxisId="payoff" />
+            {kinkPoints.map((z) => (
+              <ReferenceDot
+                key={z}
+                fill="#b45309"
+                r={6}
+                stroke="#fff"
+                strokeWidth={2}
+                x={z}
+                y={evaluatePayoffFormula(formula, z)}
+                yAxisId="payoff"
+              />
+            ))}
             <Area
               activeDot={{ fill: chartTheme.payoff, r: 6, stroke: "#fff", strokeWidth: 2 }}
               animationDuration={1000}
@@ -252,6 +268,10 @@ export function PayoffUnderlyingChart({
           <span className="inline-flex items-center gap-2">
             <span className="h-2 w-6 rounded-full bg-maroon shadow-[0_0_8px_rgba(122,30,44,0.5)]" />
             Index level (right axis)
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-700 ring-2 ring-white" />
+            Plot kinks — slope turns
           </span>
           <span className="font-serif italic text-stone-700">
             Initial fixing: <strong className="not-italic text-ink">{formatNumber(entryLevel)}</strong>

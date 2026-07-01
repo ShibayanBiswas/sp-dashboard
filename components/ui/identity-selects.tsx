@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { Select } from "@/components/layout/app-ui";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { ProductRecord } from "@/lib/types";
 
 function uniqueSorted(values: Array<string | undefined>) {
@@ -18,25 +18,19 @@ export function IsinSelect({
   value: string;
   onChange: (isin: string, product?: ProductRecord) => void;
 }) {
-  const options = useMemo(() => uniqueSorted(products.map((p) => p.isin)), [products]);
   const byIsin = useMemo(() => new Map(products.filter((p) => p.isin).map((p) => [p.isin!, p])), [products]);
+  const options = useMemo(
+    () => uniqueSorted(products.map((p) => p.isin)).map((isin) => ({ value: isin, label: isin })),
+    [products],
+  );
 
   return (
-    <Select
-      className="select-dark"
+    <SearchableSelect
+      options={options}
+      placeholder="Search ISIN…"
       value={value || ""}
-      onChange={(e) => {
-        const isin = e.target.value;
-        onChange(isin, byIsin.get(isin));
-      }}
-    >
-      <option value="">Select ISIN…</option>
-      {options.map((isin) => (
-        <option key={isin} value={isin}>
-          {isin}
-        </option>
-      ))}
-    </Select>
+      onChange={(isin) => onChange(isin, byIsin.get(isin))}
+    />
   );
 }
 
@@ -49,10 +43,6 @@ export function ProductCodeSelect({
   value: string;
   onChange: (code: string, product?: ProductRecord) => void;
 }) {
-  const options = useMemo(
-    () => uniqueSorted(products.map((p) => p.series ?? String(p.raw["Product Code"] ?? ""))),
-    [products],
-  );
   const byCode = useMemo(() => {
     const map = new Map<string, ProductRecord>();
     for (const p of products) {
@@ -62,21 +52,21 @@ export function ProductCodeSelect({
     return map;
   }, [products]);
 
+  const options = useMemo(
+    () =>
+      uniqueSorted(products.map((p) => p.series ?? String(p.raw["Product Code"] ?? ""))).map((code) => ({
+        value: code,
+        label: code,
+      })),
+    [products],
+  );
+
   return (
-    <Select
-      className="select-dark"
+    <SearchableSelect
+      options={options}
+      placeholder="Search product code…"
       value={value || ""}
-      onChange={(e) => {
-        const code = e.target.value;
-        onChange(code, byCode.get(code));
-      }}
-    >
-      <option value="">Select product code…</option>
-      {options.map((code) => (
-        <option key={code} value={code}>
-          {code}
-        </option>
-      ))}
-    </Select>
+      onChange={(code) => onChange(code, byCode.get(code))}
+    />
   );
 }
